@@ -1,6 +1,6 @@
 package com.example.edubjtu.controller;
 
-import com.example.edubjtu.model.User;
+import com.example.edubjtu.entity.User;
 import com.example.edubjtu.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;

@@ -1,4 +1,4 @@
-package com.example.edubjtu.model;
+package com.example.edubjtu.entity;
 
 import jakarta.persistence.*;
 import jakarta.persistence.Id;
@@ -8,6 +8,7 @@ public class User {
    @Id
    private long id;
    private String username;
+   private String userNum;
    private String password;
 
    //get
