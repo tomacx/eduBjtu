@@ -1,15 +1,23 @@
 package com.example.edubjtu.entity;
 
+import lombok.*;
+import com.baomidou.mybatisplus.annotation.TableName;
 import java.io.Serializable;
 
 /**
  * (Student)实体类
  *
  * @author ysx
- * @since 2024-10-17 12:16:45
+ * @since 2024-10-17 20:02:15
  */
+@Getter
+@Setter
+@Data
+@TableName("student")
+@NoArgsConstructor
+@AllArgsConstructor
 public class Student implements Serializable {
-    private static final long serialVersionUID = -41795005194235299L;
+    private static final long serialVersionUID = 530853714875704663L;
 /**
      * 主键
      */
