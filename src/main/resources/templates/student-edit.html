@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>编辑学生信息</title>
+</head>
+<body>
+    <h2>编辑个人信息</h2>
+    
+    <!-- 添加调试信息 -->
+    <p th:text="'Debug: Session contains student: ' + ${session.containsKey('loggedInStudent')}"></p>
+    
+    <div th:if="${session.loggedInStudent != null}">
+        <form th:action="@{/student/update}" method="post">
+            <input type="hidden" name="studentNum" th:value="${session.loggedInStudent.studentNum}">
+            <div>
+                <label>姓名:</label>
+                <span th:text="${session.loggedInStudent.name}"></span>
+            </div>
+            <div>
+                <label>学号:</label>
+                <span th:text="${session.loggedInStudent.studentNum}"></span>
+            </div>
+            <div>
+                <label for="password">新密码:</label>
+                <input type="password" id="password" name="password" required>
+            </div>
+            <button type="submit">更新密码</button>
+        </form>
+    </div>
+    <div th:if="${session.loggedInStudent == null}">
+        <p>未找到学生信息，请重新登录</p>
+        <a th:href="@{/login}">返回登录页面</a>
+    </div>
+</body>
+</html>

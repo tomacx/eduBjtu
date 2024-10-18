@@ -58,18 +58,24 @@
     </style>
 </head>
 <body>
-    <div class="login-container">
-        <h1>登录</h1>
-        <form action="#" th:action="@{/login}" method="post" th:object="${user}">
-            <label for="username">用户名:</label>
-            <input type="text" id="username" th:field="*{username}" required>
-
-            <label for="password">密码:</label>
-            <input type="password" id="password" th:field="*{password}" required>
-
-            <button type="submit">登录</button>
-            <div th:if="${error}" th:text="${error}" class="error"></div>
-        </form>
+    <h2>学生登录</h2>
+    <div th:if="${param.error}">
+        <p style="color: red;">
+            <span th:if="${param.error[0] == 'missing_fields'}">请填写所有必填字段</span>
+            <span th:if="${param.error[0] == 'invalid_credentials'}">学号或密码错误</span>
+            <span th:if="${param.error[0] == 'error'}">登录失败，请重试</span>
+        </p>
     </div>
+    <form th:action="@{/login}" method="post">
+        <div>
+            <label for="studentNum">学号:</label>
+            <input type="text" id="studentNum" name="studentNum" required>
+        </div>
+        <div>
+            <label for="password">密码:</label>
+            <input type="password" id="password" name="password" required>
+        </div>
+        <button type="submit">登录</button>
+    </form>
 </body>
 </html>

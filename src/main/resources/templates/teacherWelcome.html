@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>教师平台 - 欢迎</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+        header {
+            background-color: #3498db;
+            color: white;
+            padding: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        h1, h2 {
+            margin: 0;
+        }
+        .logout {
+            color: white;
+            text-decoration: none;
+        }
+        main {
+            max-width: 800px;
+            margin: 2rem auto;
+            padding: 1rem;
+            background-color: white;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            border-radius: 5px;
+        }
+        .course-list {
+            list-style-type: none;
+            padding: 0;
+        }
+        .course-item {
+            border: 1px solid #ddd;
+            margin-bottom: 1rem;
+            padding: 1rem;
+            border-radius: 5px;
+        }
+        .course-title {
+            font-size: 1.2rem;
+            color: #3498db;
+            margin-bottom: 0.5rem;
+        }
+        .course-description {
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>教师平台</h1>
+        <a href="/login" class="logout">退出登录</a>
+    </header>
+    <main>
+        <h2>欢迎，教师</h2>
+        <section>
+            <h3>我的课程</h3>
+            <ul class="course-list">
+                <li class="course-item">
+                    <div class="course-title">Java编程基础</div>
+                    <div class="course-description">本周主题：面向对象编程</div>
+                </li>
+                <li class="course-item">
+                    <div class="course-title">数据结构与算法</div>
+                    <div class="course-description">本周主题：二叉树</div>
+                </li>
+                <li class="course-item">
+                    <div class="course-title">Web开发入门</div>
+                    <div class="course-description">本周主题：JavaScript基础</div>
+                </li>
+            </ul>
+        </section>
+        <section>
+            <h3>待办事项</h3>
+            <ul>
+                <li>批改Java编程基础作业（截止日期：2023-05-20）</li>
+                <li>准备下周数据结构与算法课程材料</li>
+                <li>回复学生在讨论区的问题</li>
+            </ul>
+        </section>
+    </main>
+</body>
+</html>
