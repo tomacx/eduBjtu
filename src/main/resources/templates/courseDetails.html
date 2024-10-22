@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>课程详情</title>
+  <style>
+    /* 添加样式以匹配图片中的设计 */
+  </style>
+</head>
+<body>
+<header>
+  <h1 th:text="${course.coursename}"></h1>
+  <p th:text="'课程号: ' + ${course.courseId}"></p>
+</header>
+<div>
+  <h2>课程信息</h2>
+  <p th:text="'简介: ' + ${course.intro}"></p>
+  <p th:text="'大纲: ' + ${course.outline}"></p>
+  <p th:text="'日历: ' + ${course.calendar}"></p>
+  <p th:text="'教师信息: ' + ${course.teacherInfo}"></p>
+  <p th:text="'资源: ' + ${course.resource}"></p>
+</div>
+</body>
+</html>

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>教师平台 - 欢迎</title>
+    <title>学生仪表板</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -12,7 +12,7 @@
             background-color: #f4f4f4;
         }
         header {
-            background-color: #3498db;
+            background-color: #2ecc71;
             color: white;
             padding: 1rem;
             display: flex;
@@ -26,66 +26,82 @@
             color: white;
             text-decoration: none;
         }
-        main {
-            max-width: 800px;
+        .container {
+            display: flex;
+            max-width: 1200px;
             margin: 2rem auto;
             padding: 1rem;
             background-color: white;
             box-shadow: 0 0 10px rgba(0,0,0,0.1);
             border-radius: 5px;
         }
+        .sidebar {
+            width: 25%;
+            padding: 1rem;
+            border-right: 1px solid #ddd;
+        }
+        .content {
+            width: 75%;
+            padding: 1rem;
+        }
         .course-list {
-            list-style-type: none;
-            padding: 0;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
         }
         .course-item {
+            width: calc(33.333% - 1rem);
             border: 1px solid #ddd;
-            margin-bottom: 1rem;
             padding: 1rem;
             border-radius: 5px;
+            background-color: #f9f9f9;
         }
         .course-title {
-            font-size: 1.2rem;
-            color: #3498db;
+            font-size: 1rem;
+            color: #2ecc71;
             margin-bottom: 0.5rem;
         }
-        .course-description {
-            color: #666;
+        .edit-button {
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: #3498db;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            margin-top: 20px;
+        }
+        .edit-button:hover {
+            background-color: #2980b9;
         }
     </style>
 </head>
 <body>
-    <header>
-        <h1>教师平台</h1>
-        <a href="/login" class="logout">退出登录</a>
-    </header>
-    <main>
-        <h2>欢迎，教师</h2>
-        <section>
-            <h3>我的课程</h3>
-            <ul class="course-list">
-                <li class="course-item">
-                    <div class="course-title">Java编程基础</div>
-                    <div class="course-description">本周主题：面向对象编程</div>
-                </li>
-                <li class="course-item">
-                    <div class="course-title">数据结构与算法</div>
-                    <div class="course-description">本周主题：二叉树</div>
-                </li>
-                <li class="course-item">
-                    <div class="course-title">Web开发入门</div>
-                    <div class="course-description">本周主题：JavaScript基础</div>
-                </li>
-            </ul>
-        </section>
-        <section>
-            <h3>待办事项</h3>
-            <ul>
-                <li>批改Java编程基础作业（截止日期：2023-05-20）</li>
-                <li>准备下周数据结构与算法课程材料</li>
-                <li>回复学生在讨论区的问题</li>
-            </ul>
-        </section>
-    </main>
+<header>
+    <h1>学生仪表板</h1>
+    <a href="/login" class="logout">退出登录</a>
+</header>
+<div class="container">
+    <div class="sidebar">
+        <div th:if="${teacher != null}">
+            <h2 th:text="'欢迎, ' + ${teacher.name} + '!'"></h2>
+            <p th:text="'工号: ' + ${teacher.teacherNum}"></p>
+            <a th:href="@{/teacher/edit}" class="edit-button">编辑个人信息</a>
+        </div>
+        <div th:if="${edit == null}">
+            <p th:text="${error}"></p>
+            <a href="/login">返回登录</a>
+        </div>
+        <!-- 个人信息和通知提醒 -->
+    </div>
+    <div class="content">
+        <div class="course-list">
+            <div th:each="course : ${courses}" class="course-item">
+                <div class="course-title" th:text="${course.coursename}"></div>
+                <p th:text="'课程号: ' + ${course.courseId}"></p>
+                <a th:href="@{/course/{id}(id=${course.courseId})}">查看详情</a>
+            </div>
+        </div>
+    </div>
+</div>
 </body>
 </html>

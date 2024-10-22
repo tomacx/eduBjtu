@@ -2,6 +2,7 @@ package com.example.edubjtu.controller;
 
 import com.example.edubjtu.dto.LoginDTO;
 import com.example.edubjtu.model.Student;
+import com.example.edubjtu.model.Teacher;
 import com.example.edubjtu.service.StudentService;
 import com.example.edubjtu.service.TeacherService;
 import jakarta.servlet.http.HttpSession;
@@ -27,38 +28,34 @@ public class LoginController {
     @GetMapping("/login")
     public String showLoginForm(Model model) {
         model.addAttribute("loginDTO", new LoginDTO());
-        return "login";
+        return "login"; // 显示登录页面
     }
 
     @PostMapping("/login")
-    public String login(@RequestParam String studentNum, 
-                        @RequestParam String password, 
+    public String login(@RequestParam String userNum,
+                        @RequestParam String password,
                         HttpSession session) {
-        Student student = studentService.findStudentByStudentNum(studentNum);
+        Student student = studentService.findStudentByStudentNum(userNum);
         if (student != null && student.getPassword().equals(password)) {
             session.setAttribute("loggedInStudent", student);
             logger.info("Student logged in: {}", student.getName());
-            return "redirect:/student/dashboard";
-        } else {
-            logger.warn("Login failed for student number: {}", studentNum);
-            return "redirect:/login?error";
+            return "redirect:/student/dashboard"; // 重定向到学生仪表板
         }
-    }
 
-    @GetMapping("/student/welcome")
-    public String studentWelcome() {
+        Teacher teacher = teacherService.findTeacherByTeacherNum(userNum);
+        if (teacher != null && teacher.getPassword().equals(password)) {
+            session.setAttribute("loggedInTeacher", teacher);
+            logger.info("Teacher logged in: {}", teacher.getName());
+            return "redirect:/teacher/dashboard"; // 重定向到教师仪表板
+        }
 
-        return "studentWelcome";
-    }
-
-    @GetMapping("/teacher/welcome")
-    public String teacherWelcome() {
-        return "teacherWelcome";
+        logger.warn("Login failed for user number: {}", userNum);
+        return "redirect:/login?error"; // 登录失败时重定向
     }
 
     @GetMapping("/logout")
     public String logout(HttpSession session) {
-        session.invalidate();
-        return "redirect:/login";
+        session.invalidate(); // 注销时使会话失效
+        return "redirect:/login"; // 重定向到登录页面
     }
 }
