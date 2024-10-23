@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>我的帖子</title>
+</head>
+<body>
+    <h2>我的帖子</h2>
+    <ul>
+        <li th:each="post : ${posts}">
+            <p th:text="'内容: ' + ${post.content}"></p>
+            <p th:text="'点赞数: ' + ${post.likeNum}"></p>
+            <p th:text="'收藏数: ' + ${post.favoNum}"></p>
+        </li>
+    </ul>
+</body>
+</html>

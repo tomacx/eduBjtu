@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>笔记列表</title>
+</head>
+<body>
+    <h2>我的笔记</h2>
+    <ul>
+        <li th:each="note : ${notes}">
+            <a th:href="@{/note/{id}(id=${note.noteId})}" th:text="${note.content}"></a>
+        </li>
+    </ul>
+</body>
+</html>

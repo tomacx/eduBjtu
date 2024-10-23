@@ -1,6 +1,6 @@
 package com.example.edubjtu.controller;
 
-import com.example.edubjtu.dto.LoginDTO;
+import com.example.edubjtu.dto.LoginDto;
 import com.example.edubjtu.model.Student;
 import com.example.edubjtu.model.Teacher;
 import com.example.edubjtu.service.StudentService;
@@ -27,7 +27,7 @@ public class LoginController {
 
     @GetMapping("/login")
     public String showLoginForm(Model model) {
-        model.addAttribute("loginDTO", new LoginDTO());
+        model.addAttribute("loginDTO", new LoginDto());
         return "login"; // 显示登录页面
     }
 

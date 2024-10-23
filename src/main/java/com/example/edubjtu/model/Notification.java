@@ -8,9 +8,9 @@ import jakarta.persistence.*;
 public class Notification {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "notificationId")
+    @Column(name = "notification_id")
     private Long notificationId;
-    @Column(name = "teacherId")
+    @Column(name = "teacher_id")
 
     private Long teacherId;
     @Column(name = "content")

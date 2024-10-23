@@ -1,0 +1,11 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>笔记详情</title>
+</head>
+<body>
+    <h2>笔记详情</h2>
+    <p th:text="'内容: ' + ${note.content}"></p>
+    <a th:href="@{/note/list}">返回笔记列表</a>
+</body>
+</html>

@@ -20,6 +20,7 @@
   <p th:text="'日历: ' + ${course.calendar}"></p>
   <p th:text="'教师信息: ' + ${course.teacherInfo}"></p>
   <p th:text="'资源: ' + ${course.resource}"></p>
+  <a th:href="@{/post/course/{courseId}(courseId=${course.courseId})}">讨论区</a>
 </div>
 </body>
 </html>
