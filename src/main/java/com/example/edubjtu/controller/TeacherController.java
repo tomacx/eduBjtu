@@ -10,6 +10,10 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,11 +38,57 @@ public class TeacherController {
             model.addAttribute("teacher", teacher);
             // List<Course> courses = courseService.getCoursesByTeacher(teacher); // 获取该教师教的课程信息
             // model.addAttribute("courses", courses);
+            //TODO:把这里改成搜索只有该老师教的课程
             List<Course> courses = courseService.getAllCourses(); // 获取所有课程信息
             model.addAttribute("courses", courses);
             return "teacherWelcome"; // 返回教师欢迎页面
         } else {
             return "redirect:/login";
         }
+    }
+
+    @GetMapping("/edit")
+    public String showEditForm(HttpSession session, Model model) {
+        Teacher teacher = (Teacher) session.getAttribute("loggedInTeacher");
+        if (teacher != null) {
+            model.addAttribute("teacher", teacher);
+            return "teacherEdit";
+        } else {
+            return "redirect:/login";
+        }
+    }
+
+    @PostMapping("/update")
+    public String updateTeacher(@RequestParam("teacherId") Long teacherId,
+                                @RequestParam("password") String password) {
+        teacherService.updateTeacherPassword(teacherId, password);
+        return "redirect:/teacher/dashboard?success";
+    }
+
+//    @GetMapping("/welcome")
+//    public String showTeacherCourses(@RequestParam Long teacherId, Model model) {
+//        List<Course> courses = courseService.getCoursesByTeacherId(teacherId);
+//        model.addAttribute("courses", courses);
+//        return "teacherWelcome"; // 确保有teacherWelcome.html
+//    }
+
+    @GetMapping("/course/{courseId}")
+    public String showCourseDetail(@PathVariable Long courseId, Model model) {
+        Course course = courseService.getCourseById(courseId);
+        model.addAttribute("course", course);
+        return "courseDetail";
+    }
+
+    @PostMapping("/course/update")
+    public String updateCourse(@ModelAttribute Course course) {
+        courseService.updateCourse(course);
+        return "redirect:/teacher/welcome";
+    }
+
+    @GetMapping("/teacher/welcome")
+    public String showTeacherWelcome(@RequestParam Long teacherId, Model model) {
+        // 添加逻辑以获取教师相关信息
+        model.addAttribute("teacherId", teacherId);
+        return "teacherWelcome";
     }
 }

@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>编辑教师信息</title>
+</head>
+<body>
+    <h2>编辑信息</h2>
+    <form th:action="@{/teacher/update}" method="post">
+        <input type="hidden" th:value="${teacher.teacherId}" name="teacherId"/> <!-- 使用正确的属性名称 -->
+        <label for="password">新密码:</label>
+        <input type="password" id="password" name="password" required/>
+        <button type="submit">更新密码</button>
+    </form>
+    <a th:href="@{/teacher/dashboard}">返回</a>
+</body>
+</html>

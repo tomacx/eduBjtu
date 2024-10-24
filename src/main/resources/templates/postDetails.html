@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>帖子详情</title>
+</head>
+<body>
+    <h2>帖子详情</h2>
+    <p th:text="'帖子ID: ' + ${post.postId}"></p>
+    <p th:text="'内容: ' + ${post.content}"></p>
+    <p th:text="'点赞数: ' + ${post.likeNum}"></p>
+    <p th:text="'收藏数: ' + ${post.favoNum}"></p>
+    <a th:href="@{/favorite/list}">返回收藏列表</a>
+</body>
+</html>

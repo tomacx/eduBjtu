@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Course Detail</title>
+</head>
+<body>
+    <h1 th:text="${course.name}">Course Name</h1>
+    <form th:action="@{/teacher/course/update}" th:object="${course}" method="post">
+        <input type="hidden" th:field="*{courseId}" />
+        <label for="Intro">Intro:</label>
+        <textarea th:field="*{intro}"></textarea>
+        <label for="outline">Outline:</label>
+        <textarea th:field="*{outline}"></textarea>
+        <label for="teacherInfo">Teacher Info:</label>
+        <textarea th:field="*{teacherInfo}"></textarea>
+        <button type="submit">Update</button>
+    </form>
+    <h2>Upload Resources</h2>
+    <form action="/upload" method="post" enctype="multipart/form-data">
+        <input type="file" name="file" accept=".pdf,.ppt,.jpg,.png" />
+        <button type="submit">Upload</button>
+    </form>
+</body>
+</html>

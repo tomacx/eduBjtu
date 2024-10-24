@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>编辑课程信息</title>
+</head>
+<body>
+    <h2>编辑课程信息</h2>
+    <form th:action="@{/course/{id}/update(id=${course.courseId})}" method="post">
+        <label for="intro">简介:</label>
+        <textarea id="intro" name="intro" th:text="${course.intro}"></textarea>
+        <label for="outline">大纲:</label>
+        <textarea id="outline" name="outline" th:text="${course.outline}"></textarea>
+        <label for="teacherInfo">教师信息:</label>
+        <textarea id="teacherInfo" name="teacherInfo" th:text="${course.teacherInfo}"></textarea>
+        <button type="submit">更新信息</button>
+    </form>
+
+    <h2>上传资源</h2>
+    <form th:action="@{/course/{id}/upload(id=${course.courseId})}" method="post" enctype="multipart/form-data">
+        <input type="file" name="file" accept=".pdf,.ppt,.pptx,.jpg,.jpeg,.png"/>
+        <button type="submit">上传</button>
+    </form>
+
+    <a th:href="@{/course/{id}(id=${course.courseId})}">返回课程详情</a>
+</body>
+</html>

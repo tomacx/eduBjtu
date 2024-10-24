@@ -55,7 +55,6 @@ public class LoginController {
 
     @GetMapping("/logout")
     public String logout(HttpSession session) {
-        session.invalidate(); // 注销时使会话失效
-        return "redirect:/login"; // 重定向到登录页面
+        return "redirect:/login?logout";
     }
 }

@@ -96,9 +96,9 @@
         <div class="content">
             <div class="course-list">
                 <div th:each="course : ${courses}" class="course-item">
-                    <div class="course-title" th:text="${course.coursename}"></div>
+                    <div class="course-title" th:text="${course.name}"></div>
                     <p th:text="'课程号: ' + ${course.courseId}"></p>
-                    <a th:href="@{/course/{id}(id=${course.courseId})}">查看详情</a>
+                    <a th:href="@{/student/course/{courseId}(courseId=${course.courseId})}">查看详情</a>
                 </div>
             </div>
             <h2>Notifications</h2>
@@ -111,6 +111,7 @@
             </ul>
             <a th:href="@{/note/list}" class="note-button">查看笔记</a>
             <a th:href="@{/post/student}" class="post-button">我的帖子</a>
+            <a th:href="@{/favorite/list}" class="favorite-button">收藏</a>
         </div>
     </div>
 </body>

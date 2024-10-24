@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>收藏的帖子</title>
+</head>
+<body>
+    <h2>收藏的帖子</h2>
+    <ul>
+        <li th:each="post : ${favoritePosts}">
+            <a th:href="@{/post/{id}(id=${post.postId})}" th:text="'帖子ID: ' + ${post.postId}"></a>
+        </li>
+    </ul>
+</body>
+</html>

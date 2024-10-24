@@ -32,6 +32,13 @@ public class PostController {
         Long studentId = ((Student) session.getAttribute("loggedInStudent")).getId();
         List<Post> posts = postService.getPostsByStudentId(studentId);
         model.addAttribute("posts", posts);
-        return "studentPosts";
+        return "studentPosts"; // 确保有studentPosts.html
+    }
+
+    @GetMapping("/{id}")
+    public String viewPost(@PathVariable Long id, Model model) {
+        Post post = postService.getPostById(id);
+        model.addAttribute("post", post);
+        return "postDetails";
     }
 }

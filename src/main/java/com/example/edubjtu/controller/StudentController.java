@@ -72,4 +72,15 @@ public class StudentController {
     public String testEndpoint() {
         return "Student controller is working";
     }
+
+    @GetMapping("/course/{courseId}")
+    public String showCourseDetail(@PathVariable Long courseId, Model model) {
+        Course course = courseService.getCourseByCourseId(courseId);
+        System.out.println(course);
+        if (course == null) {
+            return "error/404"; // 确保有404页面
+        }
+        model.addAttribute("course", course);
+        return "courseDetails"; // 确保有courseDetails.html
+    }
 }
