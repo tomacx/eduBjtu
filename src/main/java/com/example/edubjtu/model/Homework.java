@@ -1,43 +1,41 @@
 package com.example.edubjtu.model;
 
 import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.io.Serializable;
+
+@Getter
+@Setter
 @Entity
 public class Homework implements Serializable {
+    @Getter
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-
-    @Column(name = "homeworkId")
+    @Column(name = "homework_Id")  // 指定主键列
     private Long homeworkId;
 
-    @Column(name = "courseId")
+    @Getter
+    @Column(name = "course_Id")
     private Long courseId;
 
-    @Column(name = "studentNum")
+    @Column(name = "student_num")
     private Long studentNum;
 
     @Column(name = "grade")
     private Integer grade;
 
-    @Column(name = "avgGrade")
+    @Column(name = "avg_grade")
     private Integer avgGrade;
 
-    @Column(name = "mutualGrade")
+    @Column(name = "mutual_grade")
     private Integer mutualGrade;
 
     @Column(name = "content")
     private String content;
 
-    @Column(name = "resourceId")
+    @Column(name = "resource_Id")
     private Long resourceId;
-
-    public Long getId() {return homeworkId;}
-
-
-
-
 
 
 }

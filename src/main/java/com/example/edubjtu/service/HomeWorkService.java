@@ -15,4 +15,9 @@ public class HomeWorkService {
     public List<Homework> getHomeworkByCourseId(Long courseId){
         return homeworkRepository.findByCourseId(courseId);
     };
+
+
+    public Homework getHomeworkByHomeworkId(Long homeworkId) {
+        return homeworkRepository.findByHomeworkId(homeworkId);
+    }
 }
