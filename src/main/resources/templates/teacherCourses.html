@@ -1,14 +1,12 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-    <title>Welcome Teacher</title>
+    <title>Teacher Courses</title>
 </head>
 <body>
-    <h1>Welcome, Teacher!</h1>
-    <h2>Your Courses</h2>
+    <h1>Your Courses</h1>
     <ul>
         <li th:each="course : ${courses}" th:text="${course.name}"></li>
     </ul>
-    <!-- 其他内容 -->
 </body>
 </html>

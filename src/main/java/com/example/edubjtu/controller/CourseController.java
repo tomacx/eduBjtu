@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.List;
 
 @Controller
 public class CourseController {
@@ -17,9 +18,10 @@ public class CourseController {
     private CourseService courseService;
 
     @GetMapping("/courses")
-    public String getCourses(Model model) {
-        model.addAttribute("courses", courseService.getAllCourses());
-        return "studentWelcome";
+    public String getCourses(Model model, @RequestParam Long teacherId) {
+        List<Course> courses = courseService.getCoursesByTeacherId(teacherId);
+        model.addAttribute("courses", courses);
+        return "teacherCourses"; // 返回显示课程的视图
     }
 
     @GetMapping("/{courseId}")
@@ -67,5 +69,12 @@ public class CourseController {
             return "redirect:/course/" + id + "/edit?error";
         }
         return "redirect:/course/" + id + "/edit?success";
+    }
+
+    @GetMapping("/welcome")
+    public String teacherWelcome(Model model, @RequestParam Long teacherId) {
+        List<Course> courses = courseService.getCoursesByTeacherId(teacherId);
+        model.addAttribute("courses", courses);
+        return "teacherWelcome"; // 返回teacherWelcome视图
     }
 }

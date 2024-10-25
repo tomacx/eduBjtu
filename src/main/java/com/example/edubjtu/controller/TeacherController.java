@@ -65,17 +65,16 @@ public class TeacherController {
         return "redirect:/teacher/dashboard?success";
     }
 
-//    @GetMapping("/welcome")
-//    public String showTeacherCourses(@RequestParam Long teacherId, Model model) {
-//        List<Course> courses = courseService.getCoursesByTeacherId(teacherId);
-//        model.addAttribute("courses", courses);
-//        return "teacherWelcome"; // 确保有teacherWelcome.html
-//    }
+    @GetMapping("/welcome")
+    public String showTeacherCourses(@RequestParam Long teacherId, Model model) {
+        List<Course> courses = courseService.getCoursesByTeacherId(teacherId);
+        model.addAttribute("courses", courses);
+        return "teacherWelcome"; // 确保有teacherWelcome.html
+    }
 
-    @GetMapping("/course/{courseId}")
+    @GetMapping("/courseDetail/{courseId}")
     public String showCourseDetail(@PathVariable Long courseId, Model model) {
-        Course course = courseService.getCourseById(courseId);
-        model.addAttribute("course", course);
+        // 处理逻辑
         return "courseDetail";
     }
 
@@ -83,12 +82,5 @@ public class TeacherController {
     public String updateCourse(@ModelAttribute Course course) {
         courseService.updateCourse(course);
         return "redirect:/teacher/welcome";
-    }
-
-    @GetMapping("/teacher/welcome")
-    public String showTeacherWelcome(@RequestParam Long teacherId, Model model) {
-        // 添加逻辑以获取教师相关信息
-        model.addAttribute("teacherId", teacherId);
-        return "teacherWelcome";
     }
 }

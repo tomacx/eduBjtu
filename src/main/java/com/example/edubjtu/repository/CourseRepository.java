@@ -5,6 +5,8 @@ import com.example.edubjtu.model.Teacher;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 import java.util.List;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 @Repository
 public interface CourseRepository extends JpaRepository<Course, Long> {
@@ -15,4 +17,7 @@ public interface CourseRepository extends JpaRepository<Course, Long> {
     List<Course> findByTeacher(Teacher teacher); // 使用findByTeacher 方法
 
     Course findByTeacherId(Long id);
+
+//    @Query("SELECT c FROM Course c JOIN CourseTeacherStudent cts ON c.id = cts.courseId WHERE cts.teacherId = :teacherId")
+    List<Course> findCoursesByTeacherId(@Param("teacherId") Long teacherId);
 }

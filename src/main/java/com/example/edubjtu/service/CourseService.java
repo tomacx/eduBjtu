@@ -56,4 +56,8 @@ public class CourseService {
     public Course getCourseByCourseId(Long courseId) {
         return courseRepository.findByCourseId(courseId);
     }
+
+    public List<Course> getCoursesByTeacherId(Long teacherId) {
+        return courseRepository.findCoursesByTeacherId(teacherId);
+    }
 }
