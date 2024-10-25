@@ -14,6 +14,7 @@
         <label for="teacherInfo">Teacher Info:</label>
         <textarea th:field="*{teacherInfo}"></textarea>
         <button type="submit">Update</button>
+        <button th:action="@{/homework}">homework</button>
     </form>
     <h2>Upload Resources</h2>
     <form action="/upload" method="post" enctype="multipart/form-data">

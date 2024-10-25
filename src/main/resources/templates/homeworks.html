@@ -1,0 +1,13 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>homeworks</title>
+</head>
+<body>
+<h1>Your Courses homework</h1>
+<ul>
+    <li th:each="homework : ${homeworkList}" th:text="${homework.Id}"></li>
+    <li th:each="homework : ${homeworkList}" th:text="${homework.grade}"></li>
+</ul>
+</body>
+</html>

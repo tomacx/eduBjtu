@@ -1,12 +1,9 @@
 package com.example.edubjtu.model;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 
 import java.io.Serializable;
-
+@Entity
 public class Homework implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -15,8 +12,8 @@ public class Homework implements Serializable {
     @Column(name = "homeworkId")
     private Long homeworkId;
 
-    @Column(name = "coureId")
-    private Long coureId;
+    @Column(name = "courseId")
+    private Long courseId;
 
     @Column(name = "studentNum")
     private Long studentNum;
@@ -30,16 +27,17 @@ public class Homework implements Serializable {
     @Column(name = "mutualGrade")
     private Integer mutualGrade;
 
+    @Column(name = "content")
+    private String content;
+
+    @Column(name = "resourceId")
+    private Long resourceId;
+
+    public Long getId() {return homeworkId;}
 
 
-    homeworkId  bigint        not null comment '主键'
-    primary key,
-    courseId    bigint        not null comment '外键, 关联到课程',
-    studentNum  varchar(50)   not null comment '学生学号，关联到学生',
-    grade       decimal(5, 2) null comment '作业评分',
-    avgGrade    decimal(5, 2) null comment '平均评分',
-    mutualGrade decimal(5, 2) null comment '互评成绩',
-    content
+
+
 
 
 }
