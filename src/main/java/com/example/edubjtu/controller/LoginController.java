@@ -1,6 +1,5 @@
 package com.example.edubjtu.controller;
 
-import com.example.edubjtu.dto.LoginDto;
 import com.example.edubjtu.model.Student;
 import com.example.edubjtu.model.Teacher;
 import com.example.edubjtu.service.StudentService;
