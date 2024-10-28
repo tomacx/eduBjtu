@@ -25,11 +25,11 @@ public class LoginController {
 
     private static final Logger logger = LoggerFactory.getLogger(LoginController.class);
 
-//    @GetMapping("/login")
-//    public String showLoginForm(Model model) {
+    @GetMapping("/login")
+    public String showLoginForm(Model model) {
 //        model.addAttribute("loginDTO", new LoginDto());
-//        return "login"; // 显示登录页面
-//    }
+        return "login"; // 显示登录页面
+    }
 
     @PostMapping("/login")
     public String login(@RequestParam String userNum,
