@@ -2,12 +2,37 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <title>Welcome Teacher</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+        h1, h2 {
+            color: #2c3e50;
+        }
+        ul {
+            list-style-type: none;
+            padding: 0;
+        }
+        li {
+            margin: 10px 0;
+        }
+        a {
+            text-decoration: none;
+            color: #3498db;
+        }
+        a:hover {
+            color: #2980b9;
+        }
+    </style>
 </head>
 <body>
     <h1>Welcome, Teacher!</h1>
     <h2>Your Courses</h2>
     <ul>
-        <li th:each="course : ${courses}" th:text="${course.name}"></li>
+        <li th:each="course : ${courses}">
+            <span th:text="${course.name}"></span>
+            <a th:href="@{/teacher/course/{courseId}(courseId=${course.courseId})}">View Details</a>
+        </li>
     </ul>
     <!-- 其他内容 -->
 </body>

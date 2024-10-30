@@ -1,25 +1,47 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-    <title>Course Detail</title>
+    <title>Course Details</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+        h1, h2 {
+            color: #2c3e50;
+        }
+        ul {
+            list-style-type: none;
+            padding: 0;
+        }
+        li {
+            margin: 10px 0;
+        }
+        a {
+            text-decoration: none;
+            color: #3498db;
+        }
+        a:hover {
+            color: #2980b9;
+        }
+        form {
+            margin-top: 20px;
+        }
+    </style>
 </head>
 <body>
     <h1 th:text="${course.name}">Course Name</h1>
-    <form th:action="@{/teacher/course/update}" th:object="${course}" method="post">
-        <input type="hidden" th:field="*{courseId}" />
-        <label for="Intro">Intro:</label>
-        <textarea th:field="*{intro}"></textarea>
-        <label for="outline">Outline:</label>
-        <textarea th:field="*{outline}"></textarea>
-        <label for="teacherInfo">Teacher Info:</label>
-        <textarea th:field="*{teacherInfo}"></textarea>
-        <button type="submit">Update</button>
-        <button th:action="@{/homework}">homework</button>
-    </form>
     <h2>Upload Resources</h2>
-    <form action="/upload" method="post" enctype="multipart/form-data">
-        <input type="file" name="file" accept=".pdf,.ppt,.jpg,.png" />
-        <button type="submit">Upload</button>
+    <form th:action="@{/teacher/course/{courseId}/upload(courseId=${course.courseId})}" method="post" enctype="multipart/form-data">
+        <input type="file" name="file" required>
+        <button type="submit">Upload Resource</button>
     </form>
+
+    <h2>Resources</h2>
+    <ul>
+        <li th:each="resource : ${resources}">
+            <span th:text="${resource.fileName}"></span>
+            <a th:href="@{/student/course/{courseId}/resource/{resourceId}/download(courseId=${course.courseId}, resourceId=${resource.id})}">Download</a>
+        </li>
+    </ul>
 </body>
 </html>

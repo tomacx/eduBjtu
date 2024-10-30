@@ -3,18 +3,29 @@ package com.example.edubjtu.controller;
 import com.example.edubjtu.model.Student;
 import com.example.edubjtu.model.Course;
 import com.example.edubjtu.model.Notification;
+import com.example.edubjtu.model.Resource;
+import com.example.edubjtu.repository.CourseRepository;
 import com.example.edubjtu.service.StudentService;
 import com.example.edubjtu.service.CourseService;
 import com.example.edubjtu.service.NotificationService;
+import com.example.edubjtu.service.ResourceService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.File;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+
+import org.springframework.core.io.FileSystemResource;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseEntity;
 
 @Controller
 @RequestMapping("/student")
@@ -29,23 +40,36 @@ public class StudentController {
     @Autowired
     private NotificationService notificationService;
 
+    @Autowired
+    private CourseRepository courseRepository;
+
+    @Autowired
+    private ResourceService resourceService;
+
     private static final Logger logger = LoggerFactory.getLogger(StudentController.class);
 
     @GetMapping("/dashboard")
-    public String showDashboard(HttpSession session, Model model) {
+    @ResponseBody // 添加此注解以返回 JSON
+    public ResponseEntity<Map<String, Object>> showDashboard(HttpSession session) {
+        Map<String, Object> modelMap = new HashMap<>();
         Student student = (Student) session.getAttribute("loggedInStudent");
+
         if (student != null) {
-            model.addAttribute("student", student);
-            List<Course> courses = courseService.getAllCourses(); // 获取所有课程信息
-            model.addAttribute("courses", courses);
+            modelMap.put("student", student);
+            List<Course> courses = courseRepository.findCoursesByStudentId(Long.valueOf(student.getId()));
+            modelMap.put("courses", courses);
+
+            // 用 Logger 记录课程信息
+            logger.info("Courses: " + courses);
 
             // 获取通知信息
             List<Notification> notifications = notificationService.getAllNotification();
-            model.addAttribute("notifications", notifications);
+            modelMap.put("notifications", notifications);
 
-            return "studentWelcome"; // 返回学生欢迎页面
+            return ResponseEntity.ok(modelMap); // 返回学生欢迎页面及数据
         } else {
-            return "redirect:/login";
+            modelMap.put("error", "未登录，请重新登录");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(modelMap); // 返回未授权状态
         }
     }
 
@@ -83,4 +107,32 @@ public class StudentController {
         model.addAttribute("course", course);
         return "courseDetails"; // 确保有courseDetails.html
     }
+
+//    @GetMapping("/courses")
+//    public String getStudentCourses(Model model, @RequestParam Long studentId){
+//        List<Course> courses = courseRepository.findCoursesByStudentId(studentId);
+//        model.addAttribute("courses",courses);
+//        return "studentCourses";
+//    }
+
+    @GetMapping("/course/{courseId}/resource/{resourceId}/download")
+    public ResponseEntity<FileSystemResource> downloadResource(@PathVariable Long courseId, @PathVariable Long resourceId) {
+        Resource resource = (Resource) resourceService.getResourcesByCourseId(courseId);
+        File file = new File(resource.getFilePath());
+        FileSystemResource fileResource = new FileSystemResource(file);
+
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + file.getName() + "\"")
+                .body(fileResource);
+    }
+
+    //TODO:增加学生端下载课程资源的功能
+
+    //TODO:增加学生端上传作业的功能
+
+    //TODO:增加学生端搜索帖子的功能的功能
+
+    //TODO:增加学生端对帖子评论、点赞、收藏的功能
+
+    //TODO:增加学生端删除自己发送的帖子的功能
 }

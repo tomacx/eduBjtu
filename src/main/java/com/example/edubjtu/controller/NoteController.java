@@ -13,6 +13,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 
 import java.util.List;
 
+
+
 @Controller
 @RequestMapping("/note")
 public class NoteController {
@@ -34,4 +36,6 @@ public class NoteController {
         model.addAttribute("note", note);
         return "noteDetails";
     }
+
+
 }
