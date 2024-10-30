@@ -1,9 +1,16 @@
 package com.example.edubjtu.model;
 
 import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.Setter;
+
 // 讨论区内的帖子
+@Setter
+@Getter
 @Entity
+@Table(name = "post")
 public class Post {
+    //getter and setter
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "post_id")
@@ -26,62 +33,5 @@ public class Post {
 
     @Column(name = "content")
     private String content;
-
-    //getter and setter
-    public Long getPostId(){
-        return postId;
-    }
-
-    public void setPostId(Long postId){
-        this.postId = postId;
-    }
-
-    public Long getCourseId(){
-        return courseId;
-    }
-
-    public void setCourseId(Long courseId){
-        this.courseId = courseId;
-    }
-
-    public Long getStudentId(){
-        return studentId;
-    }
-
-    public void setStudentId(Long studentId){
-        this.studentId = studentId;
-    }
-
-    public Long getTeacherId(){
-        return teacherId;
-    }
-
-    public void setTeacherId(Long teacherId){
-        this.teacherId = teacherId;
-    }
-
-    public Long getLikeNum(){
-        return likeNum;
-    }
-
-    public void setLikeNum(Long likeNum){
-        this.likeNum = likeNum;
-    }
-
-    public Long getFavoNum(){
-        return favoNum;
-    }
-
-    public void setFavoNum(Long favoNum){
-        this.favoNum = favoNum;
-    }
-    
-    public String getContent(){
-        return content;
-    }
-
-    public void setContent(String content){
-        this.content = content;
-    }
 
 }

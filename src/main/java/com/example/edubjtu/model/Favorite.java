@@ -1,8 +1,15 @@
 package com.example.edubjtu.model;
 
 import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.Setter;
+
+@Setter
+@Getter
 @Entity
+@Table(name = "favorite")
 public class Favorite {
+    //Getters and Setters
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "favorite_id")
@@ -14,28 +21,4 @@ public class Favorite {
     @Column(name = "post_id")
     private Long postId;
 
-    //Getters and Setters
-    public Long getFavoriteId(){
-        return favoriteId;
-    }
-
-    public void setFavoriteId(Long favoriteId){
-        this.favoriteId = favoriteId;
-    }
-
-    public Long getStudentId(){
-        return studentId;
-    }
-
-    public void setStudentId(Long studentId){
-        this.studentId = studentId;
-    }
-
-    public Long getPostId(){
-        return postId;
-    }
-
-    public void setPostId(Long postId){
-        this.postId = postId;
-    }
 }

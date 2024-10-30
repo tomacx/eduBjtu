@@ -1,9 +1,15 @@
 package com.example.edubjtu.model;
 
 import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.Setter;
+
 import java.io.Serializable;
 
+@Setter
+@Getter
 @Entity
+@Table(name = "resource")
 public class Resource implements Serializable {
     private static final long serialVersionUID = 1L;
 
@@ -20,58 +26,8 @@ public class Resource implements Serializable {
     @Column(name = "file_type")
     private String fileType;
 
-    @Column(name = "file_name")
-    private String fileName;
-
     @ManyToOne
     @JoinColumn(name = "course_id", insertable = false, updatable = false)
     private Course course;
 
-    // Getters and Setters
-    public Long getId(){
-        return id;
-    }
-
-    public void setId(Long id){
-        this.id = id;
-    }   
-
-    public Long getCourseId(){
-        return courseId;
-    }
-
-    public void setCourseId(Long courseId){
-        this.courseId = courseId;
-    }
-
-    public String getFilePath() {
-        return filePath;
-    }
-
-    public void setFilePath(String filePath) {
-        this.filePath = filePath;
-    }
-
-    public String getFileType() {
-        return fileType;
-    }
-
-    public void setFileType(String fileType) {
-        this.fileType = fileType;
-    }
-
-    public String getFileName(){
-        return fileName;
-    }
-
-    public void setFileName(String fileName){
-        this.fileName = fileName;
-    }
-    public Course getCourse() {
-        return course;
-    }
-
-    public void setCourse(Course course) {
-        this.course = course;
-    }
 }

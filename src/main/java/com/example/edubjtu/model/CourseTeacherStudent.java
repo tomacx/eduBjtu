@@ -1,7 +1,11 @@
 package com.example.edubjtu.model;
 
 import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.Setter;
 
+@Getter
+@Setter
 @Entity
 @Table(name = "course_teacher_student")
 public class CourseTeacherStudent {
@@ -28,38 +32,5 @@ public class CourseTeacherStudent {
 
     public CourseTeacherStudent() {
 
-    }
-
-    //Getters and Setters
-    public Long getId(){
-        return id;
-    }
-
-    public void setId(Long id){
-        this.id = id;
-    }
-
-    public Long getCourseId(){
-        return courseId;
-    }
-
-    public void setCourseId(Long courseId){
-        this.courseId = courseId;
-    }
-
-    public Long getTeacherId(){
-        return teacherId;
-    }
-
-    public void setTeacherId(Long teacherId){
-        this.teacherId = teacherId;
-    }
-
-    public Long getStudentId(){
-        return studentId;
-    }
-
-    public void setStudentId(Long studentId){
-        this.studentId = studentId;
     }
 }

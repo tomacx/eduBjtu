@@ -48,12 +48,9 @@ public class TeacherController {
         Teacher teacher = (Teacher) session.getAttribute("loggedInTeacher");
         if (teacher != null) {
             modelMap.put("teacher", teacher);
-            List<Course> courses = courseService.getCoursesByTeacherId(teacher.getTeacherId()); // 获取该教师教的课程信息
-            modelMap.put("courses", courses);
             //TODO:把这里改成搜索只有该老师教的课程
 //            List<Course> courses = courseService.getAllCourses(); // 获取所有课程信息
-            model.addAttribute("courses", courses);
-            return ResponseEntity.ok(modelMap); // 返回学生欢迎页面及数据
+            return ResponseEntity.ok(modelMap);
         } else {
             modelMap.put("error", "未登录，请重新登录");
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(modelMap); // 返回未授权状态

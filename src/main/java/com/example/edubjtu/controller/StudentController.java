@@ -5,6 +5,7 @@ import com.example.edubjtu.model.Course;
 import com.example.edubjtu.model.Notification;
 import com.example.edubjtu.model.Resource;
 import com.example.edubjtu.repository.CourseRepository;
+import com.example.edubjtu.repository.StudentRepository;
 import com.example.edubjtu.service.StudentService;
 import com.example.edubjtu.service.CourseService;
 import com.example.edubjtu.service.NotificationService;
@@ -47,6 +48,8 @@ public class StudentController {
     private ResourceService resourceService;
 
     private static final Logger logger = LoggerFactory.getLogger(StudentController.class);
+    @Autowired
+    private StudentRepository studentRepository;
 
     @GetMapping("/dashboard")
     @ResponseBody // 添加此注解以返回 JSON
@@ -56,12 +59,6 @@ public class StudentController {
 
         if (student != null) {
             modelMap.put("student", student);
-            List<Course> courses = courseRepository.findCoursesByStudentId(Long.valueOf(student.getId()));
-            modelMap.put("courses", courses);
-
-            // 用 Logger 记录课程信息
-            logger.info("Courses: " + courses);
-
             // 获取通知信息
             List<Notification> notifications = notificationService.getAllNotification();
             modelMap.put("notifications", notifications);
@@ -108,12 +105,17 @@ public class StudentController {
         return "courseDetails"; // 确保有courseDetails.html
     }
 
-//    @GetMapping("/courses")
-//    public String getStudentCourses(Model model, @RequestParam Long studentId){
-//        List<Course> courses = courseRepository.findCoursesByStudentId(studentId);
-//        model.addAttribute("courses",courses);
-//        return "studentCourses";
-//    }
+    @GetMapping("/courses")
+    @ResponseBody
+    public ResponseEntity<Map<String, Object>> getStudentCourses(Model model, @RequestParam String studentNum){
+        Map<String, Object> modelMap = new HashMap<>();
+        System.out.println(studentNum);
+        Student student = studentService.findStudentByStudentNum(studentNum);
+        System.out.println(student.getId());
+        List<Course> courses = courseRepository.findCoursesByStudentId(student.getId());
+        modelMap.put("courses", courses);
+        return ResponseEntity.ok(modelMap);
+    }
 
     @GetMapping("/course/{courseId}/resource/{resourceId}/download")
     public ResponseEntity<FileSystemResource> downloadResource(@PathVariable Long courseId, @PathVariable Long resourceId) {

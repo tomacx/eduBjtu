@@ -3,51 +3,23 @@ package com.example.edubjtu.model;
 import java.time.LocalDateTime;
 
 import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.Setter;
 
+@Setter
+@Getter
 @Entity
+@Table(name = "notification")
 public class Notification {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "notification_id")
     private Long notificationId;
     @Column(name = "teacher_id")
-
     private Long teacherId;
     @Column(name = "content")
     private String content;
-    @Column(name = "createTime")
+    @Column(name = "create_time")
     private LocalDateTime createTime;
 
-    // Getters and Setters
-    public Long getNotificationId() {
-        return notificationId;
-    }
-
-    public void setNotificationId(Long notificationId) {
-        this.notificationId = notificationId;
-    }
-
-    public Long getTeacherId() {
-        return teacherId;
-    }
-
-    public void setTeacherId(Long teacherId) {
-        this.teacherId = teacherId;
-    }
-
-    public String getContent() {
-        return content;
-    }
-
-    public void setContent(String content) {
-        this.content = content;
-    }
-
-    public LocalDateTime getCreateTime() {
-        return createTime;
-    }
-
-    public void setCreateTime(LocalDateTime createTime) {
-        this.createTime = createTime;
-    }
 }
