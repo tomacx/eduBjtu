@@ -16,4 +16,9 @@ public class NotificationService {
         List<Notification> notifications = notificationRepository.findAll();
         return notifications;
     }
+
+    public List<Notification> getNotificationsBystudentNum(Long studentId) {
+        List<Notification> notifications = notificationRepository.findByStudentNum(studentId);
+        return notifications;
+    }
 }

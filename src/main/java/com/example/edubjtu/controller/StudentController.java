@@ -5,6 +5,7 @@ import com.example.edubjtu.model.Course;
 import com.example.edubjtu.model.Notification;
 import com.example.edubjtu.model.Resource;
 import com.example.edubjtu.repository.CourseRepository;
+import com.example.edubjtu.repository.NotificationRepository;
 import com.example.edubjtu.repository.StudentRepository;
 import com.example.edubjtu.service.StudentService;
 import com.example.edubjtu.service.CourseService;
@@ -128,6 +129,17 @@ public class StudentController {
                 .body(fileResource);
     }
 
+    @GetMapping("/getNotification")
+    public ResponseEntity<Map<String, Object>> getNotification(@RequestParam("studentNum") String studentNum) {
+        Student student = studentService.findStudentByStudentNum(studentNum);
+        List<Notification> notifications = notificationService.getNotificationsBystudentNum(student.getId());
+        Map<String,Object> modelMap = new HashMap<>();
+        modelMap.put("notifications", notifications);
+        // 统计通知的数量并返回
+        int notificationNum = notifications.size(); // 获取通知的数量
+        modelMap.put("notificationNum", notificationNum); // 将数量放入 modelMap
+        return ResponseEntity.ok(modelMap);
+    }
     //TODO:增加学生端下载课程资源的功能
 
     //TODO:增加学生端上传作业的功能

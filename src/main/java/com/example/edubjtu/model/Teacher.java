@@ -12,7 +12,7 @@ import java.io.Serializable;
 public class Teacher implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "teacher_id")
+    @Column(name = "teacher _id")
     private Long id;
 
     @Column(name = "name")

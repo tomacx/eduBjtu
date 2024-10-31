@@ -42,6 +42,8 @@ public class LoginController {
             logger.info("Student logged in: {}", student.getName());
             response.put("success", true);
             response.put("redirect", "/student/dashboard"); // 重定向URL
+            response.put("userName",student.getName());
+            response.put("userNum",student.getStudentNum());
             return ResponseEntity.ok(response);
         }
 
@@ -51,6 +53,8 @@ public class LoginController {
             logger.info("Teacher logged in: {}", teacher.getName());
             response.put("success", true);
             response.put("redirect", "/teacher/dashboard"); // 重定向URL
+            response.put("userName",teacher.getName());
+            response.put("userNum",teacher.getTeacherNum());
             return ResponseEntity.ok(response);
         }
 
