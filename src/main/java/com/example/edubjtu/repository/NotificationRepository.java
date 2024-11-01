@@ -10,7 +10,7 @@ import java.util.List;
 public interface NotificationRepository extends JpaRepository<Notification, Long> {
 
     @Query(value = "SELECT n.* FROM notification n " +
-            "JOIN notification_student ns ON n.notification_id = ns.notification_id " +
-            "WHERE ns.student_id = :studentId", nativeQuery = true)
+            "JOIN course_teacher_student cts ON n.teacher_id = cts.teacher_id " +
+            "WHERE cts.student_id = :studentId", nativeQuery = true)
     List<Notification> findByStudentNum(Long studentId);
 }
