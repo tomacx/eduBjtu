@@ -34,4 +34,6 @@ public class Post {
     @Column(name = "content")
     private String content;
 
+    @Column(name = "title")
+    private String title;
 }

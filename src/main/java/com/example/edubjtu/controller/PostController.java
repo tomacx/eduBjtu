@@ -3,15 +3,17 @@ package com.example.edubjtu.controller;
 import com.example.edubjtu.model.Post;
 import com.example.edubjtu.model.Student;
 import com.example.edubjtu.service.PostService;
+import com.example.edubjtu.service.StudentService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Controller
 @RequestMapping("/post")
@@ -20,6 +22,9 @@ public class PostController {
     @Autowired
     private PostService postService;
 
+    @Autowired
+    private StudentService studentService;
+
     @GetMapping("/course/{courseId}")
     public String listPostsByCourse(@PathVariable Long courseId, Model model) {
         List<Post> posts = postService.getPostsByCourseId(courseId);
@@ -27,12 +32,17 @@ public class PostController {
         return "postList";
     }
 
-    @GetMapping("/student")
-    public String listPostsByStudent(HttpSession session, Model model) {
-        Long studentId = ((Student) session.getAttribute("loggedInStudent")).getId();
-        List<Post> posts = postService.getPostsByStudentId(studentId);
-        model.addAttribute("posts", posts);
-        return "studentPosts"; // 确保有studentPosts.html
+    @GetMapping("/getPosts")
+    @ResponseBody
+    public ResponseEntity<Map<String, Object>> listPostsByStudent(HttpSession session, @RequestParam("studentNum") String studentNum) {
+        Student student = studentService.getStudentByStudentNum(studentNum);
+
+        List<Post> posts = postService.getPostsByStudentId(student.getId());
+        Map<String, Object> modelMap = new HashMap<>();
+        modelMap.put("posts", posts);
+        int postsNum = posts.size(); // 获取通知的数量
+        modelMap.put("postNum", postsNum);
+        return ResponseEntity.ok(modelMap);
     }
 
     @GetMapping("/{id}")
