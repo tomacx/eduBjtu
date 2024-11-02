@@ -1,12 +1,10 @@
 package com.example.edubjtu.controller;
 
 import com.example.edubjtu.model.Resource;
+import com.example.edubjtu.model.Student;
 import com.example.edubjtu.model.Teacher;
 import com.example.edubjtu.model.Course;
-import com.example.edubjtu.service.TeacherService;
-import com.example.edubjtu.service.CourseService;
-import com.example.edubjtu.service.ResourceService;
-import com.example.edubjtu.service.NotificationService;
+import com.example.edubjtu.service.*;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -42,6 +40,9 @@ public class TeacherController {
 
     @Autowired
     private NotificationService notificationService;
+
+    @Autowired
+    private StudentService studentService;
 
     private static final Logger logger = LoggerFactory.getLogger(TeacherController.class);
 
@@ -87,13 +88,19 @@ public class TeacherController {
     }
 
     @GetMapping("/course/{courseId}")
-    public String showCourseDetail(@PathVariable Long courseId, Model model) {
+    @ResponseBody
+    public ResponseEntity<Map<String, Object>> showCourseDetail(@PathVariable Long courseId) {
+        Map<String, Object> responseMap = new HashMap<>();
         Course course = courseService.getCourseByCourseId(courseId);
-        model.addAttribute("course", course);
-        List<Resource> resources = resourceService.getResourcesByCourseId(courseId);
-        model.addAttribute("resources", resources);
-        // 处理逻辑
-        return "courseDetail";
+        if (course != null) {
+            responseMap.put("course", course);
+            List<Resource> resources = resourceService.getResourcesByCourseId(courseId);
+            responseMap.put("resources", resources);
+            return ResponseEntity.ok(responseMap);
+        } else {
+            responseMap.put("error", "课程未找到");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(responseMap);
+        }
     }
 
     //TODO：具体需要修改的课程信息的内容
@@ -135,13 +142,23 @@ public class TeacherController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(responseMap);
         }
     }
-
     //TODO:增加老师上传课程资源功能
 
     //TODO:增加老师上传作业的功能
 
     //TODO:增加老师查看选课学生的功能
-
+    @GetMapping("/course/{courseId}/students")
+    @ResponseBody
+    public ResponseEntity<Map<String, Object>> viewStudents(@PathVariable Long courseId){
+        Map<String, Object> responseMap = new HashMap<>();
+        List<Student> students = studentService.findStudentsByCourseId(courseId);
+        if (students != null){
+            responseMap.put("students", students);
+            return ResponseEntity.ok(responseMap);
+        }else{
+            responseMap.put("error", "未找到学生");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(responseMap);
+        }
     //TODO:增加老师查看帖子的功能
 
     //TODO:增加老师管理评论的功能
@@ -151,4 +168,5 @@ public class TeacherController {
     //TODO:增加老师删除帖子的功能
 
     //TODO:增加教师端查看成绩统计的功能
+    }
 }

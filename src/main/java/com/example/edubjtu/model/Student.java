@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.io.Serializable;
+import java.util.Set;
 
 @Setter
 @Getter
@@ -19,6 +20,7 @@ public class Student implements Serializable {
     @Column(name = "student_num")
     private String studentNum;
     private String password;
+
 
     public String getPasswordMask() {
         return "*******";
