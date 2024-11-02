@@ -1,6 +1,9 @@
 package com.example.edubjtu.service;
 
+import com.example.edubjtu.dto.MyFavoOthersFavo;
+import com.example.edubjtu.dto.MyFavouritePosts;
 import com.example.edubjtu.model.Favorite;
+import com.example.edubjtu.model.Post;
 import com.example.edubjtu.repository.FavoriteRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -13,7 +16,12 @@ public class FavoriteService {
     @Autowired
     private FavoriteRepository favoriteRepository;
 
-    public List<Favorite> getFavoritesByStudentId(Long studentId) {
-        return favoriteRepository.findByStudentId(studentId);
+
+    public List<MyFavouritePosts> getFavoritesPostsByStudentId(Long id) {
+        return favoriteRepository.findByStudentId(id);
+    }
+
+    public List<MyFavoOthersFavo> getMyFavOthersFavoByStudentId(Long id) {
+        return favoriteRepository.findFavosByStudentId(id);
     }
 }
