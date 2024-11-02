@@ -19,10 +19,10 @@ public class Post {
     @Column(name = "course_id")
     private Long courseId;
 
-    @Column(name = "student_id")
+    @Column(name = "student_id")//由学生创建
     private Long studentId;
 
-    @Column(name = "teacher_id")
+    @Column(name = "teacher_id")//由老师创建
     private Long teacherId;
 
     @Column(name = "like_num")
@@ -34,4 +34,6 @@ public class Post {
     @Column(name = "content")
     private String content;
 
+    @Column(name = "title")
+    private String title;
 }
