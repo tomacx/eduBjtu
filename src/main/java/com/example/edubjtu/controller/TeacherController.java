@@ -6,6 +6,7 @@ import com.example.edubjtu.model.Course;
 import com.example.edubjtu.service.TeacherService;
 import com.example.edubjtu.service.CourseService;
 import com.example.edubjtu.service.ResourceService;
+import com.example.edubjtu.service.NotificationService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -38,6 +39,9 @@ public class TeacherController {
 
     @Autowired
     private ResourceService resourceService;
+
+    @Autowired
+    private NotificationService notificationService;
 
     private static final Logger logger = LoggerFactory.getLogger(TeacherController.class);
 
@@ -110,6 +114,27 @@ public class TeacherController {
         return "redirect:/teacher/course/" + courseId;
     }
     //TODO:增加老师上传通知的功能
+    @PostMapping("/sendnotification")
+    public ResponseEntity<Map<String, Object>> sendNotification(@RequestParam("title") String title,
+                                                        @RequestParam("content") String content,
+                                                        HttpSession session) {
+        Map<String, Object> responseMap = new HashMap<>();
+        Teacher teacher = (Teacher) session.getAttribute("loggedInTeacher");
+        if (teacher != null) {
+            // 假设有一个通知服务来处理通知的保存
+            boolean success = notificationService.saveNotification(teacher.getId(), title, content);
+            if (success) {
+                responseMap.put("message", "通知上传成功");
+                return ResponseEntity.ok(responseMap);
+            } else {
+                responseMap.put("error", "通知上传失败");
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(responseMap);
+            }
+        } else {
+            responseMap.put("error", "未登录，请重新登录");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(responseMap);
+        }
+    }
 
     //TODO:增加老师上传课程资源功能
 
