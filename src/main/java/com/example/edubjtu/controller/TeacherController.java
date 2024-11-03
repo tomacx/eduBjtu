@@ -143,9 +143,31 @@ public class TeacherController {
         }
     }
     //TODO:增加老师上传课程资源功能
-
+    //TODO:还存在一些问题，文件的传输需要改一下
+    @PostMapping("/course/{courseId}/uploadResourse")
+    @ResponseBody
+    public ResponseEntity<Map<String,Object>> uploadResourse(@PathVariable Long courseId,
+                                                             @RequestParam("file") MultipartFile file,
+                                                             HttpSession session){
+        Map<String, Object> responseMap = new HashMap<>();
+        Teacher teacher = (Teacher) session.getAttribute("loggedInTeacher");
+        if(teacher != null){
+            try{
+                resourceService.saveResource(courseId, file);
+                responseMap.put("message","资源上传成功");
+                return ResponseEntity.ok(responseMap);
+            }catch(IOException e){
+                logger.error("资源上传失败",e);
+                responseMap.put("error","资源上传失败");
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(responseMap);
+            }
+        }else{
+            responseMap.put("error","未登录，请重新登录");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(responseMap);
+        }
+    }
     //TODO:增加老师上传作业的功能
-
+    
     //TODO:增加老师查看选课学生的功能
     @GetMapping("/course/{courseId}/students")
     @ResponseBody
