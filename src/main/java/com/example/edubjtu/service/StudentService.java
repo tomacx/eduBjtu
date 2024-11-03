@@ -7,6 +7,8 @@ import org.springframework.stereotype.Service;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.List;
+
 @Service
 public class StudentService {
 
@@ -49,5 +51,8 @@ public class StudentService {
         boolean exists = studentRepository.existsByStudentNum(studentNum);
         System.out.println("Student with number " + studentNum + " exists: " + exists);
         return exists;
+    }
+    public List<Student> findStudentsByCourseId(Long courseId){
+        return studentRepository.findByCourseId(courseId);
     }
 }
