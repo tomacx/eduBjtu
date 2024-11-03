@@ -23,4 +23,7 @@ public class Note {
     @Column(name = "content")
     private String  content;
 
+    @Column(name = "note_title")
+    private String noteTitle;
+
 }
