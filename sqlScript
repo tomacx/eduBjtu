@@ -6,7 +6,7 @@ create table course
     outline     longblob     null comment '课程大纲图片数据',
     calendar    longblob     null comment '课程日历图片数据',
     teacherInfo text         null comment '教师信息',
-    resource    varchar(255) null comment '课程资源路径'
+    resources    varchar(255) null comment '课程资源路径'
 );
 
 create table student

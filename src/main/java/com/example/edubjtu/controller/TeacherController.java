@@ -1,6 +1,6 @@
 package com.example.edubjtu.controller;
 
-import com.example.edubjtu.model.Resource;
+import com.example.edubjtu.model.Resources;
 import com.example.edubjtu.model.Student;
 import com.example.edubjtu.model.Teacher;
 import com.example.edubjtu.model.Course;
@@ -94,7 +94,7 @@ public class TeacherController {
         Course course = courseService.getCourseByCourseId(courseId);
         if (course != null) {
             responseMap.put("course", course);
-            List<Resource> resources = resourceService.getResourcesByCourseId(courseId);
+            List<Resources> resources = resourceService.getResourcesByCourseId(courseId);
             responseMap.put("resources", resources);
             return ResponseEntity.ok(responseMap);
         } else {

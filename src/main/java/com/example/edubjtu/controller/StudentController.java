@@ -3,9 +3,8 @@ package com.example.edubjtu.controller;
 import com.example.edubjtu.model.Student;
 import com.example.edubjtu.model.Course;
 import com.example.edubjtu.model.Notification;
-import com.example.edubjtu.model.Resource;
+import com.example.edubjtu.model.Resources;
 import com.example.edubjtu.repository.CourseRepository;
-import com.example.edubjtu.repository.NotificationRepository;
 import com.example.edubjtu.repository.StudentRepository;
 import com.example.edubjtu.service.StudentService;
 import com.example.edubjtu.service.CourseService;
@@ -13,6 +12,8 @@ import com.example.edubjtu.service.NotificationService;
 import com.example.edubjtu.service.ResourceService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.UrlResource;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -20,14 +21,17 @@ import org.springframework.web.bind.annotation.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
+import java.io.IOException;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.springframework.core.io.FileSystemResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
+
 
 @Controller
 @RequestMapping("/student")
@@ -118,20 +122,25 @@ public class StudentController {
         return ResponseEntity.ok(modelMap);
     }
 
-    @GetMapping("/course/{courseId}/resource/{resourceId}/download")
-    public ResponseEntity<FileSystemResource> downloadResource(@PathVariable Long courseId, @PathVariable Long resourceId) {
-        Resource resource = (Resource) resourceService.getResourcesByCourseId(courseId);
-        File file = new File(resource.getFilePath());
-        FileSystemResource fileResource = new FileSystemResource(file);
-
-        return ResponseEntity.ok()
-                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + file.getName() + "\"")
-                .body(fileResource);
-    }
-
-
     //TODO:增加学生端下载课程资源的功能
+    @GetMapping("/course/{courseId}/downloadResource/{resourceId}")
+    public ResponseEntity<Resource> downloadResource(@PathVariable Long courseId, @PathVariable Long resourceId) {
+        try {
+            Path filePath = resourceService.getResourceFilePath(courseId, resourceId);
+            Resource fileResource = new UrlResource(filePath.toUri());
 
+            if (fileResource.exists() || fileResource.isReadable()) {
+                String encodedFileName = URLEncoder.encode(fileResource.getFilename(), StandardCharsets.UTF_8.toString());
+                return ResponseEntity.ok()
+                        .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename*=UTF-8''"+encodedFileName)
+                        .body(fileResource);
+            } else {
+                throw new IOException("Could not read the file!");
+            }
+        } catch (IOException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
+    }
     //TODO:增加学生端上传作业的功能
 
     //TODO:增加学生端搜索帖子的功能的功能

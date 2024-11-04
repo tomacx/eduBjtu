@@ -42,7 +42,7 @@
   <p th:text="'大纲: ' + ${course.outline}"></p>
   <p th:text="'日历: ' + ${course.calendar}"></p>
   <p th:text="'教师信息: ' + ${course.teacherInfo}"></p>
-  <p th:text="'资源: ' + ${course.resource}"></p>
+  <p th:text="'资源: ' + ${course.resources}"></p>
   <a th:href="@{/post/course/{courseId}(courseId=${course.courseId})}">讨论区</a>
 </div>
 <h2>Upload Resources</h2>
@@ -53,9 +53,9 @@
 
 <h2>Resources</h2>
 <ul>
-  <li th:each="resource : ${course.resources}">
-    <span th:text="${resource.fileName}"></span>
-    <a th:href="@{/student/course/{courseId}/resource/{resourceId}/download(courseId=${course.courseId}, resourceId=${resource.id})}">Download</a>
+  <li th:each="resources : ${course.resources}">
+    <span th:text="${resources.fileName}"></span>
+    <a th:href="@{/student/course/{courseId}/resources/{resourceId}/download(courseId=${course.courseId}, resourceId=${resources.id})}">Download</a>
   </li>
 </ul>
 </body>
