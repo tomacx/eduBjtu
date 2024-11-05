@@ -35,8 +35,9 @@ public class Homework implements Serializable {
     @Column(name = "content")
     private String content;
 
-    @Column(name = "resource_Id")
-    private Long resourceId;
+    @Column(name = "student_homework")
+    private String studentHomework;
+
 
 
 }
