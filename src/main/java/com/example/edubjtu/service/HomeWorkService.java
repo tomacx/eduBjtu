@@ -37,10 +37,9 @@ public class HomeWorkService {
         Files.write(filePath, file.getBytes());
 
         List<Student> students = studentRepository.findByCourseId(courseId);
-        for(Iterator<Student> it = students.iterator(); it.hasNext(); it.next() ){
+        for(Student student : students){
             Homework homework = new Homework();
             homework.setCourseId(courseId);
-            Student student = (Student)it;
             homework.setStudentNum(Long.valueOf(student.getStudentNum()));
             homework.setContent(fileName);  //先将作业的名字设置为文件名
             homeworkRepository.save(homework);
