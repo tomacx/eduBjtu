@@ -36,8 +36,9 @@ public class Homework implements Serializable {
     @Column(name = "content")
     private String content;
 
+    @Lob
     @Column(name = "student_homework")
-    private String studentHomework;
+    private byte[] studentHomework;
 
 
 

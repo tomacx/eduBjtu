@@ -47,5 +47,12 @@ public class HomeWorkService {
         //TODO:上传作业的时候还需要有对应的resourceId
     }
 
+    public void saveStudentHomework(Long homeworkId,MultipartFile file) throws IOException {
+        Homework homework = homeworkRepository.findById(homeworkId).orElseThrow(() -> new IOException("作业未找到"));
+
+        //将文件内容存储到 student_homework 字段中
+        homework.setStudentHomework(file.getBytes());
+        homeworkRepository.save(homework);
+    }
 
 }

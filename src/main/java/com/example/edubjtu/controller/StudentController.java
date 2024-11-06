@@ -6,10 +6,7 @@ import com.example.edubjtu.model.Notification;
 import com.example.edubjtu.model.Resources;
 import com.example.edubjtu.repository.CourseRepository;
 import com.example.edubjtu.repository.StudentRepository;
-import com.example.edubjtu.service.StudentService;
-import com.example.edubjtu.service.CourseService;
-import com.example.edubjtu.service.NotificationService;
-import com.example.edubjtu.service.ResourceService;
+import com.example.edubjtu.service.*;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
@@ -31,6 +28,7 @@ import java.util.Map;
 
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.multipart.MultipartFile;
 
 
 @Controller
@@ -52,6 +50,8 @@ public class StudentController {
     @Autowired
     private ResourceService resourceService;
 
+    @Autowired
+    private HomeWorkService homeworkService;
     private static final Logger logger = LoggerFactory.getLogger(StudentController.class);
     @Autowired
     private StudentRepository studentRepository;
@@ -142,7 +142,34 @@ public class StudentController {
         }
     }
     //TODO:增加学生端上传作业的功能
+    @PostMapping("/homework/{homeworkId}/upload")
+    public ResponseEntity<Map<String,Object>> uploadStudentHomework(@PathVariable Long homeworkId,
+                                                                    @RequestParam("file")MultipartFile file){
+        Map<String, Object> responseMap = new HashMap<>();
+        try{
+            //检查文件类型
+            String contentType = file.getContentType();
+            if (!isValidDocumentType(contentType)){
+                responseMap.put("error","不支持的文件类型");
+                return ResponseEntity.badRequest().body(responseMap);
+            }
+            homeworkService.saveStudentHomework(homeworkId, file);
+            responseMap.put("message","作业上传成功");
+            return ResponseEntity.ok(responseMap);
+        } catch (IOException e) {
+            responseMap.put("error","作业上传失败");
+            return ResponseEntity.status(500).body(responseMap);
+        }
+    }
 
+    // 验证文件类型
+    private boolean isValidDocumentType(String contentType) {
+        return contentType.equals("application/pdf") ||
+                contentType.equals("application/msword") ||
+                contentType.equals("application/vnd.openxmlformats-officedocument.wordprocessingml.document") ||
+                contentType.equals("application/vnd.ms-excel") ||
+                contentType.equals("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+    }
     //TODO:增加学生端搜索帖子的功能的功能
 
     //TODO:增加学生端对帖子评论、点赞、收藏的功能
