@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.multipart.MultipartFile;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyEmitterReturnValueHandler;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -44,6 +45,8 @@ public class TeacherController {
     @Autowired
     private StudentService studentService;
 
+    @Autowired
+    private HomeWorkService homeworkService;
     private static final Logger logger = LoggerFactory.getLogger(TeacherController.class);
 
     @GetMapping("/dashboard")
@@ -143,7 +146,6 @@ public class TeacherController {
         }
     }
     //TODO:增加老师上传课程资源功能
-    //TODO:还存在一些问题，文件的传输需要改一下
     @PostMapping("/course/{courseId}/uploadResourse")
     @ResponseBody
     public ResponseEntity<Map<String,Object>> uploadResourse(@PathVariable Long courseId,
@@ -167,7 +169,28 @@ public class TeacherController {
         }
     }
     //TODO:增加老师上传作业的功能
-    
+    @PostMapping("/course/{courseId}/uploadHomework")
+    @ResponseBody
+    public ResponseEntity<Map<String,Object>> uploadHomework(@PathVariable Long courseId,
+                                                             @RequestParam("file") MultipartFile file,
+                                                             HttpSession session){
+        Map<String,Object> responseMap = new HashMap<>();
+        Teacher teacher = (Teacher) session.getAttribute("loggedInTeacher");
+        if(teacher != null){
+            try{
+                homeworkService.saveHomework(courseId,file);
+                responseMap.put("message","作业上传成功");
+                return ResponseEntity.ok(responseMap);
+            }catch(IOException e){
+                logger.error("作业上传失败",e);
+                responseMap.put("error","作业上传失败");
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(responseMap);
+            }
+        }else{
+            responseMap.put("error","未登录，请重新登录");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(responseMap);
+        }
+    }
     //TODO:增加老师查看选课学生的功能
     @GetMapping("/course/{courseId}/students")
     @ResponseBody

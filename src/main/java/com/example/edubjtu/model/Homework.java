@@ -13,6 +13,7 @@ import java.io.Serializable;
 public class Homework implements Serializable {
     @Getter
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY) // 确保使用自动生成策略
     @Column(name = "homework_Id")  // 指定主键列
     private Long homeworkId;
 
@@ -35,8 +36,10 @@ public class Homework implements Serializable {
     @Column(name = "content")
     private String content;
 
-    @Column(name = "resource_Id")
-    private Long resourceId;
+    @Lob
+    @Column(name = "student_homework")
+    private byte[] studentHomework;
+
 
 
 }
