@@ -5,6 +5,7 @@ import com.example.edubjtu.model.Student;
 import com.example.edubjtu.model.Teacher;
 import com.example.edubjtu.model.Course;
 import com.example.edubjtu.service.*;
+import jakarta.persistence.Entity;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -173,12 +174,14 @@ public class TeacherController {
     @ResponseBody
     public ResponseEntity<Map<String,Object>> uploadHomework(@PathVariable Long courseId,
                                                              @RequestParam("file") MultipartFile file,
-                                                             HttpSession session){
+                                                             @RequestParam("homeworkNum") Integer homeworkNum,
+                                                             HttpSession session)
+                                                            {
         Map<String,Object> responseMap = new HashMap<>();
         Teacher teacher = (Teacher) session.getAttribute("loggedInTeacher");
         if(teacher != null){
             try{
-                homeworkService.saveHomework(courseId,file);
+                homeworkService.saveHomework(courseId,file,homeworkNum);
                 responseMap.put("message","作业上传成功");
                 return ResponseEntity.ok(responseMap);
             }catch(IOException e){
@@ -194,24 +197,42 @@ public class TeacherController {
     //TODO:增加老师查看选课学生的功能
     @GetMapping("/course/{courseId}/students")
     @ResponseBody
-    public ResponseEntity<Map<String, Object>> viewStudents(@PathVariable Long courseId){
+    public ResponseEntity<Map<String, Object>> viewStudents(@PathVariable Long courseId) {
         Map<String, Object> responseMap = new HashMap<>();
         List<Student> students = studentService.findStudentsByCourseId(courseId);
-        if (students != null){
+        if (students != null) {
             responseMap.put("students", students);
             return ResponseEntity.ok(responseMap);
-        }else{
+        } else {
             responseMap.put("error", "未找到学生");
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(responseMap);
         }
+    }
     //TODO:增加老师查看帖子的功能
 
     //TODO:增加老师管理评论的功能
 
-    //TODO:增加老师批阅作业的功能
-
+    //TODO:增加老师批阅作业的功能（包括下载作业资源）
+    @PostMapping("/gradeHomework")
+    @ResponseBody
+    public ResponseEntity<Map<String, Object>> gradeHomework(@RequestParam("homeworkNum") Integer homeworkNum,
+                @RequestParam("studentNum") Long studentNum,
+                @RequestParam("score") Integer score){
+            Map<String, Object> responseMap = new HashMap<>();
+            try {
+                homeworkService.gradeStudentHomework(homeworkNum, studentNum, score);
+                responseMap.put("message", "作业批阅成功");
+                return ResponseEntity.ok(responseMap);
+            } catch (IllegalArgumentException e) {
+                responseMap.put("error", e.getMessage());
+                return ResponseEntity.badRequest().body(responseMap);
+            } catch (IOException e) {
+                responseMap.put("error", "批阅作业失败: " + e.getMessage());
+                return ResponseEntity.status(500).body(responseMap);
+            }
+        }
     //TODO:增加老师删除帖子的功能
 
     //TODO:增加教师端查看成绩统计的功能
     }
-}
+

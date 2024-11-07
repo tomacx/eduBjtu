@@ -40,6 +40,8 @@ public class Homework implements Serializable {
     @Column(name = "student_homework")
     private byte[] studentHomework;
 
+    @Column(name = "homework_num")
+    private Integer homework_num;//存储的作业次数
 
 
 }
