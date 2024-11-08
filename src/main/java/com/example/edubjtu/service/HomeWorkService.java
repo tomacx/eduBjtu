@@ -16,6 +16,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class HomeWorkService {
@@ -80,5 +81,21 @@ public class HomeWorkService {
 
     public Object getHomeworkByCourseIdAndStudentNum(Long courseId,String studentNum) {
         return homeworkRepository.findByCourseIdAndStudentNum(courseId,studentNum);
+    }
+    //教师批阅作业
+    public void gradeStudentHomework(Integer homeworkNum, Long studentNum, Integer score) throws IOException {
+        if (score < 0 || score > 100) {
+            throw new IllegalArgumentException("分数必须在0到100之间");
+        }
+
+        // 查找对应的作业
+        Optional<Homework> optionalHomework = homeworkRepository.findByHomeworkNumAndStudentNum(homeworkNum, studentNum);
+        if (optionalHomework.isPresent()) {
+            Homework homework = optionalHomework.get();
+            homework.setGrade(score); // 设置分数
+            homeworkRepository.save(homework); // 保存更新
+        } else {
+            throw new IOException("未找到对应的作业");
+        }
     }
 }

@@ -3,6 +3,7 @@ package com.example.edubjtu.controller;
 import com.example.edubjtu.model.Student;
 import com.example.edubjtu.model.Course;
 import com.example.edubjtu.model.Notification;
+import com.example.edubjtu.model.Post;
 import com.example.edubjtu.repository.CourseRepository;
 import com.example.edubjtu.repository.StudentRepository;
 import com.example.edubjtu.service.*;
@@ -51,6 +52,10 @@ public class StudentController {
 
     @Autowired
     private HomeWorkService homeworkService;
+
+    @Autowired
+    private PostService postService;
+
     private static final Logger logger = LoggerFactory.getLogger(StudentController.class);
     @Autowired
     private StudentRepository studentRepository;
@@ -75,38 +80,47 @@ public class StudentController {
     }
 
     @GetMapping("/edit")
-    public String showEditForm(HttpSession session, Model model) {
+    @ResponseBody
+    public ResponseEntity<Map<String, Object>> showEditForm(HttpSession session) {
+        Map<String, Object> responseMap = new HashMap<>();
         Student student = (Student) session.getAttribute("loggedInStudent");
         if (student != null) {
-            model.addAttribute("student", student);
-            return "student-edit";
+            responseMap.put("student", student);
+            return ResponseEntity.ok(responseMap);
         } else {
-            return "redirect:/login";
+            responseMap.put("redirect", "/login");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(responseMap);
         }
     }
 
     @PostMapping("/update")
-    public String updateStudent(@RequestParam("studentNum") String studentNum,
-                                @RequestParam("password") String password) {
-        studentService.updateStudentPassword(studentNum, password);
-        return "redirect:/student/dashboard?studentNum=" + studentNum + "&success";
-    }
-
-    @GetMapping("/test")
     @ResponseBody
-    public String testEndpoint() {
-        return "Student controller is working";
+    public ResponseEntity<Map<String, Object>> updateStudent(@RequestParam("studentNum") String studentNum,
+                                                             @RequestParam("password") String password) {
+        Map<String, Object> responseMap = new HashMap<>();
+        try {
+            studentService.updateStudentPassword(studentNum, password);
+            responseMap.put("message", "Update successful");
+            responseMap.put("studentNum", studentNum);
+            return ResponseEntity.ok(responseMap);
+        } catch (Exception e) {
+            responseMap.put("error", "Update failed");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(responseMap);
+        }
     }
 
     @GetMapping("/course/{courseId}")
-    public String showCourseDetail(@PathVariable Long courseId, Model model) {
+    @ResponseBody
+    public ResponseEntity<Map<String, Object>> showCourseDetail(@PathVariable Long courseId) {
+        Map<String, Object> responseMap = new HashMap<>();
         Course course = courseService.getCourseByCourseId(courseId);
         System.out.println(course);
         if (course == null) {
-            return "error/404"; // 确保有404页面
+            responseMap.put("error", "Course not found");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(responseMap);
         }
-        model.addAttribute("course", course);
-        return "courseDetails"; // 确保有courseDetails.html
+        responseMap.put("course", course);
+        return ResponseEntity.ok(responseMap);
     }
 
     @GetMapping("/courses")
@@ -181,6 +195,33 @@ public class StudentController {
                 contentType.equals("application/vnd.ms-excel") ||
                 contentType.equals("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
     }
+    //TODO:发送帖子
+    @PostMapping("/post")
+    @ResponseBody
+    public ResponseEntity<Map<String, Object>> sendPost(@RequestParam("courseId") Long courseId,
+                                                        @RequestParam("title") String title,
+                                                        @RequestParam("content") String content,
+                                                        HttpSession session){
+        Map<String, Object> responseMap = new HashMap<>();
+        Student student = (Student) session.getAttribute("loggedInStudent");
+        if (student == null){
+            responseMap.put("error", "未登录，请重新登录");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(responseMap);
+        }
+
+        Post post = new Post();
+        post.setCourseId(courseId);
+        post.setStudentId(student.getId());
+        post.setTitle(title);
+        post.setContent(content);
+        postService.savePost(post);
+
+        responseMap.put("message", "帖子发送成功");
+        responseMap.put("postId", post.getPostId());
+        return ResponseEntity.ok(responseMap);
+    }
+    //TODO:发送评论
+
     //TODO:增加学生端搜索帖子的功能的功能
 
     //TODO:增加学生端对帖子评论、点赞、收藏的功能
