@@ -208,6 +208,7 @@ public class TeacherController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(responseMap);
         }
     }
+    //TODO:老师上传帖子
     //TODO:增加老师查看帖子的功能
 
     //TODO:增加老师管理评论的功能
