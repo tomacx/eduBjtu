@@ -7,7 +7,9 @@ import org.springframework.data.repository.query.Param;
 import java.util.List;
 
 public interface HomeworkRepository extends JpaRepository<Homework, Long> {
-    List<Homework> findByCourseId(@Param("courseId") Long courseId);
+    List<Homework> findByCourseId(@Param("course_id") Long courseId);
 
     Homework findByHomeworkId(@Param("homework_id")Long homeworkId);
+
+    List<Homework> findByCourseIdAndStudentNum(@Param("course_id")Long courseId, @Param("student_num")String studentNum);
 }

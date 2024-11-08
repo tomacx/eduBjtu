@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.io.Serializable;
+import java.util.Date;
 
 @Getter
 @Setter
@@ -22,7 +23,7 @@ public class Homework implements Serializable {
     private Long courseId;
 
     @Column(name = "student_num")
-    private Long studentNum;
+    private String studentNum;
 
     @Column(name = "grade")
     private Integer grade;
@@ -36,10 +37,14 @@ public class Homework implements Serializable {
     @Column(name = "content")
     private String content;
 
-    @Lob
-    @Column(name = "student_homework")
-    private byte[] studentHomework;
+    @Column(name = "homework_num")
+    private Integer homeworkNum;
 
+    @Column(name = "submission_deadline")
+    @Temporal(TemporalType.TIMESTAMP)  // Using TIMESTAMP to store both date and time
+    private Date submissionDeadline;
 
+    @Column(name = "student_content")
+    private String studentContent;
 
 }
