@@ -5,26 +5,25 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.io.Serializable;
+import java.util.List;
 
 @Getter
 @Setter
 @Entity
 @Table(name = "homework")
 public class Homework implements Serializable {
-    @Getter
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY) // 确保使用自动生成策略
-    @Column(name = "homework_Id")  // 指定主键列
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "homework_id")
     private Long homeworkId;
 
-    @Getter
-    @Column(name = "course_Id")
+    @Column(name = "course_id")
     private Long courseId;
 
     @Column(name = "student_num")
     private Long studentNum;
 
-    @Column(name = "grade")
+    @Column(name = "grade") // 存储分数
     private Integer grade;
 
     @Column(name = "avg_grade")
@@ -36,12 +35,13 @@ public class Homework implements Serializable {
     @Column(name = "content")
     private String content;
 
-    @Lob
+//    @Column(name = "resource_id")
+//    private Long resourceId;
+
+    @Lob // 使用 LOB 类型存储大对象
     @Column(name = "student_homework")
-    private byte[] studentHomework;
+    private byte[] studentHomework; // 存放学生上传的作业文档
 
-    @Column(name = "homework_num")
-    private Integer homework_num;//存储的作业次数
-
-
+    @Column(name = "homework_num") // 确保列名与数据库一致
+    private Integer homeworkNum; // 存储作业次数
 }

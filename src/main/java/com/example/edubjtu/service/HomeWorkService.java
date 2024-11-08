@@ -42,7 +42,7 @@ public class HomeWorkService {
         Homework homework = new Homework();
         homework.setCourseId(courseId);
         for(Student student : students){
-            homework.setHomework_num(homeworkNum);
+            homework.setHomeworkNum(homeworkNum);
             homework.setStudentNum(Long.valueOf(student.getStudentNum()));
         }
         homework.setContent(fileName);  //先将作业的名字设置为文件名
