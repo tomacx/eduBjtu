@@ -25,12 +25,6 @@ public class PostController {
     @Autowired
     private StudentService studentService;
 
-    @GetMapping("/course/{courseId}")
-    public String listPostsByCourse(@PathVariable Long courseId, Model model) {
-        List<Post> posts = postService.getPostsByCourseId(courseId);
-        model.addAttribute("posts", posts);
-        return "postList";
-    }
 
     @GetMapping("/getPosts")
     @ResponseBody

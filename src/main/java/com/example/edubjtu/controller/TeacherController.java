@@ -234,7 +234,7 @@ public class TeacherController {
     @PostMapping("/gradeHomework")
     @ResponseBody
     public ResponseEntity<Map<String, Object>> gradeHomework(@RequestParam("homeworkNum") Integer homeworkNum,
-                @RequestParam("studentNum") Long studentNum,
+                @RequestParam("studentNum") String studentNum,
                 @RequestParam("score") Integer score){
             Map<String, Object> responseMap = new HashMap<>();
             try {

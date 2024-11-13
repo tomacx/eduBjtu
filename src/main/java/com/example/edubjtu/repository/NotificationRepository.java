@@ -18,4 +18,6 @@ public interface NotificationRepository extends JpaRepository<Notification, Long
             "JOIN course_teacher_student cts ON n.teacher_id = cts.teacher_id " +
             "WHERE cts.teacher_id = :teacherId", nativeQuery = true)
     List<Notification> findByTeacherId(Long teacherId);
+
+    List<Notification> findByCourseId(@Param("course_id") Long courseId);
 }

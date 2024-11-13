@@ -123,6 +123,7 @@ public class StudentController {
         return ResponseEntity.ok(responseMap);
     }
 
+    //homepage课程获取
     @GetMapping("/courses")
     @ResponseBody
     public ResponseEntity<Map<String, Object>> getStudentCourses(Model model, @RequestParam String studentNum){
@@ -135,24 +136,17 @@ public class StudentController {
         return ResponseEntity.ok(modelMap);
     }
 
-    //TODO:增加学生端下载课程资源的功能
-    @GetMapping("/course/{courseId}/downloadResource/{resourceId}")
-    public ResponseEntity<Resource> downloadResource(@PathVariable Long courseId, @PathVariable Long resourceId) {
-        try {
-            Path filePath = resourceService.getResourceFilePath(courseId, resourceId);
-            Resource fileResource = new UrlResource(filePath.toUri());
-
-            if (fileResource.exists() || fileResource.isReadable()) {
-                String encodedFileName = URLEncoder.encode(fileResource.getFilename(), StandardCharsets.UTF_8.toString());
-                return ResponseEntity.ok()
-                        .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename*=UTF-8''"+encodedFileName)
-                        .body(fileResource);
-            } else {
-                throw new IOException("Could not read the file!");
-            }
-        } catch (IOException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-        }
+    //homepage所有通知获取
+    @GetMapping("/getNotification")
+    public ResponseEntity<Map<String, Object>> getNotification(@RequestParam("studentNum") String studentNum) {
+        Student student = studentService.findStudentByStudentNum(studentNum);
+        List<Notification> notifications = notificationService.getNotificationsByStudentNum(student.getId());
+        Map<String,Object> modelMap = new HashMap<>();
+        modelMap.put("notifications", notifications);
+        // 统计通知的数量并返回
+        int notificationNum = notifications.size(); // 获取通知的数量
+        modelMap.put("notificationNum", notificationNum); // 将数量放入 modelMap
+        return ResponseEntity.ok(modelMap);
     }
 
     //学生获取所有作业--done
@@ -164,7 +158,7 @@ public class StudentController {
         return ResponseEntity.ok(modelMap);
     };
 
-    //TODO:增加学生端上传作业的功能--done
+    //增加学生端上传作业的功能
     @PostMapping("course/homework/upload")
     public ResponseEntity<Map<String, Object>> uploadStudentHomework(@RequestParam Long homeworkId,
                                                                      @RequestParam String studentContent,
@@ -195,6 +189,27 @@ public class StudentController {
                 contentType.equals("application/vnd.ms-excel") ||
                 contentType.equals("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
     }
+
+    //TODO:增加学生端下载课程资源的功能
+    @GetMapping("/course/{courseId}/downloadResource/{resourceId}")
+    public ResponseEntity<Resource> downloadResource(@PathVariable Long courseId, @PathVariable Long resourceId) {
+        try {
+            Path filePath = resourceService.getResourceFilePath(courseId, resourceId);
+            Resource fileResource = new UrlResource(filePath.toUri());
+
+            if (fileResource.exists() || fileResource.isReadable()) {
+                String encodedFileName = URLEncoder.encode(fileResource.getFilename(), StandardCharsets.UTF_8.toString());
+                return ResponseEntity.ok()
+                        .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename*=UTF-8''"+encodedFileName)
+                        .body(fileResource);
+            } else {
+                throw new IOException("Could not read the file!");
+            }
+        } catch (IOException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
+    }
+
     //TODO:发送帖子
     @PostMapping("/post")
     @ResponseBody

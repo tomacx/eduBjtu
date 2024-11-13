@@ -19,9 +19,8 @@ public class NotificationService {
         return notifications;
     }
 
-    public List<Notification> getNotificationsBystudentNum(Long studentId) {
-        List<Notification> notifications = notificationRepository.findByStudentNum(studentId);
-        return notifications;
+    public List<Notification> getNotificationsByStudentNum(Long studentId) {
+        return notificationRepository.findByStudentNum(studentId);
     }
 
     // 通知的保存
@@ -39,5 +38,9 @@ public class NotificationService {
             System.out.println("False to save!");
             return false;
         }
+    }
+
+    public List<Notification> getNotificationsByCourseId(Long courseId) {
+        return notificationRepository.findByCourseId(courseId);
     }
 }

@@ -83,7 +83,7 @@ public class HomeWorkService {
         return homeworkRepository.findByCourseIdAndStudentNum(courseId,studentNum);
     }
     //教师批阅作业
-    public void gradeStudentHomework(Integer homeworkNum, Long studentNum, Integer score) throws IOException {
+    public void gradeStudentHomework(Integer homeworkNum, String studentNum, Integer score) throws IOException {
         if (score < 0 || score > 100) {
             throw new IllegalArgumentException("分数必须在0到100之间");
         }
