@@ -46,4 +46,7 @@ public interface CommentRepository extends CrudRepository<Comment, Integer> {
     List<PostComment> findCommentsByPostId(Long postId);
 
 
+    Comment findById(Long commentId);
+
+    void deleteById(Long commentId);
 }

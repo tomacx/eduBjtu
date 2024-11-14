@@ -23,6 +23,9 @@ public class Comment {
     @Column(name = "content")
     private String content;
 
+    @Column(name = "courseId")
+    private Long courseId;
+
     @Column(name = "commented_num")
     private String  commentedNum;
 
@@ -31,4 +34,8 @@ public class Comment {
 
     @Column(name = "student_id")
     private Long studentId;
+
+    public Long getCourseId() {
+        return courseId;
+    }
 }
