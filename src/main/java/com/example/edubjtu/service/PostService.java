@@ -1,5 +1,6 @@
 package com.example.edubjtu.service;
 
+import com.example.edubjtu.dto.CoursePost;
 import com.example.edubjtu.model.Post;
 import com.example.edubjtu.repository.PostRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,8 +14,13 @@ public class PostService {
     @Autowired
     private PostRepository postRepository;
 
-    public List<Post> getPostsByCourseId(Long courseId) {
+    public List<CoursePost> getPostsByCourseId(Long courseId) {
         return postRepository.findByCourseId(courseId);
+    }
+
+    public List<CoursePost> getPostByPostId(Long postId) {
+
+        return postRepository.findCoursePostById(postId);
     }
 
     public List<Post> getPostsByStudentId(Long studentId) {

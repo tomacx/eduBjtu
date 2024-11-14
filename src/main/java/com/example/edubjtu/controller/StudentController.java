@@ -4,7 +4,6 @@ import com.example.edubjtu.model.Student;
 import com.example.edubjtu.model.Course;
 import com.example.edubjtu.model.Notification;
 import com.example.edubjtu.model.Post;
-import com.example.edubjtu.model.Resources;
 import com.example.edubjtu.repository.CourseRepository;
 import com.example.edubjtu.repository.StudentRepository;
 import com.example.edubjtu.service.*;
@@ -109,7 +108,7 @@ public class StudentController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(responseMap);
         }
     }
-    
+
     @GetMapping("/course/{courseId}")
     @ResponseBody
     public ResponseEntity<Map<String, Object>> showCourseDetail(@PathVariable Long courseId) {
@@ -124,6 +123,7 @@ public class StudentController {
         return ResponseEntity.ok(responseMap);
     }
 
+    //homepage课程获取
     @GetMapping("/courses")
     @ResponseBody
     public ResponseEntity<Map<String, Object>> getStudentCourses(Model model, @RequestParam String studentNum){
@@ -134,6 +134,60 @@ public class StudentController {
         List<Course> courses = courseRepository.findCoursesByStudentId(student.getId());
         modelMap.put("courses", courses);
         return ResponseEntity.ok(modelMap);
+    }
+
+    //homepage所有通知获取
+    @GetMapping("/getNotification")
+    public ResponseEntity<Map<String, Object>> getNotification(@RequestParam("studentNum") String studentNum) {
+        Student student = studentService.findStudentByStudentNum(studentNum);
+        List<Notification> notifications = notificationService.getNotificationsByStudentNum(student.getId());
+        Map<String,Object> modelMap = new HashMap<>();
+        modelMap.put("notifications", notifications);
+        // 统计通知的数量并返回
+        int notificationNum = notifications.size(); // 获取通知的数量
+        modelMap.put("notificationNum", notificationNum); // 将数量放入 modelMap
+        return ResponseEntity.ok(modelMap);
+    }
+
+    //学生获取所有作业--done
+    @GetMapping("/course/homework")
+    @ResponseBody
+    public ResponseEntity<Map<String, Object>> getHomework(@RequestParam Long courseId, @RequestParam String studentNum) {
+        Map<String, Object> modelMap = new HashMap<>();
+        modelMap.put("homeworkList",homeworkService.getHomeworkByCourseIdAndStudentNum(courseId,studentNum));
+        return ResponseEntity.ok(modelMap);
+    };
+
+    //增加学生端上传作业的功能
+    @PostMapping("course/homework/upload")
+    public ResponseEntity<Map<String, Object>> uploadStudentHomework(@RequestParam Long homeworkId,
+                                                                     @RequestParam String studentContent,
+                                                                     @RequestParam("files") MultipartFile[] files) throws IOException {
+        Map<String, Object> responseMap = new HashMap<>();
+        // 检查文件类型
+        for (MultipartFile file : files) {
+            String contentType = file.getContentType();
+            if (contentType != null && !isValidDocumentType(contentType)) {
+                responseMap.put("error", "不支持的文件类型");
+                return ResponseEntity.badRequest().body(responseMap);
+            }
+        }
+
+        // 处理多个文件上传
+        homeworkService.saveStudentHomework(homeworkId, studentContent, files);
+
+        responseMap.put("message", "作业上传成功");
+        return ResponseEntity.ok(responseMap);
+    }
+
+
+    // 验证文件类型
+    private boolean isValidDocumentType(String contentType) {
+        return contentType.equals("application/pdf") ||
+                contentType.equals("application/msword") ||
+                contentType.equals("application/vnd.openxmlformats-officedocument.wordprocessingml.document") ||
+                contentType.equals("application/vnd.ms-excel") ||
+                contentType.equals("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
     }
 
     //TODO:增加学生端下载课程资源的功能
@@ -155,35 +209,7 @@ public class StudentController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
     }
-    //TODO:增加学生端上传作业的功能
-    @PostMapping("/homework/{homeworkId}/upload")
-    public ResponseEntity<Map<String,Object>> uploadStudentHomework(@PathVariable Long homeworkId,
-                                                                    @RequestParam("file")MultipartFile file){
-        Map<String, Object> responseMap = new HashMap<>();
-        try{
-            //检查文件类型
-            String contentType = file.getContentType();
-            if (!isValidDocumentType(contentType)){
-                responseMap.put("error","不支持的文件类型");
-                return ResponseEntity.badRequest().body(responseMap);
-            }
-            homeworkService.saveStudentHomework(homeworkId, file);
-            responseMap.put("message","作业上传成功");
-            return ResponseEntity.ok(responseMap);
-        } catch (IOException e) {
-            responseMap.put("error","作业上传失败");
-            return ResponseEntity.status(500).body(responseMap);
-        }
-    }
 
-    // 验证文件类型
-    private boolean isValidDocumentType(String contentType) {
-        return contentType.equals("application/pdf") ||
-                contentType.equals("application/msword") ||
-                contentType.equals("application/vnd.openxmlformats-officedocument.wordprocessingml.document") ||
-                contentType.equals("application/vnd.ms-excel") ||
-                contentType.equals("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
-    }
     //TODO:发送帖子
     @PostMapping("/post")
     @ResponseBody
@@ -197,7 +223,7 @@ public class StudentController {
             responseMap.put("error", "未登录，请重新登录");
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(responseMap);
         }
-        
+
         Post post = new Post();
         post.setCourseId(courseId);
         post.setStudentId(student.getId());

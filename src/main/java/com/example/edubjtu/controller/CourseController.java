@@ -1,21 +1,36 @@
 package com.example.edubjtu.controller;
 
+import com.example.edubjtu.dto.CoursePost;
+import com.example.edubjtu.dto.PostComment;
 import com.example.edubjtu.model.Course;
-import com.example.edubjtu.service.CourseService;
+import com.example.edubjtu.model.Notification;
+import com.example.edubjtu.repository.CourseRepository;
+import com.example.edubjtu.service.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Controller
 public class CourseController {
 
     @Autowired
     private CourseService courseService;
+
+    @Autowired
+    private NotificationService notificationService;
+
+    @Autowired
+    private PostService postService;
+    @Autowired
+    private CommentService commentService;
 
     @GetMapping("/courses")
     public String getCourses(Model model, @RequestParam Long teacherId) {
@@ -71,10 +86,35 @@ public class CourseController {
         return "redirect:/course/" + id + "/edit?success";
     }
 
-    @GetMapping("/welcome")
-    public String teacherWelcome(Model model, @RequestParam Long teacherId) {
-        List<Course> courses = courseService.getCoursesByTeacherId(teacherId);
-        model.addAttribute("courses", courses);
-        return "teacherWelcome"; // 返回teacherWelcome视图
+    //课程通知
+    @GetMapping("/course/notification")
+    @ResponseBody
+    public  ResponseEntity<Map<String,Object>> getCourseNotification(@RequestParam Long courseId){
+        Map<String,Object> modelMap = new HashMap<>();
+        List<Notification> notifications=notificationService.getNotificationsByCourseId(courseId);
+        modelMap.put("notifications",notifications);
+        return ResponseEntity.ok(modelMap);
+    }
+
+    //课程讨论
+    @GetMapping("/course/discussion")
+    @ResponseBody
+    public ResponseEntity<Map<String, Object>> getDiscussion(@RequestParam Long courseId) {
+        System.out.println("Received courseId: " + courseId); // 打印 courseId
+        Map<String, Object> modelMap = new HashMap<>();
+        List<CoursePost> posts = postService.getPostsByCourseId(courseId);
+        modelMap.put("posts", posts);
+        return ResponseEntity.ok(modelMap);
+    }
+    //课程讨论详情
+    @GetMapping("/course/discussionById")
+    @ResponseBody
+    public ResponseEntity<Map<String, Object>> getDiscussionById(@RequestParam Long postId) {
+        Map<String, Object> modelMap = new HashMap<>();
+        List<CoursePost> coursePost=postService.getPostByPostId(postId);
+        List<PostComment> postComments=commentService.getCommentByPostId(postId);
+        modelMap.put("postDetial", coursePost);
+        modelMap.put("postComments", postComments);
+        return ResponseEntity.ok(modelMap);
     }
 }

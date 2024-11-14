@@ -1,6 +1,9 @@
 package com.example.edubjtu.controller;
 
-import com.example.edubjtu.model.*;
+import com.example.edubjtu.model.Resources;
+import com.example.edubjtu.model.Student;
+import com.example.edubjtu.model.Teacher;
+import com.example.edubjtu.model.Course;
 import com.example.edubjtu.service.*;
 import jakarta.persistence.Entity;
 import jakarta.servlet.http.HttpSession;
@@ -45,10 +48,6 @@ public class TeacherController {
 
     @Autowired
     private HomeWorkService homeworkService;
-
-    @Autowired
-    private PostService postService;
-
     private static final Logger logger = LoggerFactory.getLogger(TeacherController.class);
 
     @GetMapping("/dashboard")
@@ -210,39 +209,6 @@ public class TeacherController {
         }
     }
     //TODO:老师上传帖子
-    @PostMapping("/post")
-    @ResponseBody
-    public ResponseEntity<Map<String, Object>> uploadPost(@RequestParam("courseId") Long courseId,
-                                                          @RequestParam("title") String title,
-                                                          @RequestParam("content") String content,
-                                                          HttpSession session) {
-        Map<String, Object> responseMap = new HashMap<>();
-        Teacher teacher = (Teacher) session.getAttribute("loggedInTeacher");
-        if (teacher != null) {
-            try {
-                // 创建一个新的Post对象
-                Post post = new Post();
-                post.setCourseId(courseId);
-                post.setTeacherId(teacher.getId());
-                post.setTitle(title);
-                post.setContent(content);
-
-                // 使用PostService保存帖子
-                postService.savePost(post);
-
-                responseMap.put("message", "帖子上传成功");
-                responseMap.put("postId", post.getPostId());
-                return ResponseEntity.ok(responseMap);
-            } catch (Exception e) {
-                logger.error("帖子上传失败", e);
-                responseMap.put("error", "帖子上传失败");
-                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(responseMap);
-            }
-        } else {
-            responseMap.put("error", "未登录，请重新登录");
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(responseMap);
-        }
-    }
     //TODO:增加老师查看帖子的功能
 
     //TODO:增加老师管理评论的功能
@@ -266,10 +232,8 @@ public class TeacherController {
                 return ResponseEntity.status(500).body(responseMap);
             }
         }
-    }
     //TODO:增加老师删除帖子的功能
 
     //TODO:增加教师端查看成绩统计的功能
-
-    
+    }
 

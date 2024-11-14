@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.io.Serializable;
+import java.util.Date;
 import java.util.List;
 
 @Getter
@@ -13,15 +14,15 @@ import java.util.List;
 @Table(name = "homework")
 public class Homework implements Serializable {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "homework_id")
+    @GeneratedValue(strategy = GenerationType.IDENTITY) // 确保使用自动生成策略
+    @Column(name = "homework_Id")  // 指定主键列
     private Long homeworkId;
 
     @Column(name = "course_id")
     private Long courseId;
 
     @Column(name = "student_num")
-    private Long studentNum;
+    private String studentNum;
 
     @Column(name = "grade") // 存储分数
     private Integer grade;
@@ -35,13 +36,14 @@ public class Homework implements Serializable {
     @Column(name = "content")
     private String content;
 
-//    @Column(name = "resource_id")
-//    private Long resourceId;
+    @Column(name = "homework_num")
+    private Integer homeworkNum;
 
-    @Lob // 使用 LOB 类型存储大对象
-    @Column(name = "student_homework")
-    private byte[] studentHomework; // 存放学生上传的作业文档
+    @Column(name = "submission_deadline")
+    @Temporal(TemporalType.TIMESTAMP)  // Using TIMESTAMP to store both date and time
+    private Date submissionDeadline;
 
-    @Column(name = "homework_num") // 确保列名与数据库一致
-    private Integer homeworkNum; // 存储作业次数
+    @Column(name = "student_content")
+    private String studentContent;
+
 }

@@ -9,10 +9,11 @@ import java.util.List;
 import java.util.Optional;
 
 public interface HomeworkRepository extends JpaRepository<Homework, Long> {
-    List<Homework> findByCourseId(@Param("courseId") Long courseId);
+    List<Homework> findByCourseId(@Param("course_id") Long courseId);
 
     Homework findByHomeworkId(@Param("homework_id")Long homeworkId);
 
-//    @Query("SELECT h FROM Homework h WHERE h.homeworkNum = ?1 AND ?2 MEMBER OF h.studentNum")
-    Optional<Homework> findByHomeworkNumAndStudentNum(Integer homeworkNum, Long studentNum);
+    Optional<Homework> findByHomeworkNumAndStudentNum(@Param("homework_num")Integer homeworkNum,@Param("student_num") String studentNum);
+
+    List<Homework> findByCourseIdAndStudentNum(@Param("course_id")Long courseId, @Param("student_num")String studentNum);
 }
