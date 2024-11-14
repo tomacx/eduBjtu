@@ -184,6 +184,7 @@ public class TeacherController {
         Teacher teacher = (Teacher) session.getAttribute("loggedInTeacher");
         if (teacher != null) {
             try {
+                System.out.println(deadline);
                 homeworkService.saveHomework(courseId, homeworkNum, deadline, content, file);
                 responseMap.put("message", "作业上传成功");
                 return ResponseEntity.ok(responseMap);
@@ -220,7 +221,7 @@ public class TeacherController {
     @PostMapping("/gradeHomework")
     @ResponseBody
     public ResponseEntity<Map<String, Object>> gradeHomework(@RequestParam("homeworkNum") Integer homeworkNum,
-                @RequestParam("studentNum") Long studentNum,
+                @RequestParam("studentNum") String studentNum,
                 @RequestParam("score") Integer score){
             Map<String, Object> responseMap = new HashMap<>();
             try {
