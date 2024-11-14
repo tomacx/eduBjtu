@@ -18,6 +18,11 @@ public class PostService {
         return postRepository.findByCourseId(courseId);
     }
 
+    public List<CoursePost> getPostByPostId(Long postId) {
+
+        return postRepository.findCoursePostById(postId);
+    }
+
     public List<Post> getPostsByStudentId(Long studentId) {
         return postRepository.findByStudentId(studentId);
     }

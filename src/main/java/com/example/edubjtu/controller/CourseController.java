@@ -1,9 +1,9 @@
 package com.example.edubjtu.controller;
 
 import com.example.edubjtu.dto.CoursePost;
+import com.example.edubjtu.dto.PostComment;
 import com.example.edubjtu.model.Course;
 import com.example.edubjtu.model.Notification;
-import com.example.edubjtu.model.Post;
 import com.example.edubjtu.repository.CourseRepository;
 import com.example.edubjtu.service.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,16 +28,10 @@ public class CourseController {
     private NotificationService notificationService;
 
     @Autowired
-    private CourseRepository courseRepository;
-
-    @Autowired
-    private ResourceService resourceService;
-
-    @Autowired
-    private HomeWorkService homeworkService;
-
-    @Autowired
     private PostService postService;
+    @Autowired
+    private CommentService commentService;
+
     @GetMapping("/courses")
     public String getCourses(Model model, @RequestParam Long teacherId) {
         List<Course> courses = courseService.getCoursesByTeacherId(teacherId);
@@ -112,5 +106,15 @@ public class CourseController {
         modelMap.put("posts", posts);
         return ResponseEntity.ok(modelMap);
     }
-
+    //课程讨论详情
+    @GetMapping("/course/discussionById")
+    @ResponseBody
+    public ResponseEntity<Map<String, Object>> getDiscussionById(@RequestParam Long postId) {
+        Map<String, Object> modelMap = new HashMap<>();
+        List<CoursePost> coursePost=postService.getPostByPostId(postId);
+        List<PostComment> postComments=commentService.getCommentByPostId(postId);
+        modelMap.put("postDetial", coursePost);
+        modelMap.put("postComments", postComments);
+        return ResponseEntity.ok(modelMap);
+    }
 }
