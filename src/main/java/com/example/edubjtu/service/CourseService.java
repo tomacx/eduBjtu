@@ -60,4 +60,8 @@ public class CourseService {
     public List<Course> getCoursesByTeacherId(Long teacherId) {
         return courseRepository.findCoursesByTeacherId(teacherId);
     }
+
+    public List<Course> getCourseByStudentId(Long studentId){
+        return courseRepository.findCoursesByStudentId(studentId);
+    }
 }
