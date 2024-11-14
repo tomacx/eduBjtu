@@ -1,6 +1,6 @@
 package com.example.edubjtu.controller;
 
-import com.example.edubjtu.model.Resources;
+import com.example.edubjtu.model.Resource;
 import com.example.edubjtu.model.Student;
 import com.example.edubjtu.model.Teacher;
 import com.example.edubjtu.model.Course;
@@ -8,6 +8,7 @@ import com.example.edubjtu.service.*;
 import jakarta.persistence.Entity;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -23,6 +24,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyEmitterReturnValueHandler;
 
 import java.io.IOException;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -98,7 +100,7 @@ public class TeacherController {
         Course course = courseService.getCourseByCourseId(courseId);
         if (course != null) {
             responseMap.put("course", course);
-            List<Resources> resources = resourceService.getResourcesByCourseId(courseId);
+            List<Resource> resources = resourceService.getResourcesByCourseId(courseId);
             responseMap.put("resources", resources);
             return ResponseEntity.ok(responseMap);
         } else {
@@ -113,11 +115,11 @@ public class TeacherController {
         courseService.updateCourse(course);
         return "redirect:/teacher/welcome";
     }
-
+    //TODO：上传修改的课程信息
     @PostMapping("/course/{courseId}/upload")
     public String uploadResource(@PathVariable Long courseId, @RequestParam("file") MultipartFile file) {
         try {
-            resourceService.saveResource(courseId, file);
+            resourceService.saveCourseResource(courseId, file);
         } catch (IOException e) {
             e.printStackTrace();
             // Handle error
@@ -156,7 +158,7 @@ public class TeacherController {
         Teacher teacher = (Teacher) session.getAttribute("loggedInTeacher");
         if(teacher != null){
             try{
-                resourceService.saveResource(courseId, file);
+                resourceService.saveCourseResource(courseId, file);
                 responseMap.put("message","资源上传成功");
                 return ResponseEntity.ok(responseMap);
             }catch(IOException e){
@@ -172,25 +174,26 @@ public class TeacherController {
     //TODO:增加老师上传作业的功能
     @PostMapping("/course/{courseId}/uploadHomework")
     @ResponseBody
-    public ResponseEntity<Map<String,Object>> uploadHomework(@PathVariable Long courseId,
-                                                             @RequestParam("file") MultipartFile file,
-                                                             @RequestParam("homeworkNum") Integer homeworkNum,
-                                                             HttpSession session)
-                                                            {
-        Map<String,Object> responseMap = new HashMap<>();
+    public ResponseEntity<Map<String, Object>> uploadHomework(@PathVariable Long courseId,
+                                                              @RequestParam("file") MultipartFile file,
+                                                              @RequestParam("homeworkNum") Integer homeworkNum,
+                                                              @RequestParam("deadline") @DateTimeFormat(pattern = "yyyy-MM-dd") Date deadline,
+                                                              @RequestParam("content") String content,
+                                                              HttpSession session) {
+        Map<String, Object> responseMap = new HashMap<>();
         Teacher teacher = (Teacher) session.getAttribute("loggedInTeacher");
-        if(teacher != null){
-            try{
-                homeworkService.saveHomework(courseId,file,homeworkNum);
-                responseMap.put("message","作业上传成功");
+        if (teacher != null) {
+            try {
+                homeworkService.saveHomework(courseId, homeworkNum, deadline, content, file);
+                responseMap.put("message", "作业上传成功");
                 return ResponseEntity.ok(responseMap);
-            }catch(IOException e){
-                logger.error("作业上传失败",e);
-                responseMap.put("error","作业上传失败");
+            } catch (IOException e) {
+                logger.error("作业上传失败", e);
+                responseMap.put("error", "作业上传失败");
                 return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(responseMap);
             }
-        }else{
-            responseMap.put("error","未登录，请重新登录");
+        } else {
+            responseMap.put("error", "未登录，请重新登录");
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(responseMap);
         }
     }
