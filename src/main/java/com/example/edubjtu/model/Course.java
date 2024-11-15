@@ -1,13 +1,22 @@
 package com.example.edubjtu.model;
 
 import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.Setter;
+
+import java.io.Serial;
 import java.io.Serializable;
 
+
+@Getter
+@Setter
 @Entity
 @Table(name = "course")
-public class Course {
+public class Course implements Serializable {
+    @Serial
     private static final long serialVersionUID = 1L;
 
+    // Getters and Setters
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "course_id")
@@ -34,70 +43,5 @@ public class Course {
     @ManyToOne
     @JoinColumn(name = "teacher_id")
     private Teacher teacher;
-
-    // Getters and Setters
-    public Long getCourseId() {
-        return courseId;
-    }
-
-    public void setCourseId(Long courseId) {
-        this.courseId = courseId;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getIntro() {
-        return intro;
-    }
-
-    public void setIntro(String intro) {
-        this.intro = intro;
-    }
-
-    public String getOutline() {
-        return outline;
-    }
-
-    public void setOutline(String outline) {
-        this.outline = outline;
-    }
-
-    public String getTeacherInfo() {
-        return teacherInfo;
-    }
-
-    public void setTeacherInfo(String teacherInfo) {
-        this.teacherInfo = teacherInfo;
-    }
-
-    public String getCalendar(){
-        return calendar;
-    }
-
-    public void setCalendar(String calendar){
-        this.calendar = calendar;
-    }
-
-    public String getResource(){
-        return resource;
-    }
-
-    public void setResource(String resource){
-        this.resource = resource;
-    }
-
-    public Teacher getTeacher() {
-        return teacher;
-    }
-
-    public void setTeacher(Teacher teacher) {
-        this.teacher = teacher;
-    }
 
 }

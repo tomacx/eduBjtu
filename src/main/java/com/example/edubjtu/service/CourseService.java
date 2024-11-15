@@ -14,6 +14,8 @@ import java.util.List;
 public class CourseService {
     @Autowired
     private CourseRepository courseRepository;
+    @Autowired
+    private ResourceService resourceService;
 
     public List<Course> getAllCourses() {
         List<Course> courses = courseRepository.findAll();
@@ -59,5 +61,14 @@ public class CourseService {
 
     public List<Course> getCoursesByTeacherId(Long teacherId) {
         return courseRepository.findCoursesByTeacherId(teacherId);
+    }
+
+    public void saveOutLine(Long courseId, MultipartFile file) throws IOException {
+        if(file!=null){
+            resourceService.saveCourseOutLineByTeacher(courseId,file);
+        } else {
+            // 如果文件为空，输出提示
+            System.out.println("没有上传文件，跳过作业资源保存步骤");
+        }
     }
 }

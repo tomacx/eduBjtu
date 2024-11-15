@@ -1,5 +1,6 @@
 package com.example.edubjtu.service;
 
+import com.example.edubjtu.dto.ResourceList;
 import com.example.edubjtu.model.Resource;
 import com.example.edubjtu.repository.CourseRepository;
 import com.example.edubjtu.repository.HomeworkRepository;
@@ -13,6 +14,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class ResourceService {
@@ -23,9 +25,10 @@ public class ResourceService {
     private CourseRepository courseRepository;
     @Autowired
     private HomeworkRepository homeworkRepository;
-    private final String uploadCourseResourceDir = "src/main/course"; // 存储文件的路径
-    private final String uploadHomeWorkRequirementDir = "src/main/homeworkRequirement";
-    private final String uploadHomeWorkStudentDir = "src/main/homework";
+    private final String uploadCourseResourceDir = "src/main/resources/static/course"; // 存储文件的路径
+    private final String uploadCourseWorkSetDir = "src/main/resources/static/courseWorkSet";
+    private final String uploadHomeWorkRequirementDir = "src/main/resources/static/homeworkRequirement";
+    private final String uploadHomeWorkStudentDir = "src/main/resources/static/homework";
 
     public List<Resource> getResourcesByCourseId(Long courseId) {
         return resourceRepository.findByCourse_CourseId(courseId);
@@ -123,5 +126,63 @@ public class ResourceService {
         }
     }
 
+    //老师上传课程习题集
+    public void saveCourseWorkSet(Long courseId, MultipartFile file) throws IOException {
+        String fileName = file.getOriginalFilename();
+        Path filePath = Paths.get(uploadCourseWorkSetDir, fileName);
+        // 如果目录不存在，则创建目录
+        Files.createDirectories(Path.of(uploadCourseWorkSetDir));
+        Files.write(filePath, file.getBytes());
 
+        Resource resources = new Resource();
+        resources.setCourse(courseRepository.findByCourseId(courseId));
+        resources.setFilePath(filePath.toString());
+        resources.setFileType(file.getContentType());
+        resources.setCourseWorkset(1);
+        resourceRepository.save(resources);
+    }
+
+    public void saveCourseWorkSets(Long courseId, MultipartFile[] file )throws IOException {
+        for(MultipartFile f : file) {
+            this.saveCourseWorkSet(courseId,f);
+        }
+    }
+
+    //返回课件资源list
+    public List<ResourceList> getCourseResourcesByCourseId(Long courseId) {
+        int courseResource = 1;
+        return resourceRepository.findByCourseIdAndCourseResource(courseId,courseResource);
+    }
+    //通过id返回具体资源
+    public Optional<Resource> getResourceByResourceId(Long resourceId) {
+        return resourceRepository.findById(resourceId);
+    }
+    //返回workset list
+    public List<ResourceList> getCourseWorkSetByCourseId(Long courseId) {
+        return resourceRepository.findByCourseIdAndCourseWorkSet(courseId,1);
+    }
+
+    //获取课程大纲
+    public Optional<Resource> getOutLineByCourseId(Long courseId){
+        return resourceRepository.findOutLineByCourse_CourseIdAndCourseOutline(courseId,1);
+    }
+    //获取课程时间表
+    public Optional<Resource> getCalendarByResourceId(Long courseId) {
+        return resourceRepository.findCalendarByCourse_CourseIdAndCourseCalendar(courseId,1);
+    }
+
+    public void saveCourseOutLineByTeacher(Long courseId, MultipartFile file) throws IOException {
+        String fileName = file.getOriginalFilename();
+        Path filePath = Paths.get(uploadCourseResourceDir, fileName);
+        // 如果目录不存在，则创建目录
+        Files.createDirectories(Path.of(uploadCourseResourceDir));
+        Files.write(filePath, file.getBytes());
+
+        Resource resources = new Resource();
+        resources.setCourse(courseRepository.findByCourseId(courseId));
+        resources.setFilePath(filePath.toString());
+        resources.setFileType(file.getContentType());
+        resources.setCourseOutline(1);
+        resourceRepository.save(resources);
+    }
 }

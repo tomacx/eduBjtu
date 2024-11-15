@@ -38,14 +38,17 @@ public class FavoriteController {
     @Autowired
     StudentService studentService;
 
+    //显示收藏列表
     @GetMapping("/getFavourite")
     @ResponseBody
     public ResponseEntity<Map<String,Object>> listFavorites(HttpSession session, @RequestParam String studentNum) {
         Map<String,Object> map = new HashMap<>();
         Student student = studentService.findStudentByStudentNum(studentNum);
         if(student!=null){
+            //获取收藏的posts
            List<MyFavouritePosts> postList  = favoriteService.getFavoritesPostsByStudentId(student.getId());
            map.put("postList",postList);
+           //获取收藏的别人的收藏夹
            List<MyFavoOthersFavo> othersFavos =favoriteService.getMyFavOthersFavoByStudentId(student.getId());
            map.put("othersFavos",othersFavos);
            return ResponseEntity.ok(map);

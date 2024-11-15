@@ -44,4 +44,7 @@ public class Resource implements Serializable {
     @Column(name = "homework_resource", nullable = true)
     private Integer homeworkResource;
 
+    @Column(name = "course_workset",nullable = true)
+    private Integer courseWorkset;
+
 }

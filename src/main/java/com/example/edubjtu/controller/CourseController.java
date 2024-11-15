@@ -2,11 +2,14 @@ package com.example.edubjtu.controller;
 
 import com.example.edubjtu.dto.CoursePost;
 import com.example.edubjtu.dto.PostComment;
+import com.example.edubjtu.dto.ResourceList;
 import com.example.edubjtu.model.Course;
 import com.example.edubjtu.model.Notification;
+import com.example.edubjtu.model.Resource;
 import com.example.edubjtu.repository.CourseRepository;
 import com.example.edubjtu.service.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -17,6 +20,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 @Controller
 public class CourseController {
@@ -31,33 +35,9 @@ public class CourseController {
     private PostService postService;
     @Autowired
     private CommentService commentService;
+    @Autowired
+    private ResourceService resourceService;
 
-    @GetMapping("/courses")
-    public String getCourses(Model model, @RequestParam Long teacherId) {
-        List<Course> courses = courseService.getCoursesByTeacherId(teacherId);
-        model.addAttribute("courses", courses);
-        return "teacherCourses"; // 返回显示课程的视图
-    }
-
-    @GetMapping("/{courseId}")
-    public String getCourseDetails(@PathVariable Long courseId, Model model) {
-        Course course = courseService.getCourseByCourseId(courseId);
-        if (course == null) {
-            return "error/404"; // 确保有404页面
-        }
-        model.addAttribute("course", course);
-        return "courseDetails"; // 确保有courseDetails.html
-    }
-
-    @GetMapping("/course/{courseId}")
-    public String getCourseDetail(@PathVariable Long courseId, Model model){
-        Course course = courseService.getCourseByCourseId(courseId);
-        if(course == null){
-            return "error/404";
-        }
-        model.addAttribute("course",course);
-        return "courseDetail";
-    }
     @GetMapping("/{id}/edit")
     public String showEditForm(@PathVariable Long id, Model model) {
         Course course = courseService.getCourseById(id);
@@ -116,5 +96,106 @@ public class CourseController {
         modelMap.put("postDetial", coursePost);
         modelMap.put("postComments", postComments);
         return ResponseEntity.ok(modelMap);
+    }
+    //课程简介
+    @GetMapping("/course/intro")
+    @ResponseBody
+    public ResponseEntity<Map<String,Object>> getCourseIntro( @RequestParam Long courseId) {
+        Course course = courseService.getCourseByCourseId(courseId);
+        Map<String,Object> modelMap = new HashMap<>();
+        modelMap.put("intro", course.getIntro());
+        return ResponseEntity.ok(modelMap);
+    }
+    //课程资源列表--电子课件--done
+    @GetMapping("/course/resource")
+    @ResponseBody
+    public ResponseEntity<Map<String,Object>> getCourseResource( @RequestParam Long courseId) {
+        Map<String,Object> modelMap = new HashMap<>();
+        List<ResourceList> resourceList= resourceService.getCourseResourcesByCourseId(courseId);
+        modelMap.put("resourceList",resourceList);
+        return ResponseEntity.ok(modelMap);
+    }
+    //课程资源--电子课件下载--done
+    @GetMapping("/course/downLoadResource")
+    public ResponseEntity<Map<String ,Object>> getFileUrl(@RequestParam Long resourceId) {
+        Optional<Resource> resource = resourceService.getResourceByResourceId(resourceId);
+        Map<String ,Object> modelMap = new HashMap<>();
+        if (resource.isPresent()) {
+            String filePath = resource.get().getFilePath();
+
+            //src\main\resources\static\course\Session_0_Requirements.pptx
+            // 替换路径中的 `src\main` 为 `static`，并将反斜杠替换为正斜杠
+            String adjustedFilePath = filePath.replace("src\\main\\resources\\static\\", "")
+                    .replace("\\", "/");
+
+            // 构造完整的 URL
+            String fileUrl = "http://localhost:8000/" + adjustedFilePath;
+            modelMap.put("URL", fileUrl);
+            String fileType = resource.get().getFileType(); // 获取文件类型信息
+            modelMap.put("fileType", fileType);
+            return ResponseEntity.ok(modelMap);
+        } else {
+            modelMap.put("URL", "Not Found");
+            return ResponseEntity.ok(modelMap);
+        }
+    }
+
+    //todo 带接通前端测试， postman已通过
+    //课程资源--习题集list
+    @GetMapping("/course/resource/workSet")
+    @ResponseBody
+    public ResponseEntity<Map<String,Object>> getCourseWorkSet( @RequestParam Long courseId) {
+        Map<String,Object> modelMap = new HashMap<>();
+        List<ResourceList> resourceList= resourceService.getCourseWorkSetByCourseId(courseId);
+        modelMap.put("resourceList",resourceList);
+        return ResponseEntity.ok(modelMap);
+    }
+
+    //获取course calendar
+    @GetMapping("/course/calendar")
+    @ResponseBody
+    public ResponseEntity<Map<String,Object>> getCourseCalendar( @RequestParam Long courseId) {
+            Optional<Resource> resource = resourceService.getCalendarByResourceId(courseId);
+            Map<String ,Object> modelMap = new HashMap<>();
+            if (resource.isPresent()) {
+                String filePath = resource.get().getFilePath();
+                // 替换路径中的 `src\main` 为 `static`，并将反斜杠替换为正斜杠
+                String adjustedFilePath = filePath.replace("src\\main\\resources\\static\\", "")
+                        .replace("\\", "/");
+
+                // 构造完整的 URL
+                String fileUrl = "http://localhost:8000/" + adjustedFilePath;
+                modelMap.put("URL", fileUrl);
+                String fileType = resource.get().getFileType(); // 获取文件类型信息
+                modelMap.put("fileType", fileType);
+                return ResponseEntity.ok(modelMap);
+            } else {
+                modelMap.put("URL", "Not Found");
+                return ResponseEntity.ok(modelMap);
+            }
+
+    }
+    //获取course outline
+    @GetMapping("/course/outline")
+    @ResponseBody
+    public ResponseEntity<Map<String,Object>> getCourseOutline( @RequestParam Long courseId) {
+        Optional<Resource> resource = resourceService.getOutLineByCourseId(courseId);
+        Map<String ,Object> modelMap = new HashMap<>();
+        if (resource.isPresent()) {
+            String filePath = resource.get().getFilePath();
+            // 替换路径中的 `src\main` 为 `static`，并将反斜杠替换为正斜杠
+            String adjustedFilePath = filePath.replace("src\\main\\resources\\static\\", "")
+                    .replace("\\", "/");
+
+            // 构造完整的 URL
+            String fileUrl = "http://localhost:8000/" + adjustedFilePath;
+            modelMap.put("URL", fileUrl);
+            String fileType = resource.get().getFileType(); // 获取文件类型信息
+            modelMap.put("fileType", fileType);
+            return ResponseEntity.ok(modelMap);
+        } else {
+            modelMap.put("URL", "Not Found");
+            return ResponseEntity.ok(modelMap);
+        }
     }
 }

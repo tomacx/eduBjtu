@@ -139,7 +139,7 @@ public class TeacherController {
         }
     }
 
-    //TODO:增加老师上传课程资源功能--done
+    //增加老师上传课程资源功能 课件等--done
     @PostMapping("/course/{courseId}/uploadResource")
     @ResponseBody
     public ResponseEntity<Map<String,Object>> uploadResource(@PathVariable Long courseId,
@@ -147,7 +147,7 @@ public class TeacherController {
                                                              HttpSession session) throws IOException {
         Map<String, Object> responseMap = new HashMap<>();
         Teacher teacher = (Teacher) session.getAttribute("loggedInTeacher");
-        if(teacher != null){
+        if(teacher == null){
             resourceService.saveCourseResources(courseId, file);
             responseMap.put("message","资源上传成功");
             return ResponseEntity.ok(responseMap);
@@ -157,8 +157,29 @@ public class TeacherController {
         }
     }
 
+    //老师上传试题功能--done
+    @PostMapping("/course/uploadWorkSet")
+    @ResponseBody
+    public ResponseEntity<Map<String,Object>> uploadWorkSet(@RequestParam Long courseId, @RequestParam("file") MultipartFile[] file) throws IOException {
+        Map<String, Object> responseMap = new HashMap<>();
+        resourceService.saveCourseWorkSets(courseId,file);
+        responseMap.put("message","习题集上传成功");
+        return ResponseEntity.ok(responseMap);
+    }
+    //homepage课程获取--done
+    @GetMapping("/courses")
+    @ResponseBody
+    public ResponseEntity<Map<String, Object>> getStudentCourses(@RequestParam String teacherNum){
+        Map<String, Object> modelMap = new HashMap<>();
+        System.out.println(teacherNum);
+        Teacher teacher=teacherService.findTeacherByTeacherNum(teacherNum);
+        System.out.println(teacher.getId());
+        List<Course> courses = courseService.getCoursesByTeacherId(teacher.getId());
+        modelMap.put("courses", courses);
+        return ResponseEntity.ok(modelMap);
+    }
 
-    //TODO:增加老师上传作业的功能--done
+    //增加老师上传作业的功能--done
     @PostMapping("/course/{courseId}/uploadHomework")
     @ResponseBody
     public ResponseEntity<Map<String, Object>> uploadHomework(
@@ -200,7 +221,7 @@ public class TeacherController {
         }
     }
 
-    // 解析 deadline 字符串为 Date 类型，使用 ISO 8601 格式
+    // 解析 deadline 字符串为 Date 类型，使用 ISO 8601 格式--done
     private Date parseDeadline(String deadline) {
         try {
             // 解析 ISO 8601 格式的时间字符串（例如 "2024-11-08T23:59:59.000Z"）
@@ -210,6 +231,40 @@ public class TeacherController {
             // 如果格式不正确，返回 null
             return null;
         }
+    }
+
+    //老师上传课程大纲-- postman 测试通过
+    @PostMapping("/course/{courseId}/uploadCourseOutLine")
+    @ResponseBody
+    public ResponseEntity<Map<String, Object>> uploadCourseOutLine(
+            @PathVariable Long courseId,
+            @RequestParam(value = "file", required = false) MultipartFile file
+            //,
+            //HttpSession session
+            ) {
+
+        Map<String, Object> responseMap = new HashMap<>();
+        //Teacher teacher = (Teacher) session.getAttribute("loggedInTeacher");
+
+        // 检查是否已登录
+        //if (teacher != null) {
+            try {
+                // 调用服务层保存OutLine
+                courseService.saveOutLine(courseId,file);
+
+                // 返回成功消息
+                responseMap.put("message", "大纲上传成功");
+                return ResponseEntity.ok(responseMap);
+
+            } catch (Exception e) {
+                logger.error("上传过程中出现错误", e);
+                responseMap.put("error", "大纲上传失败");
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(responseMap);
+            }
+//        } else {
+//            responseMap.put("error", "未登录，请重新登录");
+//            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(responseMap);
+//        }
     }
     //TODO:增加老师查看选课学生的功能
     @GetMapping("/course/{courseId}/students")
