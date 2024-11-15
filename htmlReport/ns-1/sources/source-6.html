@@ -1,0 +1,175 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <title>Coverage Report > LoginController</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/idea.min.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.min.js"></script>
+  <script type="text/javascript" src="../../js/highlightjs-line-numbers.min.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">com.example.edubjtu.controller</a>
+</div>
+
+<h1>Coverage Summary for Class: LoginController (com.example.edubjtu.controller)</h1>
+
+<table class="coverageStats">
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Class, %
+</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">LoginController</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (1/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    75%
+  </span>
+  <span class="absValue">
+    (3/4)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    96.2%
+  </span>
+  <span class="absValue">
+    (25/26)
+  </span>
+</td>
+</tr>
+
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<code class="sourceCode" id="sourceCode">&nbsp;package com.example.edubjtu.controller;
+&nbsp;
+&nbsp;import com.example.edubjtu.model.Student;
+&nbsp;import com.example.edubjtu.model.Teacher;
+&nbsp;import com.example.edubjtu.service.StudentService;
+&nbsp;import com.example.edubjtu.service.TeacherService;
+&nbsp;import jakarta.servlet.http.HttpSession;
+&nbsp;import org.springframework.beans.factory.annotation.Autowired;
+&nbsp;import org.springframework.http.ResponseEntity;
+&nbsp;import org.springframework.stereotype.Controller;
+&nbsp;import org.springframework.ui.Model;
+&nbsp;import org.springframework.web.bind.annotation.GetMapping;
+&nbsp;import org.springframework.web.bind.annotation.PostMapping;
+&nbsp;import org.springframework.web.bind.annotation.RequestParam;
+&nbsp;import org.slf4j.Logger;
+&nbsp;import org.slf4j.LoggerFactory;
+&nbsp;import org.springframework.web.bind.annotation.ResponseBody;
+&nbsp;
+&nbsp;import java.util.HashMap;
+&nbsp;import java.util.Map;
+&nbsp;
+&nbsp;@Controller
+<b class="fc">&nbsp;public class LoginController {</b>
+&nbsp;    @Autowired
+&nbsp;    private StudentService studentService;
+&nbsp;
+&nbsp;    @Autowired
+&nbsp;    private TeacherService teacherService;
+&nbsp;
+<b class="fc">&nbsp;    private static final Logger logger = LoggerFactory.getLogger(LoginController.class);</b>
+&nbsp;
+&nbsp;
+&nbsp;    @PostMapping(&quot;/login&quot;)
+&nbsp;    public ResponseEntity&lt;Map&lt;String, Object&gt;&gt; login(@RequestParam String userNum,
+&nbsp;                                                     @RequestParam String password,
+&nbsp;                                                     HttpSession session) {
+<b class="fc">&nbsp;        Map&lt;String, Object&gt; response = new HashMap&lt;&gt;();</b>
+&nbsp;
+<b class="fc">&nbsp;        Student student = studentService.findStudentByStudentNum(userNum);</b>
+<b class="fc">&nbsp;        if (student != null &amp;&amp; student.getPassword().equals(password)) {</b>
+<b class="fc">&nbsp;            session.setAttribute(&quot;loggedInStudent&quot;, student);</b>
+<b class="fc">&nbsp;            logger.info(&quot;Student logged in: {}&quot;, student.getName());</b>
+<b class="fc">&nbsp;            response.put(&quot;success&quot;, true);</b>
+<b class="fc">&nbsp;            response.put(&quot;redirect&quot;, &quot;/student/dashboard&quot;); // 重定向URL</b>
+<b class="fc">&nbsp;            response.put(&quot;userName&quot;,student.getName());</b>
+<b class="fc">&nbsp;            response.put(&quot;userNum&quot;,student.getStudentNum());</b>
+<b class="fc">&nbsp;            return ResponseEntity.ok(response);</b>
+&nbsp;        }
+&nbsp;
+<b class="fc">&nbsp;        Teacher teacher = teacherService.findTeacherByTeacherNum(userNum);</b>
+<b class="fc">&nbsp;        if (teacher != null &amp;&amp; teacher.getPassword().equals(password)) {</b>
+<b class="fc">&nbsp;            session.setAttribute(&quot;loggedInTeacher&quot;, teacher);</b>
+<b class="fc">&nbsp;            logger.info(&quot;Teacher logged in: {}&quot;, teacher.getName());</b>
+<b class="fc">&nbsp;            response.put(&quot;success&quot;, true);</b>
+<b class="fc">&nbsp;            response.put(&quot;redirect&quot;, &quot;/teacher/dashboard&quot;); // 重定向URL</b>
+<b class="fc">&nbsp;            response.put(&quot;userName&quot;,teacher.getName());</b>
+<b class="fc">&nbsp;            response.put(&quot;userNum&quot;,teacher.getTeacherNum());</b>
+<b class="fc">&nbsp;            return ResponseEntity.ok(response);</b>
+&nbsp;        }
+&nbsp;
+<b class="fc">&nbsp;        logger.warn(&quot;Login failed for user number: {}&quot;, userNum);</b>
+<b class="fc">&nbsp;        response.put(&quot;success&quot;, false);</b>
+<b class="fc">&nbsp;        response.put(&quot;message&quot;, &quot;登录失败&quot;); // Failure message</b>
+<b class="fc">&nbsp;        return ResponseEntity.badRequest().body(response); // 返回错误响应</b>
+&nbsp;    }
+&nbsp;
+&nbsp;
+&nbsp;    @GetMapping(&quot;/logout&quot;)
+&nbsp;    public String logout(HttpSession session) {
+<b class="nc">&nbsp;        return &quot;redirect:/login?logout&quot;;</b>
+&nbsp;    }
+&nbsp;}
+</code>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+      hljs.highlightAll()
+      hljs.initLineNumbersOnLoad();
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2024-11-15 14:57</div>
+</div>
+</body>
+</html>

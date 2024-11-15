@@ -2,10 +2,7 @@ package com.example.edubjtu.controller;
 
 import com.example.edubjtu.model.Course;
 import com.example.edubjtu.model.Notification;
-import com.example.edubjtu.service.CourseService;
-import com.example.edubjtu.service.NotificationService;
-import com.example.edubjtu.service.PostService;
-import com.example.edubjtu.service.CommentService;
+import com.example.edubjtu.service.*;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;

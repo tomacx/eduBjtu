@@ -1,0 +1,160 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <title>Coverage Report > FavoriteController</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/idea.min.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.min.js"></script>
+  <script type="text/javascript" src="../../js/highlightjs-line-numbers.min.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">com.example.edubjtu.controller</a>
+</div>
+
+<h1>Coverage Summary for Class: FavoriteController (com.example.edubjtu.controller)</h1>
+
+<table class="coverageStats">
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Class, %
+</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">FavoriteController</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (1/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (2/2)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    81.8%
+  </span>
+  <span class="absValue">
+    (9/11)
+  </span>
+</td>
+</tr>
+
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<code class="sourceCode" id="sourceCode">&nbsp;package com.example.edubjtu.controller;
+&nbsp;
+&nbsp;import com.example.edubjtu.dto.MyComment;
+&nbsp;import com.example.edubjtu.dto.MyFavoOthersFavo;
+&nbsp;import com.example.edubjtu.dto.MyFavouritePosts;
+&nbsp;import com.example.edubjtu.model.Favorite;
+&nbsp;import com.example.edubjtu.model.Post;
+&nbsp;import com.example.edubjtu.model.Student;
+&nbsp;import com.example.edubjtu.service.FavoriteService;
+&nbsp;import com.example.edubjtu.service.PostService;
+&nbsp;import com.example.edubjtu.service.StudentService;
+&nbsp;import jakarta.servlet.http.HttpSession;
+&nbsp;import org.springframework.beans.factory.annotation.Autowired;
+&nbsp;import org.springframework.data.repository.query.Param;
+&nbsp;import org.springframework.http.ResponseEntity;
+&nbsp;import org.springframework.stereotype.Controller;
+&nbsp;import org.springframework.ui.Model;
+&nbsp;import org.springframework.web.bind.annotation.GetMapping;
+&nbsp;import org.springframework.web.bind.annotation.RequestMapping;
+&nbsp;import org.springframework.web.bind.annotation.RequestParam;
+&nbsp;import org.springframework.web.bind.annotation.ResponseBody;
+&nbsp;
+&nbsp;import java.util.HashMap;
+&nbsp;import java.util.List;
+&nbsp;import java.util.Map;
+&nbsp;import java.util.stream.Collectors;
+&nbsp;
+&nbsp;@Controller
+&nbsp;@RequestMapping(&quot;/favourite&quot;)
+<b class="fc">&nbsp;public class FavoriteController {</b>
+&nbsp;
+&nbsp;    @Autowired
+&nbsp;    private FavoriteService favoriteService;
+&nbsp;
+&nbsp;    @Autowired
+&nbsp;    private PostService postService;
+&nbsp;
+&nbsp;    @Autowired
+&nbsp;    StudentService studentService;
+&nbsp;
+&nbsp;    @GetMapping(&quot;/getFavourite&quot;)
+&nbsp;    @ResponseBody
+&nbsp;    public ResponseEntity&lt;Map&lt;String,Object&gt;&gt; listFavorites(HttpSession session, @RequestParam String studentNum) {
+<b class="fc">&nbsp;        Map&lt;String,Object&gt; map = new HashMap&lt;&gt;();</b>
+<b class="fc">&nbsp;        Student student = studentService.findStudentByStudentNum(studentNum);</b>
+<b class="fc">&nbsp;        if(student!=null){</b>
+<b class="fc">&nbsp;           List&lt;MyFavouritePosts&gt; postList  = favoriteService.getFavoritesPostsByStudentId(student.getId());</b>
+<b class="fc">&nbsp;           map.put(&quot;postList&quot;,postList);</b>
+<b class="fc">&nbsp;           List&lt;MyFavoOthersFavo&gt; othersFavos =favoriteService.getMyFavOthersFavoByStudentId(student.getId());</b>
+<b class="fc">&nbsp;           map.put(&quot;othersFavos&quot;,othersFavos);</b>
+<b class="fc">&nbsp;           return ResponseEntity.ok(map);</b>
+&nbsp;        }
+<b class="nc">&nbsp;        map.put(&quot;success&quot;,false);</b>
+<b class="nc">&nbsp;        return (ResponseEntity&lt;Map&lt;String, Object&gt;&gt;) ResponseEntity.notFound();</b>
+&nbsp;    }
+&nbsp;
+&nbsp;}
+</code>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+      hljs.highlightAll()
+      hljs.initLineNumbersOnLoad();
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2024-11-15 14:57</div>
+</div>
+</body>
+</html>

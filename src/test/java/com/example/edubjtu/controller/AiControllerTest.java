@@ -21,6 +21,9 @@ public class AiControllerTest {
     private MockMvc mockMvc;
 
     @MockBean
+    private AiController aiController;
+
+    @MockBean
     private AiService aiService;
 
     @Test

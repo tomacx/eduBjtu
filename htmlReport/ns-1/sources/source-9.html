@@ -1,0 +1,348 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <title>Coverage Report > StudentController</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/idea.min.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.min.js"></script>
+  <script type="text/javascript" src="../../js/highlightjs-line-numbers.min.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">com.example.edubjtu.controller</a>
+</div>
+
+<h1>Coverage Summary for Class: StudentController (com.example.edubjtu.controller)</h1>
+
+<table class="coverageStats">
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Class, %
+</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">StudentController</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (1/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    84.6%
+  </span>
+  <span class="absValue">
+    (11/13)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    60.7%
+  </span>
+  <span class="absValue">
+    (54/89)
+  </span>
+</td>
+</tr>
+
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<code class="sourceCode" id="sourceCode">&nbsp;package com.example.edubjtu.controller;
+&nbsp;
+&nbsp;import com.example.edubjtu.model.Student;
+&nbsp;import com.example.edubjtu.model.Course;
+&nbsp;import com.example.edubjtu.model.Notification;
+&nbsp;import com.example.edubjtu.model.Post;
+&nbsp;import com.example.edubjtu.repository.CourseRepository;
+&nbsp;import com.example.edubjtu.repository.StudentRepository;
+&nbsp;import com.example.edubjtu.service.*;
+&nbsp;import jakarta.servlet.http.HttpSession;
+&nbsp;import org.springframework.beans.factory.annotation.Autowired;
+&nbsp;import org.springframework.core.io.Resource;
+&nbsp;import org.springframework.core.io.UrlResource;
+&nbsp;import org.springframework.http.HttpStatus;
+&nbsp;import org.springframework.stereotype.Controller;
+&nbsp;import org.springframework.ui.Model;
+&nbsp;import org.springframework.web.bind.annotation.*;
+&nbsp;import org.slf4j.Logger;
+&nbsp;import org.slf4j.LoggerFactory;
+&nbsp;
+&nbsp;import java.io.IOException;
+&nbsp;import java.net.URLEncoder;
+&nbsp;import java.nio.charset.StandardCharsets;
+&nbsp;import java.nio.file.Path;
+&nbsp;import java.util.HashMap;
+&nbsp;import java.util.List;
+&nbsp;import java.util.Map;
+&nbsp;
+&nbsp;import org.springframework.http.HttpHeaders;
+&nbsp;import org.springframework.http.ResponseEntity;
+&nbsp;import org.springframework.web.multipart.MultipartFile;
+&nbsp;
+&nbsp;
+&nbsp;@Controller
+&nbsp;@RequestMapping(&quot;/student&quot;)
+<b class="fc">&nbsp;public class StudentController {</b>
+&nbsp;
+&nbsp;    @Autowired
+&nbsp;    private StudentService studentService;
+&nbsp;
+&nbsp;    @Autowired
+&nbsp;    private CourseService courseService;
+&nbsp;
+&nbsp;    @Autowired
+&nbsp;    private NotificationService notificationService;
+&nbsp;
+&nbsp;    @Autowired
+&nbsp;    private CourseRepository courseRepository;
+&nbsp;
+&nbsp;    @Autowired
+&nbsp;    private ResourceService resourceService;
+&nbsp;
+&nbsp;    @Autowired
+&nbsp;    private HomeWorkService homeworkService;
+&nbsp;
+&nbsp;    @Autowired
+&nbsp;    private PostService postService;
+&nbsp;
+<b class="fc">&nbsp;    private static final Logger logger = LoggerFactory.getLogger(StudentController.class);</b>
+&nbsp;    @Autowired
+&nbsp;    private StudentRepository studentRepository;
+&nbsp;
+&nbsp;    @GetMapping(&quot;/dashboard&quot;)
+&nbsp;    @ResponseBody // 添加此注解以返回 JSON
+&nbsp;    public ResponseEntity&lt;Map&lt;String, Object&gt;&gt; showDashboard(HttpSession session) {
+<b class="fc">&nbsp;        Map&lt;String, Object&gt; modelMap = new HashMap&lt;&gt;();</b>
+<b class="fc">&nbsp;        Student student = (Student) session.getAttribute(&quot;loggedInStudent&quot;);</b>
+&nbsp;
+<b class="fc">&nbsp;        if (student != null) {</b>
+<b class="nc">&nbsp;            modelMap.put(&quot;student&quot;, student);</b>
+&nbsp;            // 获取通知信息
+<b class="nc">&nbsp;            List&lt;Notification&gt; notifications = notificationService.getAllNotification();</b>
+<b class="nc">&nbsp;            modelMap.put(&quot;notifications&quot;, notifications);</b>
+&nbsp;
+<b class="nc">&nbsp;            return ResponseEntity.ok(modelMap); // 返回学生欢迎页面及数据</b>
+&nbsp;        } else {
+<b class="fc">&nbsp;            modelMap.put(&quot;error&quot;, &quot;未登录，请重新登录&quot;);</b>
+<b class="fc">&nbsp;            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(modelMap); // 返回未授权状态</b>
+&nbsp;        }
+&nbsp;    }
+&nbsp;
+&nbsp;    @GetMapping(&quot;/edit&quot;)
+&nbsp;    @ResponseBody
+&nbsp;    public ResponseEntity&lt;Map&lt;String, Object&gt;&gt; showEditForm(HttpSession session) {
+<b class="fc">&nbsp;        Map&lt;String, Object&gt; responseMap = new HashMap&lt;&gt;();</b>
+<b class="fc">&nbsp;        Student student = (Student) session.getAttribute(&quot;loggedInStudent&quot;);</b>
+<b class="fc">&nbsp;        if (student != null) {</b>
+<b class="nc">&nbsp;            responseMap.put(&quot;student&quot;, student);</b>
+<b class="nc">&nbsp;            return ResponseEntity.ok(responseMap);</b>
+&nbsp;        } else {
+<b class="fc">&nbsp;            responseMap.put(&quot;redirect&quot;, &quot;/login&quot;);</b>
+<b class="fc">&nbsp;            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(responseMap);</b>
+&nbsp;        }
+&nbsp;    }
+&nbsp;
+&nbsp;    @PostMapping(&quot;/update&quot;)
+&nbsp;    @ResponseBody
+&nbsp;    public ResponseEntity&lt;Map&lt;String, Object&gt;&gt; updateStudent(@RequestParam(&quot;studentNum&quot;) String studentNum,
+&nbsp;                                                             @RequestParam(&quot;password&quot;) String password) {
+<b class="fc">&nbsp;        Map&lt;String, Object&gt; responseMap = new HashMap&lt;&gt;();</b>
+&nbsp;        try {
+<b class="fc">&nbsp;            studentService.updateStudentPassword(studentNum, password);</b>
+<b class="fc">&nbsp;            responseMap.put(&quot;message&quot;, &quot;Update successful&quot;);</b>
+<b class="fc">&nbsp;            responseMap.put(&quot;studentNum&quot;, studentNum);</b>
+<b class="fc">&nbsp;            return ResponseEntity.ok(responseMap);</b>
+<b class="nc">&nbsp;        } catch (Exception e) {</b>
+<b class="nc">&nbsp;            responseMap.put(&quot;error&quot;, &quot;Update failed&quot;);</b>
+<b class="nc">&nbsp;            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(responseMap);</b>
+&nbsp;        }
+&nbsp;    }
+&nbsp;
+&nbsp;    @GetMapping(&quot;/course/{courseId}&quot;)
+&nbsp;    @ResponseBody
+&nbsp;    public ResponseEntity&lt;Map&lt;String, Object&gt;&gt; showCourseDetail(@PathVariable Long courseId) {
+<b class="fc">&nbsp;        Map&lt;String, Object&gt; responseMap = new HashMap&lt;&gt;();</b>
+<b class="fc">&nbsp;        Course course = courseService.getCourseByCourseId(courseId);</b>
+<b class="fc">&nbsp;        System.out.println(course);</b>
+<b class="fc">&nbsp;        if (course == null) {</b>
+<b class="fc">&nbsp;            responseMap.put(&quot;error&quot;, &quot;Course not found&quot;);</b>
+<b class="fc">&nbsp;            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(responseMap);</b>
+&nbsp;        }
+<b class="fc">&nbsp;        responseMap.put(&quot;course&quot;, course);</b>
+<b class="fc">&nbsp;        return ResponseEntity.ok(responseMap);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    //homepage课程获取
+&nbsp;    @GetMapping(&quot;/courses&quot;)
+&nbsp;    @ResponseBody
+&nbsp;    public ResponseEntity&lt;Map&lt;String, Object&gt;&gt; getStudentCourses(Model model, @RequestParam String studentNum){
+<b class="fc">&nbsp;        Map&lt;String, Object&gt; modelMap = new HashMap&lt;&gt;();</b>
+<b class="fc">&nbsp;        System.out.println(studentNum);</b>
+<b class="fc">&nbsp;        Student student = studentService.findStudentByStudentNum(studentNum);</b>
+<b class="fc">&nbsp;        System.out.println(student.getId());</b>
+<b class="fc">&nbsp;        List&lt;Course&gt; courses = courseRepository.findCoursesByStudentId(student.getId());</b>
+<b class="fc">&nbsp;        modelMap.put(&quot;courses&quot;, courses);</b>
+<b class="fc">&nbsp;        return ResponseEntity.ok(modelMap);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    //homepage所有通知获取
+&nbsp;    @GetMapping(&quot;/getNotification&quot;)
+&nbsp;    public ResponseEntity&lt;Map&lt;String, Object&gt;&gt; getNotification(@RequestParam(&quot;studentNum&quot;) String studentNum) {
+<b class="fc">&nbsp;        Student student = studentService.findStudentByStudentNum(studentNum);</b>
+<b class="fc">&nbsp;        List&lt;Notification&gt; notifications = notificationService.getNotificationsByStudentNum(student.getId());</b>
+<b class="fc">&nbsp;        Map&lt;String,Object&gt; modelMap = new HashMap&lt;&gt;();</b>
+<b class="fc">&nbsp;        modelMap.put(&quot;notifications&quot;, notifications);</b>
+&nbsp;        // 统计通知的数量并返回
+<b class="fc">&nbsp;        int notificationNum = notifications.size(); // 获取通知的数量</b>
+<b class="fc">&nbsp;        modelMap.put(&quot;notificationNum&quot;, notificationNum); // 将数量放入 modelMap</b>
+<b class="fc">&nbsp;        return ResponseEntity.ok(modelMap);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    //学生获取所有作业--done
+&nbsp;    @GetMapping(&quot;/course/homework&quot;)
+&nbsp;    @ResponseBody
+&nbsp;    public ResponseEntity&lt;Map&lt;String, Object&gt;&gt; getHomework(@RequestParam Long courseId, @RequestParam String studentNum) {
+<b class="fc">&nbsp;        Map&lt;String, Object&gt; modelMap = new HashMap&lt;&gt;();</b>
+<b class="fc">&nbsp;        modelMap.put(&quot;homeworkList&quot;,homeworkService.getHomeworkByCourseIdAndStudentNum(courseId,studentNum));</b>
+<b class="fc">&nbsp;        return ResponseEntity.ok(modelMap);</b>
+&nbsp;    };
+&nbsp;
+&nbsp;    //增加学生端上传作业的功能
+&nbsp;    @PostMapping(&quot;course/homework/upload&quot;)
+&nbsp;    public ResponseEntity&lt;Map&lt;String, Object&gt;&gt; uploadStudentHomework(@RequestParam Long homeworkId,
+&nbsp;                                                                     @RequestParam String studentContent,
+&nbsp;                                                                     @RequestParam(&quot;files&quot;) MultipartFile[] files) throws IOException {
+<b class="fc">&nbsp;        Map&lt;String, Object&gt; responseMap = new HashMap&lt;&gt;();</b>
+&nbsp;        // 检查文件类型
+<b class="fc">&nbsp;        for (MultipartFile file : files) {</b>
+<b class="fc">&nbsp;            String contentType = file.getContentType();</b>
+<b class="fc">&nbsp;            if (contentType != null &amp;&amp; !isValidDocumentType(contentType)) {</b>
+<b class="nc">&nbsp;                responseMap.put(&quot;error&quot;, &quot;不支持的文件类型&quot;);</b>
+<b class="nc">&nbsp;                return ResponseEntity.badRequest().body(responseMap);</b>
+&nbsp;            }
+&nbsp;        }
+&nbsp;
+&nbsp;        // 处理多个文件上传
+<b class="fc">&nbsp;        homeworkService.saveStudentHomework(homeworkId, studentContent, files);</b>
+&nbsp;
+<b class="fc">&nbsp;        responseMap.put(&quot;message&quot;, &quot;作业上传成功&quot;);</b>
+<b class="fc">&nbsp;        return ResponseEntity.ok(responseMap);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;
+&nbsp;    // 验证文件类型
+&nbsp;    private boolean isValidDocumentType(String contentType) {
+<b class="nc">&nbsp;        return contentType.equals(&quot;application/pdf&quot;) ||</b>
+<b class="nc">&nbsp;                contentType.equals(&quot;application/msword&quot;) ||</b>
+<b class="nc">&nbsp;                contentType.equals(&quot;application/vnd.openxmlformats-officedocument.wordprocessingml.document&quot;) ||</b>
+<b class="nc">&nbsp;                contentType.equals(&quot;application/vnd.ms-excel&quot;) ||</b>
+<b class="nc">&nbsp;                contentType.equals(&quot;application/vnd.openxmlformats-officedocument.spreadsheetml.sheet&quot;);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    //TODO:增加学生端下载课程资源的功能
+&nbsp;    @GetMapping(&quot;/course/{courseId}/downloadResource/{resourceId}&quot;)
+&nbsp;    public ResponseEntity&lt;Resource&gt; downloadResource(@PathVariable Long courseId, @PathVariable Long resourceId) {
+&nbsp;        try {
+<b class="nc">&nbsp;            Path filePath = resourceService.getResourceFilePath(courseId, resourceId);</b>
+<b class="nc">&nbsp;            Resource fileResource = new UrlResource(filePath.toUri());</b>
+&nbsp;
+<b class="nc">&nbsp;            if (fileResource.exists() || fileResource.isReadable()) {</b>
+<b class="nc">&nbsp;                String encodedFileName = URLEncoder.encode(fileResource.getFilename(), StandardCharsets.UTF_8.toString());</b>
+<b class="nc">&nbsp;                return ResponseEntity.ok()</b>
+<b class="nc">&nbsp;                        .header(HttpHeaders.CONTENT_DISPOSITION, &quot;attachment; filename*=UTF-8&#39;&#39;&quot;+encodedFileName)</b>
+<b class="nc">&nbsp;                        .body(fileResource);</b>
+&nbsp;            } else {
+<b class="nc">&nbsp;                throw new IOException(&quot;Could not read the file!&quot;);</b>
+&nbsp;            }
+<b class="nc">&nbsp;        } catch (IOException e) {</b>
+<b class="nc">&nbsp;            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();</b>
+&nbsp;        }
+&nbsp;    }
+&nbsp;
+&nbsp;    //TODO:发送帖子
+&nbsp;    @PostMapping(&quot;/post&quot;)
+&nbsp;    @ResponseBody
+&nbsp;    public ResponseEntity&lt;Map&lt;String, Object&gt;&gt; sendPost(@RequestParam(&quot;courseId&quot;) Long courseId,
+&nbsp;                                                        @RequestParam(&quot;title&quot;) String title,
+&nbsp;                                                        @RequestParam(&quot;content&quot;) String content,
+&nbsp;                                                        HttpSession session){
+<b class="fc">&nbsp;        Map&lt;String, Object&gt; responseMap = new HashMap&lt;&gt;();</b>
+<b class="fc">&nbsp;        Student student = (Student) session.getAttribute(&quot;loggedInStudent&quot;);</b>
+<b class="fc">&nbsp;        if (student == null){</b>
+<b class="fc">&nbsp;            responseMap.put(&quot;error&quot;, &quot;未登录，请重新登录&quot;);</b>
+<b class="fc">&nbsp;            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(responseMap);</b>
+&nbsp;        }
+&nbsp;
+<b class="nc">&nbsp;        Post post = new Post();</b>
+<b class="nc">&nbsp;        post.setCourseId(courseId);</b>
+<b class="nc">&nbsp;        post.setStudentId(student.getId());</b>
+<b class="nc">&nbsp;        post.setTitle(title);</b>
+<b class="nc">&nbsp;        post.setContent(content);</b>
+<b class="nc">&nbsp;        postService.savePost(post);</b>
+&nbsp;
+<b class="nc">&nbsp;        responseMap.put(&quot;message&quot;, &quot;帖子发送成功&quot;);</b>
+<b class="nc">&nbsp;        responseMap.put(&quot;postId&quot;, post.getPostId());</b>
+<b class="nc">&nbsp;        return ResponseEntity.ok(responseMap);</b>
+&nbsp;    }
+&nbsp;    //TODO:发送评论
+&nbsp;
+&nbsp;    //TODO:增加学生端搜索帖子的功能的功能
+&nbsp;
+&nbsp;    //TODO:增加学生端对帖子评论、点赞、收藏的功能
+&nbsp;
+&nbsp;    //TODO:增加学生端删除自己发送的帖子的功能
+&nbsp;}
+</code>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+      hljs.highlightAll()
+      hljs.initLineNumbersOnLoad();
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2024-11-15 14:57</div>
+</div>
+</body>
+</html>

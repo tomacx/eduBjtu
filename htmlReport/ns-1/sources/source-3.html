@@ -1,0 +1,223 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <title>Coverage Report > CourseController</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/idea.min.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.min.js"></script>
+  <script type="text/javascript" src="../../js/highlightjs-line-numbers.min.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">com.example.edubjtu.controller</a>
+</div>
+
+<h1>Coverage Summary for Class: CourseController (com.example.edubjtu.controller)</h1>
+
+<table class="coverageStats">
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Class, %
+</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">CourseController</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (1/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    40%
+  </span>
+  <span class="absValue">
+    (4/10)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    30.8%
+  </span>
+  <span class="absValue">
+    (12/39)
+  </span>
+</td>
+</tr>
+
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<code class="sourceCode" id="sourceCode">&nbsp;package com.example.edubjtu.controller;
+&nbsp;
+&nbsp;import com.example.edubjtu.dto.CoursePost;
+&nbsp;import com.example.edubjtu.dto.PostComment;
+&nbsp;import com.example.edubjtu.model.Course;
+&nbsp;import com.example.edubjtu.model.Notification;
+&nbsp;import com.example.edubjtu.repository.CourseRepository;
+&nbsp;import com.example.edubjtu.service.*;
+&nbsp;import org.springframework.beans.factory.annotation.Autowired;
+&nbsp;import org.springframework.http.ResponseEntity;
+&nbsp;import org.springframework.stereotype.Controller;
+&nbsp;import org.springframework.ui.Model;
+&nbsp;import org.springframework.web.bind.annotation.*;
+&nbsp;import org.springframework.web.multipart.MultipartFile;
+&nbsp;
+&nbsp;import java.io.IOException;
+&nbsp;import java.util.HashMap;
+&nbsp;import java.util.List;
+&nbsp;import java.util.Map;
+&nbsp;
+&nbsp;@Controller
+<b class="fc">&nbsp;public class CourseController {</b>
+&nbsp;
+&nbsp;    @Autowired
+&nbsp;    private CourseService courseService;
+&nbsp;
+&nbsp;    @Autowired
+&nbsp;    private NotificationService notificationService;
+&nbsp;
+&nbsp;    @Autowired
+&nbsp;    private PostService postService;
+&nbsp;    @Autowired
+&nbsp;    private CommentService commentService;
+&nbsp;
+&nbsp;    @GetMapping(&quot;/courses&quot;)
+&nbsp;    public String getCourses(Model model, @RequestParam Long teacherId) {
+<b class="fc">&nbsp;        List&lt;Course&gt; courses = courseService.getCoursesByTeacherId(teacherId);</b>
+<b class="fc">&nbsp;        model.addAttribute(&quot;courses&quot;, courses);</b>
+<b class="fc">&nbsp;        return &quot;teacherCourses&quot;; // 返回显示课程的视图</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    @GetMapping(&quot;/{courseId}&quot;)
+&nbsp;    public String getCourseDetails(@PathVariable Long courseId, Model model) {
+<b class="fc">&nbsp;        Course course = courseService.getCourseByCourseId(courseId);</b>
+<b class="fc">&nbsp;        if (course == null) {</b>
+<b class="nc">&nbsp;            return &quot;error/404&quot;; // 确保有404页面</b>
+&nbsp;        }
+<b class="fc">&nbsp;        model.addAttribute(&quot;course&quot;, course);</b>
+<b class="fc">&nbsp;        return &quot;courseDetails&quot;; // 确保有courseDetails.html</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    @GetMapping(&quot;/course/{courseId}&quot;)
+&nbsp;    public String getCourseDetail(@PathVariable Long courseId, Model model){
+<b class="nc">&nbsp;        Course course = courseService.getCourseByCourseId(courseId);</b>
+<b class="nc">&nbsp;        if(course == null){</b>
+<b class="nc">&nbsp;            return &quot;error/404&quot;;</b>
+&nbsp;        }
+<b class="nc">&nbsp;        model.addAttribute(&quot;course&quot;,course);</b>
+<b class="nc">&nbsp;        return &quot;courseDetail&quot;;</b>
+&nbsp;    }
+&nbsp;    @GetMapping(&quot;/{id}/edit&quot;)
+&nbsp;    public String showEditForm(@PathVariable Long id, Model model) {
+<b class="nc">&nbsp;        Course course = courseService.getCourseById(id);</b>
+<b class="nc">&nbsp;        model.addAttribute(&quot;course&quot;, course);</b>
+<b class="nc">&nbsp;        return &quot;courseEdit&quot;;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    @PostMapping(&quot;/{id}/update&quot;)
+&nbsp;    public String updateCourse(@PathVariable Long id,
+&nbsp;                               @RequestParam(&quot;intro&quot;) String intro,
+&nbsp;                               @RequestParam(&quot;outline&quot;) String outline,
+&nbsp;                               @RequestParam(&quot;teacherInfo&quot;) String teacherInfo) {
+<b class="nc">&nbsp;        courseService.updateCourseInfo(id, intro, outline, teacherInfo);</b>
+<b class="nc">&nbsp;        return &quot;redirect:/course/&quot; + id + &quot;/edit?success&quot;;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    @PostMapping(&quot;course/{id}/upload&quot;)
+&nbsp;    public String uploadResource(@PathVariable Long id,
+&nbsp;                                 @RequestParam(&quot;file&quot;) MultipartFile file) {
+&nbsp;        try {
+<b class="nc">&nbsp;            courseService.saveResource(id, file);</b>
+<b class="nc">&nbsp;        } catch (IOException e) {</b>
+<b class="nc">&nbsp;            e.printStackTrace();</b>
+<b class="nc">&nbsp;            return &quot;redirect:/course/&quot; + id + &quot;/edit?error&quot;;</b>
+&nbsp;        }
+<b class="nc">&nbsp;        return &quot;redirect:/course/&quot; + id + &quot;/edit?success&quot;;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    //课程通知
+&nbsp;    @GetMapping(&quot;/course/notification&quot;)
+&nbsp;    @ResponseBody
+&nbsp;    public  ResponseEntity&lt;Map&lt;String,Object&gt;&gt; getCourseNotification(@RequestParam Long courseId){
+<b class="fc">&nbsp;        Map&lt;String,Object&gt; modelMap = new HashMap&lt;&gt;();</b>
+<b class="fc">&nbsp;        List&lt;Notification&gt; notifications=notificationService.getNotificationsByCourseId(courseId);</b>
+<b class="fc">&nbsp;        modelMap.put(&quot;notifications&quot;,notifications);</b>
+<b class="fc">&nbsp;        return ResponseEntity.ok(modelMap);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    //课程讨论
+&nbsp;    @GetMapping(&quot;/course/discussion&quot;)
+&nbsp;    @ResponseBody
+&nbsp;    public ResponseEntity&lt;Map&lt;String, Object&gt;&gt; getDiscussion(@RequestParam Long courseId) {
+<b class="nc">&nbsp;        System.out.println(&quot;Received courseId: &quot; + courseId); // 打印 courseId</b>
+<b class="nc">&nbsp;        Map&lt;String, Object&gt; modelMap = new HashMap&lt;&gt;();</b>
+<b class="nc">&nbsp;        List&lt;CoursePost&gt; posts = postService.getPostsByCourseId(courseId);</b>
+<b class="nc">&nbsp;        modelMap.put(&quot;posts&quot;, posts);</b>
+<b class="nc">&nbsp;        return ResponseEntity.ok(modelMap);</b>
+&nbsp;    }
+&nbsp;    //课程讨论详情
+&nbsp;    @GetMapping(&quot;/course/discussionById&quot;)
+&nbsp;    @ResponseBody
+&nbsp;    public ResponseEntity&lt;Map&lt;String, Object&gt;&gt; getDiscussionById(@RequestParam Long postId) {
+<b class="nc">&nbsp;        Map&lt;String, Object&gt; modelMap = new HashMap&lt;&gt;();</b>
+<b class="nc">&nbsp;        List&lt;CoursePost&gt; coursePost=postService.getPostByPostId(postId);</b>
+<b class="nc">&nbsp;        List&lt;PostComment&gt; postComments=commentService.getCommentByPostId(postId);</b>
+<b class="nc">&nbsp;        modelMap.put(&quot;postDetial&quot;, coursePost);</b>
+<b class="nc">&nbsp;        modelMap.put(&quot;postComments&quot;, postComments);</b>
+<b class="nc">&nbsp;        return ResponseEntity.ok(modelMap);</b>
+&nbsp;    }
+&nbsp;}
+</code>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+      hljs.highlightAll()
+      hljs.initLineNumbersOnLoad();
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2024-11-15 14:57</div>
+</div>
+</body>
+</html>

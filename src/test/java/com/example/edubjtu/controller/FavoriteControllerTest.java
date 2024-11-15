@@ -4,6 +4,7 @@ import com.example.edubjtu.dto.MyFavouritePosts;
 import com.example.edubjtu.dto.MyFavoOthersFavo;
 import com.example.edubjtu.model.Student;
 import com.example.edubjtu.service.FavoriteService;
+import com.example.edubjtu.service.PostService;
 import com.example.edubjtu.service.StudentService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -31,6 +32,9 @@ public class FavoriteControllerTest {
 
     @MockBean
     private StudentService studentService;
+
+    @MockBean
+    private PostService postService;
 
     @Test
     public void testListFavorites() throws Exception {
