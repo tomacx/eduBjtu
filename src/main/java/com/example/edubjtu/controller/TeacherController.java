@@ -1,9 +1,7 @@
 package com.example.edubjtu.controller;
 
-import com.example.edubjtu.model.Resource;
-import com.example.edubjtu.model.Student;
-import com.example.edubjtu.model.Teacher;
-import com.example.edubjtu.model.Course;
+import com.example.edubjtu.dto.CoursePost;
+import com.example.edubjtu.model.*;
 import com.example.edubjtu.service.*;
 import jakarta.persistence.Entity;
 import jakarta.servlet.http.HttpSession;
@@ -50,6 +48,12 @@ public class TeacherController {
 
     @Autowired
     private HomeWorkService homeworkService;
+
+    @Autowired
+    private PostService postService;
+
+    @Autowired
+    private CommentService commentService;
     private static final Logger logger = LoggerFactory.getLogger(TeacherController.class);
 
     @GetMapping("/dashboard")
@@ -116,7 +120,7 @@ public class TeacherController {
         return "redirect:/teacher/welcome";
     }
 
-    //TODO:增加老师上传通知的功能
+    //TODO:增加老师上传通知的功能 待连接前端
     @PostMapping("/sendnotification")
     public ResponseEntity<Map<String, Object>> sendNotification(@RequestParam("title") String title,
                                                         @RequestParam("content") String content,
@@ -179,7 +183,8 @@ public class TeacherController {
         return ResponseEntity.ok(modelMap);
     }
 
-    //增加老师上传作业的功能--done
+
+    //TODO 增加老师上传作业的功能 待连接前端
     @PostMapping("/course/{courseId}/uploadHomework")
     @ResponseBody
     public ResponseEntity<Map<String, Object>> uploadHomework(
@@ -281,10 +286,91 @@ public class TeacherController {
         }
     }
     //TODO:老师上传帖子
+    @PostMapping("/post")
+    @ResponseBody
+    public ResponseEntity<Map<String, Object>> uploadPost(@RequestParam("courseId") Long courseId,
+                                                          @RequestParam("title") String title,
+                                                          @RequestParam("content") String content,
+                                                          HttpSession session) {
+        Map<String, Object> responseMap = new HashMap<>();
+        Teacher teacher = (Teacher) session.getAttribute("loggedInTeacher");
+        if (teacher != null) {
+            try {
+                // 创建一个新的Post对象
+                Post post = new Post();
+                post.setCourseId(courseId);
+                post.setTeacherId(teacher.getId());
+                post.setTitle(title);
+                post.setContent(content);
+
+                // 使用PostService保存帖子
+                postService.savePost(post);
+
+                responseMap.put("message", "帖子上传成功");
+                responseMap.put("postId", post.getPostId());
+                return ResponseEntity.ok(responseMap);
+            } catch (Exception e) {
+                logger.error("帖子上传失败", e);
+                responseMap.put("error", "帖子上传失败");
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(responseMap);
+            }
+        } else {
+            responseMap.put("error", "未登录，请重新登录");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(responseMap);
+        }
+    }
     //TODO:增加老师查看帖子的功能
-
+    @GetMapping("/course/{courseId}/posts")
+    @ResponseBody
+    public ResponseEntity<Map<String, Object>> viewPosts(@PathVariable Long courseId, HttpSession session) {
+        Map<String, Object> responseMap = new HashMap<>();
+        Teacher teacher = (Teacher) session.getAttribute("loggedInTeacher");
+        if (teacher != null) {
+            try {
+                // 获取指定课程的所有帖子
+                List<CoursePost> posts = postService.getPostsByCourseId(courseId);
+                responseMap.put("posts", posts);
+                return ResponseEntity.ok(responseMap);
+            } catch (Exception e) {
+                logger.error("获取帖子失败", e);
+                responseMap.put("error", "获取帖子失败");
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(responseMap);
+            }
+        } else {
+            responseMap.put("error", "未登录，请重新登录");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(responseMap);
+        }
+    }
     //TODO:增加老师管理评论的功能
-
+    @DeleteMapping("/course/{courseId}/comment/{commentId}")
+    @ResponseBody
+    public ResponseEntity<Map<String, Object>> deleteComment(@PathVariable Long courseId,
+                                                             @PathVariable Long commentId,
+                                                             HttpSession session) {
+        Map<String, Object> responseMap = new HashMap<>();
+        Teacher teacher = (Teacher) session.getAttribute("loggedInTeacher");
+        if (teacher != null) {
+            try {
+                // 检查评论是否属于该教师的课程
+                Comment comment = commentService.getCommentById(commentId);
+                if (comment != null && comment.getTeacherId().equals(teacher.getId())) {
+                    commentService.deleteComment(commentId);
+                    responseMap.put("message", "评论删除成功");
+                    return ResponseEntity.ok(responseMap);
+                } else {
+                    responseMap.put("error", "无权删除此评论或评论不存在");
+                    return ResponseEntity.status(HttpStatus.FORBIDDEN).body(responseMap);
+                }
+            } catch (Exception e) {
+                logger.error("评论删除失败", e);
+                responseMap.put("error", "评论删除失败");
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(responseMap);
+            }
+        } else {
+            responseMap.put("error", "未登录，请重新登录");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(responseMap);
+        }
+    }
     //TODO:增加老师批阅作业的功能（包括下载作业资源）
     @PostMapping("/gradeHomework")
     @ResponseBody
@@ -305,7 +391,35 @@ public class TeacherController {
             }
         }
     //TODO:增加老师删除帖子的功能
-
+    @DeleteMapping("/course/{courseId}/post/{postId}")
+    @ResponseBody
+    public ResponseEntity<Map<String, Object>> deletePost(@PathVariable Long courseId,
+                                                          @PathVariable Long postId,
+                                                          HttpSession session) {
+        Map<String, Object> responseMap = new HashMap<>();
+        Teacher teacher = (Teacher) session.getAttribute("loggedInTeacher");
+        if (teacher != null) {
+            try {
+                // 检查帖子是否属于该教师的课程
+                Post post = postService.getPostById(postId);
+                if (post != null && post.getCourseId().equals(courseId) && post.getTeacherId().equals(teacher.getId())) {
+                    postService.deletePost(postId);
+                    responseMap.put("message", "帖子删除成功");
+                    return ResponseEntity.ok(responseMap);
+                } else {
+                    responseMap.put("error", "无权删除此帖子或帖子不存在");
+                    return ResponseEntity.status(HttpStatus.FORBIDDEN).body(responseMap);
+                }
+            } catch (Exception e) {
+                logger.error("帖子删除失败", e);
+                responseMap.put("error", "帖子删除失败");
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(responseMap);
+            }
+        } else {
+            responseMap.put("error", "未登录，请重新登录");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(responseMap);
+        }
+    }
     //TODO:增加教师端查看成绩统计的功能
     }
 

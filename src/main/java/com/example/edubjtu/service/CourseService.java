@@ -63,6 +63,10 @@ public class CourseService {
         return courseRepository.findCoursesByTeacherId(teacherId);
     }
 
+    public List<Course> getCourseByStudentId(Long studentId){
+        return courseRepository.findCoursesByStudentId(studentId);
+    }
+
     public void saveOutLine(Long courseId, MultipartFile file) throws IOException {
         if(file!=null){
             resourceService.saveCourseOutLineByTeacher(courseId,file);
