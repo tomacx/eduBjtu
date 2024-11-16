@@ -16,9 +16,11 @@ public interface PostRepository extends JpaRepository<Post, Long> {
 
     List<Post> findByStudentId(Long studentId);
 
-
     @Query(value = """
             Select new com.example.edubjtu.dto.CoursePost( p.postId, p.courseId,  s.name,  p.likeNum, p.favoNum, p.content,  p.title ) from Post p \
              JOIN Student s on s.id =  p.studentId where p.postId=:postId""")
     List<CoursePost> findCoursePostById(@Param("postId") Long postId);
+
+    //搜索帖子
+    List<Post> findByTitleContaining(String title);
 }

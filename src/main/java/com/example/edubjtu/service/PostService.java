@@ -38,4 +38,8 @@ public class PostService {
     public void deletePost(Long postId) {
         postRepository.deleteById(postId);
     }
+
+    public List<Post> searchPostsByTitle(String title) {
+        return postRepository.findByTitleContaining(title);
+    }
 }

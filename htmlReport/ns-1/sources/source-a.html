@@ -51,18 +51,18 @@ Current scope:     <a href="../../index.html">all classes</a>
 </td>
 <td class="coverageStat">
   <span class="percent">
-    33.3%
+    31.6%
   </span>
   <span class="absValue">
-    (6/18)
+    (6/19)
   </span>
 </td>
 <td class="coverageStat">
   <span class="percent">
-    28.9%
+    27%
   </span>
   <span class="absValue">
-    (43/149)
+    (43/159)
   </span>
 </td>
 </tr>
@@ -82,7 +82,6 @@ Current scope:     <a href="../../index.html">all classes</a>
 &nbsp;import jakarta.persistence.Entity;
 &nbsp;import jakarta.servlet.http.HttpSession;
 &nbsp;import org.springframework.beans.factory.annotation.Autowired;
-&nbsp;import org.springframework.format.annotation.DateTimeFormat;
 &nbsp;import org.springframework.http.HttpStatus;
 &nbsp;import org.springframework.http.ResponseEntity;
 &nbsp;import org.springframework.stereotype.Controller;
@@ -98,6 +97,7 @@ Current scope:     <a href="../../index.html">all classes</a>
 &nbsp;import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyEmitterReturnValueHandler;
 &nbsp;
 &nbsp;import java.io.IOException;
+&nbsp;import java.text.SimpleDateFormat;
 &nbsp;import java.util.Date;
 &nbsp;import java.util.HashMap;
 &nbsp;import java.util.List;
@@ -148,30 +148,6 @@ Current scope:     <a href="../../index.html">all classes</a>
 &nbsp;        }
 &nbsp;    }
 &nbsp;
-&nbsp;    @GetMapping(&quot;/edit&quot;)
-&nbsp;    public String showEditForm(HttpSession session, Model model) {
-<b class="nc">&nbsp;        Teacher teacher = (Teacher) session.getAttribute(&quot;loggedInTeacher&quot;);</b>
-<b class="nc">&nbsp;        if (teacher != null) {</b>
-<b class="nc">&nbsp;            model.addAttribute(&quot;teacher&quot;, teacher);</b>
-<b class="nc">&nbsp;            return &quot;teacherEdit&quot;;</b>
-&nbsp;        } else {
-<b class="nc">&nbsp;            return &quot;redirect:/login&quot;;</b>
-&nbsp;        }
-&nbsp;    }
-&nbsp;
-&nbsp;    @PostMapping(&quot;/update&quot;)
-&nbsp;    public String updateTeacher(@RequestParam(&quot;teacherId&quot;) Long teacherId,
-&nbsp;                                @RequestParam(&quot;password&quot;) String password) {
-<b class="nc">&nbsp;        teacherService.updateTeacherPassword(teacherId, password);</b>
-<b class="nc">&nbsp;        return &quot;redirect:/teacher/dashboard?success&quot;;</b>
-&nbsp;    }
-&nbsp;
-&nbsp;    @GetMapping(&quot;/welcome&quot;)
-&nbsp;    public String showTeacherCourses(@RequestParam Long teacherId, Model model) {
-<b class="nc">&nbsp;        List&lt;Course&gt; courses = courseService.getCoursesByTeacherId(teacherId);</b>
-<b class="nc">&nbsp;        model.addAttribute(&quot;courses&quot;, courses);</b>
-<b class="nc">&nbsp;        return &quot;teacherWelcome&quot;; // 确保有teacherWelcome.html</b>
-&nbsp;    }
 &nbsp;
 &nbsp;    @GetMapping(&quot;/course/{courseId}&quot;)
 &nbsp;    @ResponseBody
@@ -189,33 +165,66 @@ Current scope:     <a href="../../index.html">all classes</a>
 &nbsp;        }
 &nbsp;    }
 &nbsp;
-&nbsp;    //TODO：具体需要修改的课程信息的内容
-&nbsp;    @PostMapping(&quot;/course/update&quot;)
-&nbsp;    public String updateCourse(@ModelAttribute Course course) {
-<b class="nc">&nbsp;        courseService.updateCourse(course);</b>
-<b class="nc">&nbsp;        return &quot;redirect:/teacher/welcome&quot;;</b>
-&nbsp;    }
-&nbsp;    //TODO：上传修改的课程信息
-&nbsp;    @PostMapping(&quot;/course/{courseId}/upload&quot;)
-&nbsp;    public String uploadResource(@PathVariable Long courseId, @RequestParam(&quot;file&quot;) MultipartFile file) {
-&nbsp;        try {
-<b class="nc">&nbsp;            resourceService.saveCourseResource(courseId, file);</b>
-<b class="nc">&nbsp;        } catch (IOException e) {</b>
-<b class="nc">&nbsp;            e.printStackTrace();</b>
-&nbsp;            // Handle error
-&nbsp;        }
-<b class="nc">&nbsp;        return &quot;redirect:/teacher/course/&quot; + courseId;</b>
-&nbsp;    }
-&nbsp;    //TODO:增加老师上传通知的功能
-&nbsp;    @PostMapping(&quot;/sendnotification&quot;)
-&nbsp;    public ResponseEntity&lt;Map&lt;String, Object&gt;&gt; sendNotification(@RequestParam(&quot;title&quot;) String title,
-&nbsp;                                                        @RequestParam(&quot;content&quot;) String content,
-&nbsp;                                                        HttpSession session) {
+&nbsp;    //老师上传课程大纲
+&nbsp;    @PostMapping(&quot;/course/{courseId}/uploadCourseOutLine&quot;)
+&nbsp;    @ResponseBody
+&nbsp;    public ResponseEntity&lt;Map&lt;String, Object&gt;&gt; uploadCourseOutLine(
+&nbsp;            @PathVariable Long courseId,
+&nbsp;            @RequestParam(value = &quot;file&quot;, required = false) MultipartFile file
+&nbsp;    ) {
+&nbsp;
 <b class="nc">&nbsp;        Map&lt;String, Object&gt; responseMap = new HashMap&lt;&gt;();</b>
-<b class="nc">&nbsp;        Teacher teacher = (Teacher) session.getAttribute(&quot;loggedInTeacher&quot;);</b>
+&nbsp;
+&nbsp;        try {
+&nbsp;            // 调用服务层保存OutLine
+<b class="nc">&nbsp;            courseService.saveOutLine(courseId,file);</b>
+&nbsp;
+&nbsp;            // 返回成功消息
+<b class="nc">&nbsp;            responseMap.put(&quot;message&quot;, &quot;大纲上传成功&quot;);</b>
+<b class="nc">&nbsp;            return ResponseEntity.ok(responseMap);</b>
+&nbsp;
+<b class="nc">&nbsp;        } catch (Exception e) {</b>
+<b class="nc">&nbsp;            logger.error(&quot;上传过程中出现错误&quot;, e);</b>
+<b class="nc">&nbsp;            responseMap.put(&quot;error&quot;, &quot;大纲上传失败&quot;);</b>
+<b class="nc">&nbsp;            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(responseMap);</b>
+&nbsp;        }
+&nbsp;    }
+&nbsp;    //老师上传课程时间
+&nbsp;    @PostMapping(&quot;/course/{courseId}/uploadCourseCalendar&quot;)
+&nbsp;    @ResponseBody
+&nbsp;    public ResponseEntity&lt;Map&lt;String, Object&gt;&gt; uploadCourseCalendar(
+&nbsp;            @PathVariable Long courseId,
+&nbsp;            @RequestParam(value = &quot;file&quot;, required = false) MultipartFile file
+&nbsp;    ) {
+&nbsp;
+<b class="nc">&nbsp;        Map&lt;String, Object&gt; responseMap = new HashMap&lt;&gt;();</b>
+&nbsp;
+&nbsp;        try {
+&nbsp;            // 调用服务层保存OutLine
+<b class="nc">&nbsp;            courseService.saveCalendar(courseId,file);</b>
+&nbsp;
+&nbsp;            // 返回成功消息
+<b class="nc">&nbsp;            responseMap.put(&quot;message&quot;, &quot;大纲上传成功&quot;);</b>
+<b class="nc">&nbsp;            return ResponseEntity.ok(responseMap);</b>
+&nbsp;
+<b class="nc">&nbsp;        } catch (Exception e) {</b>
+<b class="nc">&nbsp;            logger.error(&quot;上传过程中出现错误&quot;, e);</b>
+<b class="nc">&nbsp;            responseMap.put(&quot;error&quot;, &quot;大纲上传失败&quot;);</b>
+<b class="nc">&nbsp;            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(responseMap);</b>
+&nbsp;        }
+&nbsp;    }
+&nbsp;    //增加老师上传通知的功能--done
+&nbsp;    @PostMapping(&quot;/sendNotification&quot;)
+&nbsp;    public ResponseEntity&lt;Map&lt;String, Object&gt;&gt; sendNotification(@RequestParam String title,
+&nbsp;                                                                @RequestParam String content,
+&nbsp;                                                                @RequestParam String teacherNum,
+&nbsp;                                                                @RequestParam Long courseId) {
+<b class="nc">&nbsp;        Map&lt;String, Object&gt; responseMap = new HashMap&lt;&gt;();</b>
+<b class="nc">&nbsp;        Teacher teacher = teacherService.findTeacherByTeacherNum(teacherNum);</b>
 <b class="nc">&nbsp;        if (teacher != null) {</b>
 &nbsp;            // 假设有一个通知服务来处理通知的保存
-<b class="nc">&nbsp;            boolean success = notificationService.saveNotification(teacher.getId(), title, content);</b>
+<b class="nc">&nbsp;            boolean success = notificationService.saveNotification(teacher.getId(), title, content,courseId);</b>
+&nbsp;
 <b class="nc">&nbsp;            if (success) {</b>
 <b class="nc">&nbsp;                responseMap.put(&quot;message&quot;, &quot;通知上传成功&quot;);</b>
 <b class="nc">&nbsp;                return ResponseEntity.ok(responseMap);</b>
@@ -228,56 +237,100 @@ Current scope:     <a href="../../index.html">all classes</a>
 <b class="nc">&nbsp;            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(responseMap);</b>
 &nbsp;        }
 &nbsp;    }
-&nbsp;    //TODO:增加老师上传课程资源功能
-&nbsp;    @PostMapping(&quot;/course/{courseId}/uploadResourse&quot;)
+&nbsp;
+&nbsp;    //老师上传试题功能--done
+&nbsp;    @PostMapping(&quot;/course/{courseId}/uploadWorkSet&quot;)
 &nbsp;    @ResponseBody
-&nbsp;    public ResponseEntity&lt;Map&lt;String,Object&gt;&gt; uploadResourse(@PathVariable Long courseId,
-&nbsp;                                                             @RequestParam(&quot;file&quot;) MultipartFile file,
-&nbsp;                                                             HttpSession session){
+&nbsp;    public ResponseEntity&lt;Map&lt;String,Object&gt;&gt; uploadWorkSet(@PathVariable Long courseId, @RequestParam(&quot;file&quot;) MultipartFile[] file) throws IOException {
 <b class="nc">&nbsp;        Map&lt;String, Object&gt; responseMap = new HashMap&lt;&gt;();</b>
-<b class="nc">&nbsp;        Teacher teacher = (Teacher) session.getAttribute(&quot;loggedInTeacher&quot;);</b>
-<b class="nc">&nbsp;        if(teacher != null){</b>
-&nbsp;            try{
-<b class="nc">&nbsp;                resourceService.saveCourseResource(courseId, file);</b>
-<b class="nc">&nbsp;                responseMap.put(&quot;message&quot;,&quot;资源上传成功&quot;);</b>
-<b class="nc">&nbsp;                return ResponseEntity.ok(responseMap);</b>
-<b class="nc">&nbsp;            }catch(IOException e){</b>
-<b class="nc">&nbsp;                logger.error(&quot;资源上传失败&quot;,e);</b>
-<b class="nc">&nbsp;                responseMap.put(&quot;error&quot;,&quot;资源上传失败&quot;);</b>
-<b class="nc">&nbsp;                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(responseMap);</b>
-&nbsp;            }
-&nbsp;        }else{
-<b class="nc">&nbsp;            responseMap.put(&quot;error&quot;,&quot;未登录，请重新登录&quot;);</b>
-<b class="nc">&nbsp;            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(responseMap);</b>
-&nbsp;        }
+<b class="nc">&nbsp;        resourceService.saveCourseWorkSets(courseId,file);</b>
+<b class="nc">&nbsp;        responseMap.put(&quot;message&quot;,&quot;习题集上传成功&quot;);</b>
+<b class="nc">&nbsp;        return ResponseEntity.ok(responseMap);</b>
 &nbsp;    }
-&nbsp;    //TODO:增加老师上传作业的功能
+&nbsp;    //homepage课程获取--done
+&nbsp;    @GetMapping(&quot;/courses&quot;)
+&nbsp;    @ResponseBody
+&nbsp;    public ResponseEntity&lt;Map&lt;String, Object&gt;&gt; getStudentCourses(@RequestParam String teacherNum){
+<b class="nc">&nbsp;        Map&lt;String, Object&gt; modelMap = new HashMap&lt;&gt;();</b>
+<b class="nc">&nbsp;        System.out.println(teacherNum);</b>
+<b class="nc">&nbsp;        Teacher teacher=teacherService.findTeacherByTeacherNum(teacherNum);</b>
+<b class="nc">&nbsp;        System.out.println(teacher.getId());</b>
+<b class="nc">&nbsp;        List&lt;Course&gt; courses = courseService.getCoursesByTeacherId(teacher.getId());</b>
+<b class="nc">&nbsp;        modelMap.put(&quot;courses&quot;, courses);</b>
+<b class="nc">&nbsp;        return ResponseEntity.ok(modelMap);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    //增加老师上传课程资源功能 课件等--done
+&nbsp;    @PostMapping(&quot;/course/{courseId}/uploadResource&quot;)
+&nbsp;    @ResponseBody
+&nbsp;    public ResponseEntity&lt;Map&lt;String,Object&gt;&gt; uploadResource(@PathVariable Long courseId,
+&nbsp;                                                             @RequestParam(&quot;file&quot;) MultipartFile[] file) throws IOException {
+<b class="nc">&nbsp;        Map&lt;String, Object&gt; responseMap = new HashMap&lt;&gt;();</b>
+&nbsp;
+<b class="nc">&nbsp;            resourceService.saveCourseResources(courseId, file);</b>
+<b class="nc">&nbsp;            responseMap.put(&quot;message&quot;,&quot;资源上传成功&quot;);</b>
+<b class="nc">&nbsp;            return ResponseEntity.ok(responseMap);</b>
+&nbsp;
+&nbsp;    }
+&nbsp;
+&nbsp;    //TODO 增加老师上传作业的功能 待连接前端
 &nbsp;    @PostMapping(&quot;/course/{courseId}/uploadHomework&quot;)
 &nbsp;    @ResponseBody
-&nbsp;    public ResponseEntity&lt;Map&lt;String, Object&gt;&gt; uploadHomework(@PathVariable Long courseId,
-&nbsp;                                                              @RequestParam(&quot;file&quot;) MultipartFile file,
-&nbsp;                                                              @RequestParam(&quot;homeworkNum&quot;) Integer homeworkNum,
-&nbsp;                                                              @RequestParam(&quot;deadline&quot;) @DateTimeFormat(pattern = &quot;yyyy-MM-dd&quot;) Date deadline,
-&nbsp;                                                              @RequestParam(&quot;content&quot;) String content,
-&nbsp;                                                              HttpSession session) {
+&nbsp;    public ResponseEntity&lt;Map&lt;String, Object&gt;&gt; uploadHomework(
+&nbsp;            @PathVariable Long courseId,
+&nbsp;            @RequestParam int homeworkNum,
+&nbsp;            @RequestParam String deadline,  // deadline 为传入的字符串
+&nbsp;            @RequestParam(required = false) String content,
+&nbsp;            @RequestParam(value = &quot;file&quot;, required = false) MultipartFile file
+&nbsp;            ) {
+&nbsp;
 <b class="nc">&nbsp;        Map&lt;String, Object&gt; responseMap = new HashMap&lt;&gt;();</b>
-<b class="nc">&nbsp;        Teacher teacher = (Teacher) session.getAttribute(&quot;loggedInTeacher&quot;);</b>
-<b class="nc">&nbsp;        if (teacher != null) {</b>
+&nbsp;
 &nbsp;            try {
-<b class="nc">&nbsp;                System.out.println(deadline);</b>
-<b class="nc">&nbsp;                homeworkService.saveHomework(courseId, homeworkNum, deadline, content, file);</b>
+&nbsp;                // 解析 deadline 字符串为 Date 类型
+<b class="nc">&nbsp;                Date parsedDeadline = parseDeadline(deadline);</b>
+<b class="nc">&nbsp;                if (parsedDeadline == null) {</b>
+<b class="nc">&nbsp;                    responseMap.put(&quot;error&quot;, &quot;无效的截止时间格式&quot;);</b>
+<b class="nc">&nbsp;                    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(responseMap);</b>
+&nbsp;                }
+&nbsp;
+&nbsp;                // 调用服务层保存作业信息
+<b class="nc">&nbsp;                homeworkService.saveHomework(courseId, homeworkNum, parsedDeadline, content,file);</b>
+&nbsp;
+&nbsp;                // 返回成功消息
 <b class="nc">&nbsp;                responseMap.put(&quot;message&quot;, &quot;作业上传成功&quot;);</b>
 <b class="nc">&nbsp;                return ResponseEntity.ok(responseMap);</b>
-<b class="nc">&nbsp;            } catch (IOException e) {</b>
-<b class="nc">&nbsp;                logger.error(&quot;作业上传失败&quot;, e);</b>
+&nbsp;
+<b class="nc">&nbsp;            } catch (Exception e) {</b>
+<b class="nc">&nbsp;                logger.error(&quot;上传过程中出现错误&quot;, e);</b>
 <b class="nc">&nbsp;                responseMap.put(&quot;error&quot;, &quot;作业上传失败&quot;);</b>
 <b class="nc">&nbsp;                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(responseMap);</b>
 &nbsp;            }
-&nbsp;        } else {
-<b class="nc">&nbsp;            responseMap.put(&quot;error&quot;, &quot;未登录，请重新登录&quot;);</b>
-<b class="nc">&nbsp;            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(responseMap);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    //老师已发布的作业list
+&nbsp;    @GetMapping(&quot;/course/{courseId}/homeworkList&quot;)
+&nbsp;    @ResponseBody
+&nbsp;    public ResponseEntity&lt;Map&lt;String, Object&gt;&gt; getHomeworkList(@PathVariable Long courseId) {
+<b class="nc">&nbsp;        Map&lt;String, Object&gt; responseMap = new HashMap&lt;&gt;();</b>
+<b class="nc">&nbsp;        List&lt;Homework&gt; homeworkList = homeworkService.getFirstHomeworkByCourseId(courseId);</b>
+<b class="nc">&nbsp;        responseMap.put(&quot;homeworkList&quot;, homeworkList);</b>
+<b class="nc">&nbsp;        return ResponseEntity.ok(responseMap);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    // 解析 deadline 字符串为 Date 类型，使用 ISO 8601 格式--done
+&nbsp;    private Date parseDeadline(String deadline) {
+&nbsp;        try {
+&nbsp;            // 解析 ISO 8601 格式的时间字符串（例如 &quot;2024-11-08T23:59:59.000Z&quot;）
+<b class="nc">&nbsp;            SimpleDateFormat sdf = new SimpleDateFormat(&quot;yyyy-MM-dd&#39;T&#39;HH:mm:ss.SSSX&quot;);  // X 处理时区偏移</b>
+<b class="nc">&nbsp;            return sdf.parse(deadline);</b>
+<b class="nc">&nbsp;        } catch (Exception e) {</b>
+&nbsp;            // 如果格式不正确，返回 null
+<b class="nc">&nbsp;            return null;</b>
 &nbsp;        }
 &nbsp;    }
+&nbsp;
+&nbsp;
 &nbsp;    //TODO:增加老师查看选课学生的功能
 &nbsp;    @GetMapping(&quot;/course/{courseId}/students&quot;)
 &nbsp;    @ResponseBody
@@ -360,7 +413,7 @@ Current scope:     <a href="../../index.html">all classes</a>
 &nbsp;            try {
 &nbsp;                // 检查评论是否属于该教师的课程
 <b class="fc">&nbsp;                Comment comment = commentService.getCommentById(commentId);</b>
-<b class="fc">&nbsp;                if (comment != null &amp;&amp; comment.getCourseId().equals(courseId) &amp;&amp; comment.getTeacherId().equals(teacher.getId())) {</b>
+<b class="fc">&nbsp;                if (comment != null &amp;&amp; comment.getTeacherId().equals(teacher.getId())) {</b>
 <b class="fc">&nbsp;                    commentService.deleteComment(commentId);</b>
 <b class="fc">&nbsp;                    responseMap.put(&quot;message&quot;, &quot;评论删除成功&quot;);</b>
 <b class="fc">&nbsp;                    return ResponseEntity.ok(responseMap);</b>
@@ -428,8 +481,6 @@ Current scope:     <a href="../../index.html">all classes</a>
 &nbsp;        }
 &nbsp;    }
 &nbsp;    //TODO:增加教师端查看成绩统计的功能
-&nbsp;
-&nbsp;   
 &nbsp;    }
 &nbsp;
 </code>
@@ -455,7 +506,7 @@ Current scope:     <a href="../../index.html">all classes</a>
 
 <div class="footer">
     
-    <div style="float:right;">generated on 2024-11-15 14:57</div>
+    <div style="float:right;">generated on 2024-11-16 16:55</div>
 </div>
 </body>
 </html>
