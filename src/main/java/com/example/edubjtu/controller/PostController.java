@@ -45,4 +45,16 @@ public class PostController {
         model.addAttribute("post", post);
         return "postDetails";
     }
+
+    //TODO：搜索帖子
+    @GetMapping("/search")
+    @ResponseBody
+    public ResponseEntity<Map<String, Object>> searchPosts(@RequestParam("title") String title) {
+        List<Post> posts = postService.searchPostsByTitle(title);
+        Map<String, Object> modelMap = new HashMap<>();
+        modelMap.put("posts", posts);
+        int postsNum = posts.size();
+        modelMap.put("postNum", postsNum);
+        return ResponseEntity.ok(modelMap);
+    }
 }

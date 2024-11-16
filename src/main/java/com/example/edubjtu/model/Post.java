@@ -36,4 +36,18 @@ public class Post {
 
     @Column(name = "title")
     private String title;
+
+    public Post(){
+
+    }
+    public Post(Long postId,Long courseId, Long studentId, Long teacherId,Long likeNum, Long favoNum, String content,String title){
+        this.postId = postId;
+        this.courseId = courseId;
+        this.studentId = studentId;
+        this.teacherId = teacherId;
+        this.likeNum = likeNum;
+        this.favoNum = favoNum;
+        this.title = title;
+        this.content = content;
+    }
 }

@@ -51,18 +51,18 @@ Current scope:     <a href="../../index.html">all classes</a>
 </td>
 <td class="coverageStat">
   <span class="percent">
-    40%
+    10%
   </span>
   <span class="absValue">
-    (4/10)
+    (1/10)
   </span>
 </td>
 <td class="coverageStat">
   <span class="percent">
-    30.8%
+    1.5%
   </span>
   <span class="absValue">
-    (12/39)
+    (1/67)
   </span>
 </td>
 </tr>
@@ -78,11 +78,14 @@ Current scope:     <a href="../../index.html">all classes</a>
 &nbsp;
 &nbsp;import com.example.edubjtu.dto.CoursePost;
 &nbsp;import com.example.edubjtu.dto.PostComment;
+&nbsp;import com.example.edubjtu.dto.ResourceList;
 &nbsp;import com.example.edubjtu.model.Course;
 &nbsp;import com.example.edubjtu.model.Notification;
+&nbsp;import com.example.edubjtu.model.Resource;
 &nbsp;import com.example.edubjtu.repository.CourseRepository;
 &nbsp;import com.example.edubjtu.service.*;
 &nbsp;import org.springframework.beans.factory.annotation.Autowired;
+&nbsp;import org.springframework.http.HttpStatus;
 &nbsp;import org.springframework.http.ResponseEntity;
 &nbsp;import org.springframework.stereotype.Controller;
 &nbsp;import org.springframework.ui.Model;
@@ -93,6 +96,7 @@ Current scope:     <a href="../../index.html">all classes</a>
 &nbsp;import java.util.HashMap;
 &nbsp;import java.util.List;
 &nbsp;import java.util.Map;
+&nbsp;import java.util.Optional;
 &nbsp;
 &nbsp;@Controller
 <b class="fc">&nbsp;public class CourseController {</b>
@@ -107,72 +111,20 @@ Current scope:     <a href="../../index.html">all classes</a>
 &nbsp;    private PostService postService;
 &nbsp;    @Autowired
 &nbsp;    private CommentService commentService;
+&nbsp;    @Autowired
+&nbsp;    private ResourceService resourceService;
 &nbsp;
-&nbsp;    @GetMapping(&quot;/courses&quot;)
-&nbsp;    public String getCourses(Model model, @RequestParam Long teacherId) {
-<b class="fc">&nbsp;        List&lt;Course&gt; courses = courseService.getCoursesByTeacherId(teacherId);</b>
-<b class="fc">&nbsp;        model.addAttribute(&quot;courses&quot;, courses);</b>
-<b class="fc">&nbsp;        return &quot;teacherCourses&quot;; // 返回显示课程的视图</b>
-&nbsp;    }
-&nbsp;
-&nbsp;    @GetMapping(&quot;/{courseId}&quot;)
-&nbsp;    public String getCourseDetails(@PathVariable Long courseId, Model model) {
-<b class="fc">&nbsp;        Course course = courseService.getCourseByCourseId(courseId);</b>
-<b class="fc">&nbsp;        if (course == null) {</b>
-<b class="nc">&nbsp;            return &quot;error/404&quot;; // 确保有404页面</b>
-&nbsp;        }
-<b class="fc">&nbsp;        model.addAttribute(&quot;course&quot;, course);</b>
-<b class="fc">&nbsp;        return &quot;courseDetails&quot;; // 确保有courseDetails.html</b>
-&nbsp;    }
-&nbsp;
-&nbsp;    @GetMapping(&quot;/course/{courseId}&quot;)
-&nbsp;    public String getCourseDetail(@PathVariable Long courseId, Model model){
-<b class="nc">&nbsp;        Course course = courseService.getCourseByCourseId(courseId);</b>
-<b class="nc">&nbsp;        if(course == null){</b>
-<b class="nc">&nbsp;            return &quot;error/404&quot;;</b>
-&nbsp;        }
-<b class="nc">&nbsp;        model.addAttribute(&quot;course&quot;,course);</b>
-<b class="nc">&nbsp;        return &quot;courseDetail&quot;;</b>
-&nbsp;    }
-&nbsp;    @GetMapping(&quot;/{id}/edit&quot;)
-&nbsp;    public String showEditForm(@PathVariable Long id, Model model) {
-<b class="nc">&nbsp;        Course course = courseService.getCourseById(id);</b>
-<b class="nc">&nbsp;        model.addAttribute(&quot;course&quot;, course);</b>
-<b class="nc">&nbsp;        return &quot;courseEdit&quot;;</b>
-&nbsp;    }
-&nbsp;
-&nbsp;    @PostMapping(&quot;/{id}/update&quot;)
-&nbsp;    public String updateCourse(@PathVariable Long id,
-&nbsp;                               @RequestParam(&quot;intro&quot;) String intro,
-&nbsp;                               @RequestParam(&quot;outline&quot;) String outline,
-&nbsp;                               @RequestParam(&quot;teacherInfo&quot;) String teacherInfo) {
-<b class="nc">&nbsp;        courseService.updateCourseInfo(id, intro, outline, teacherInfo);</b>
-<b class="nc">&nbsp;        return &quot;redirect:/course/&quot; + id + &quot;/edit?success&quot;;</b>
-&nbsp;    }
-&nbsp;
-&nbsp;    @PostMapping(&quot;course/{id}/upload&quot;)
-&nbsp;    public String uploadResource(@PathVariable Long id,
-&nbsp;                                 @RequestParam(&quot;file&quot;) MultipartFile file) {
-&nbsp;        try {
-<b class="nc">&nbsp;            courseService.saveResource(id, file);</b>
-<b class="nc">&nbsp;        } catch (IOException e) {</b>
-<b class="nc">&nbsp;            e.printStackTrace();</b>
-<b class="nc">&nbsp;            return &quot;redirect:/course/&quot; + id + &quot;/edit?error&quot;;</b>
-&nbsp;        }
-<b class="nc">&nbsp;        return &quot;redirect:/course/&quot; + id + &quot;/edit?success&quot;;</b>
-&nbsp;    }
-&nbsp;
-&nbsp;    //课程通知
+&nbsp;    //课程通知--done
 &nbsp;    @GetMapping(&quot;/course/notification&quot;)
 &nbsp;    @ResponseBody
 &nbsp;    public  ResponseEntity&lt;Map&lt;String,Object&gt;&gt; getCourseNotification(@RequestParam Long courseId){
-<b class="fc">&nbsp;        Map&lt;String,Object&gt; modelMap = new HashMap&lt;&gt;();</b>
-<b class="fc">&nbsp;        List&lt;Notification&gt; notifications=notificationService.getNotificationsByCourseId(courseId);</b>
-<b class="fc">&nbsp;        modelMap.put(&quot;notifications&quot;,notifications);</b>
-<b class="fc">&nbsp;        return ResponseEntity.ok(modelMap);</b>
+<b class="nc">&nbsp;        Map&lt;String,Object&gt; modelMap = new HashMap&lt;&gt;();</b>
+<b class="nc">&nbsp;        List&lt;Notification&gt; notifications=notificationService.getNotificationsByCourseId(courseId);</b>
+<b class="nc">&nbsp;        modelMap.put(&quot;notifications&quot;,notifications);</b>
+<b class="nc">&nbsp;        return ResponseEntity.ok(modelMap);</b>
 &nbsp;    }
 &nbsp;
-&nbsp;    //课程讨论
+&nbsp;    //课程讨论--done
 &nbsp;    @GetMapping(&quot;/course/discussion&quot;)
 &nbsp;    @ResponseBody
 &nbsp;    public ResponseEntity&lt;Map&lt;String, Object&gt;&gt; getDiscussion(@RequestParam Long courseId) {
@@ -182,7 +134,8 @@ Current scope:     <a href="../../index.html">all classes</a>
 <b class="nc">&nbsp;        modelMap.put(&quot;posts&quot;, posts);</b>
 <b class="nc">&nbsp;        return ResponseEntity.ok(modelMap);</b>
 &nbsp;    }
-&nbsp;    //课程讨论详情
+&nbsp;
+&nbsp;    //课程讨论详情--done
 &nbsp;    @GetMapping(&quot;/course/discussionById&quot;)
 &nbsp;    @ResponseBody
 &nbsp;    public ResponseEntity&lt;Map&lt;String, Object&gt;&gt; getDiscussionById(@RequestParam Long postId) {
@@ -192,6 +145,109 @@ Current scope:     <a href="../../index.html">all classes</a>
 <b class="nc">&nbsp;        modelMap.put(&quot;postDetial&quot;, coursePost);</b>
 <b class="nc">&nbsp;        modelMap.put(&quot;postComments&quot;, postComments);</b>
 <b class="nc">&nbsp;        return ResponseEntity.ok(modelMap);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    //课程简介--done
+&nbsp;    @GetMapping(&quot;/course/intro&quot;)
+&nbsp;    @ResponseBody
+&nbsp;    public ResponseEntity&lt;Map&lt;String,Object&gt;&gt; getCourseIntro( @RequestParam Long courseId) {
+<b class="nc">&nbsp;        Course course = courseService.getCourseByCourseId(courseId);</b>
+<b class="nc">&nbsp;        Map&lt;String,Object&gt; modelMap = new HashMap&lt;&gt;();</b>
+<b class="nc">&nbsp;        modelMap.put(&quot;intro&quot;, course.getIntro());</b>
+<b class="nc">&nbsp;        return ResponseEntity.ok(modelMap);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    //课程资源列表--电子课件--done
+&nbsp;    @GetMapping(&quot;/course/resource&quot;)
+&nbsp;    @ResponseBody
+&nbsp;    public ResponseEntity&lt;Map&lt;String,Object&gt;&gt; getCourseResource( @RequestParam Long courseId) {
+<b class="nc">&nbsp;        Map&lt;String,Object&gt; modelMap = new HashMap&lt;&gt;();</b>
+<b class="nc">&nbsp;        List&lt;ResourceList&gt; resourceList= resourceService.getCourseResourcesByCourseId(courseId);</b>
+<b class="nc">&nbsp;        modelMap.put(&quot;resourceList&quot;,resourceList);</b>
+<b class="nc">&nbsp;        return ResponseEntity.ok(modelMap);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    //课程资源--电子课件下载--done
+&nbsp;    @GetMapping(&quot;/course/downLoadResource&quot;)
+&nbsp;    public ResponseEntity&lt;Map&lt;String ,Object&gt;&gt; getFileUrl(@RequestParam Long resourceId) {
+<b class="nc">&nbsp;        Optional&lt;Resource&gt; resource = resourceService.getResourceByResourceId(resourceId);</b>
+<b class="nc">&nbsp;        Map&lt;String ,Object&gt; modelMap = new HashMap&lt;&gt;();</b>
+<b class="nc">&nbsp;        if (resource.isPresent()) {</b>
+<b class="nc">&nbsp;            String filePath = resource.get().getFilePath();</b>
+&nbsp;
+&nbsp;            //src\main\resources\static\course\Session_0_Requirements.pptx
+&nbsp;            // 替换路径中的 `src\main` 为 `static`，并将反斜杠替换为正斜杠
+<b class="nc">&nbsp;            String adjustedFilePath = filePath.replace(&quot;src\\main\\resources\\static\\&quot;, &quot;&quot;)</b>
+<b class="nc">&nbsp;                    .replace(&quot;\\&quot;, &quot;/&quot;);</b>
+&nbsp;
+&nbsp;            // 构造完整的 URL
+<b class="nc">&nbsp;            String fileUrl = &quot;http://localhost:8000/&quot; + adjustedFilePath;</b>
+<b class="nc">&nbsp;            modelMap.put(&quot;URL&quot;, fileUrl);</b>
+<b class="nc">&nbsp;            String fileType = resource.get().getFileType(); // 获取文件类型信息</b>
+<b class="nc">&nbsp;            modelMap.put(&quot;fileType&quot;, fileType);</b>
+<b class="nc">&nbsp;            return ResponseEntity.ok(modelMap);</b>
+&nbsp;        } else {
+<b class="nc">&nbsp;            modelMap.put(&quot;URL&quot;, &quot;Not Found&quot;);</b>
+<b class="nc">&nbsp;            return ResponseEntity.ok(modelMap);</b>
+&nbsp;        }
+&nbsp;    }
+&nbsp;
+&nbsp;    //课程资源--习题集list--done
+&nbsp;    @GetMapping(&quot;/course/resource/workSet&quot;)
+&nbsp;    @ResponseBody
+&nbsp;    public ResponseEntity&lt;Map&lt;String,Object&gt;&gt; getCourseWorkSet( @RequestParam Long courseId) {
+<b class="nc">&nbsp;        Map&lt;String,Object&gt; modelMap = new HashMap&lt;&gt;();</b>
+<b class="nc">&nbsp;        List&lt;ResourceList&gt; resourceList= resourceService.getCourseWorkSetByCourseId(courseId);</b>
+<b class="nc">&nbsp;        modelMap.put(&quot;resourceList&quot;,resourceList);</b>
+<b class="nc">&nbsp;        return ResponseEntity.ok(modelMap);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    //获取course calendar--done
+&nbsp;    @GetMapping(&quot;/course/calendar&quot;)
+&nbsp;    @ResponseBody
+&nbsp;    public ResponseEntity&lt;Map&lt;String,Object&gt;&gt; getCourseCalendar( @RequestParam Long courseId) {
+<b class="nc">&nbsp;            Optional&lt;Resource&gt; resource = resourceService.getCalendarByResourceId(courseId);</b>
+<b class="nc">&nbsp;            Map&lt;String ,Object&gt; modelMap = new HashMap&lt;&gt;();</b>
+<b class="nc">&nbsp;            if (resource.isPresent()) {</b>
+<b class="nc">&nbsp;                String filePath = resource.get().getFilePath();</b>
+&nbsp;                // 替换路径中的 `src\main` 为 `static`，并将反斜杠替换为正斜杠
+<b class="nc">&nbsp;                String adjustedFilePath = filePath.replace(&quot;src\\main\\resources\\static\\&quot;, &quot;&quot;)</b>
+<b class="nc">&nbsp;                        .replace(&quot;\\&quot;, &quot;/&quot;);</b>
+&nbsp;
+&nbsp;                // 构造完整的 URL
+<b class="nc">&nbsp;                String fileUrl = &quot;http://localhost:8000/&quot; + adjustedFilePath;</b>
+<b class="nc">&nbsp;                modelMap.put(&quot;URL&quot;, fileUrl);</b>
+<b class="nc">&nbsp;                String fileType = resource.get().getFileType(); // 获取文件类型信息</b>
+<b class="nc">&nbsp;                modelMap.put(&quot;fileType&quot;, fileType);</b>
+<b class="nc">&nbsp;                return ResponseEntity.ok(modelMap);</b>
+&nbsp;            } else {
+<b class="nc">&nbsp;                modelMap.put(&quot;URL&quot;, &quot;Not Found&quot;);</b>
+<b class="nc">&nbsp;                return ResponseEntity.ok(modelMap);</b>
+&nbsp;            }
+&nbsp;
+&nbsp;    }
+&nbsp;    //获取course outline
+&nbsp;    @GetMapping(&quot;/course/outline&quot;)
+&nbsp;    @ResponseBody
+&nbsp;    public ResponseEntity&lt;Map&lt;String,Object&gt;&gt; getCourseOutline( @RequestParam Long courseId) {
+<b class="nc">&nbsp;        Optional&lt;Resource&gt; resource = resourceService.getOutLineByCourseId(courseId);</b>
+<b class="nc">&nbsp;        Map&lt;String ,Object&gt; modelMap = new HashMap&lt;&gt;();</b>
+<b class="nc">&nbsp;        if (resource.isPresent()) {</b>
+<b class="nc">&nbsp;            String filePath = resource.get().getFilePath();</b>
+&nbsp;            // 替换路径中的 `src\main` 为 `static`，并将反斜杠替换为正斜杠
+<b class="nc">&nbsp;            String adjustedFilePath = filePath.replace(&quot;src\\main\\resources\\static\\&quot;, &quot;&quot;)</b>
+<b class="nc">&nbsp;                    .replace(&quot;\\&quot;, &quot;/&quot;);</b>
+&nbsp;
+&nbsp;            // 构造完整的 URL
+<b class="nc">&nbsp;            String fileUrl = &quot;http://localhost:8000/&quot; + adjustedFilePath;</b>
+<b class="nc">&nbsp;            modelMap.put(&quot;URL&quot;, fileUrl);</b>
+<b class="nc">&nbsp;            String fileType = resource.get().getFileType(); // 获取文件类型信息</b>
+<b class="nc">&nbsp;            modelMap.put(&quot;fileType&quot;, fileType);</b>
+<b class="nc">&nbsp;            return ResponseEntity.ok(modelMap);</b>
+&nbsp;        } else {
+<b class="nc">&nbsp;            modelMap.put(&quot;URL&quot;, &quot;Not Found&quot;);</b>
+<b class="nc">&nbsp;            return ResponseEntity.ok(modelMap);</b>
+&nbsp;        }
 &nbsp;    }
 &nbsp;}
 </code>
@@ -217,7 +273,7 @@ Current scope:     <a href="../../index.html">all classes</a>
 
 <div class="footer">
     
-    <div style="float:right;">generated on 2024-11-15 14:57</div>
+    <div style="float:right;">generated on 2024-11-16 16:55</div>
 </div>
 </body>
 </html>
