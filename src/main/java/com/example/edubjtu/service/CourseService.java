@@ -72,7 +72,16 @@ public class CourseService {
             resourceService.saveCourseOutLineByTeacher(courseId,file);
         } else {
             // 如果文件为空，输出提示
-            System.out.println("没有上传文件，跳过作业资源保存步骤");
+            System.out.println("没有上传文件");
+        }
+    }
+
+    public void saveCalendar(Long courseId, MultipartFile file) throws IOException {
+        if(file!=null){
+            resourceService.saveCourseCalendarByTeacher(courseId,file);
+        } else {
+            // 如果文件为空，输出提示
+            System.out.println("没有上传文件");
         }
     }
 }

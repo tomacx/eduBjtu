@@ -38,35 +38,7 @@ public class CourseController {
     @Autowired
     private ResourceService resourceService;
 
-    @GetMapping("/{id}/edit")
-    public String showEditForm(@PathVariable Long id, Model model) {
-        Course course = courseService.getCourseById(id);
-        model.addAttribute("course", course);
-        return "courseEdit";
-    }
-
-    @PostMapping("/{id}/update")
-    public String updateCourse(@PathVariable Long id,
-                               @RequestParam("intro") String intro,
-                               @RequestParam("outline") String outline,
-                               @RequestParam("teacherInfo") String teacherInfo) {
-        courseService.updateCourseInfo(id, intro, outline, teacherInfo);
-        return "redirect:/course/" + id + "/edit?success";
-    }
-
-    @PostMapping("course/{id}/upload")
-    public String uploadResource(@PathVariable Long id,
-                                 @RequestParam("file") MultipartFile file) {
-        try {
-            courseService.saveResource(id, file);
-        } catch (IOException e) {
-            e.printStackTrace();
-            return "redirect:/course/" + id + "/edit?error";
-        }
-        return "redirect:/course/" + id + "/edit?success";
-    }
-
-    //课程通知
+    //课程通知--done
     @GetMapping("/course/notification")
     @ResponseBody
     public  ResponseEntity<Map<String,Object>> getCourseNotification(@RequestParam Long courseId){
@@ -76,7 +48,7 @@ public class CourseController {
         return ResponseEntity.ok(modelMap);
     }
 
-    //课程讨论
+    //课程讨论--done
     @GetMapping("/course/discussion")
     @ResponseBody
     public ResponseEntity<Map<String, Object>> getDiscussion(@RequestParam Long courseId) {
@@ -86,7 +58,8 @@ public class CourseController {
         modelMap.put("posts", posts);
         return ResponseEntity.ok(modelMap);
     }
-    //课程讨论详情
+
+    //课程讨论详情--done
     @GetMapping("/course/discussionById")
     @ResponseBody
     public ResponseEntity<Map<String, Object>> getDiscussionById(@RequestParam Long postId) {
@@ -97,7 +70,8 @@ public class CourseController {
         modelMap.put("postComments", postComments);
         return ResponseEntity.ok(modelMap);
     }
-    //课程简介
+
+    //课程简介--done
     @GetMapping("/course/intro")
     @ResponseBody
     public ResponseEntity<Map<String,Object>> getCourseIntro( @RequestParam Long courseId) {
@@ -106,6 +80,7 @@ public class CourseController {
         modelMap.put("intro", course.getIntro());
         return ResponseEntity.ok(modelMap);
     }
+
     //课程资源列表--电子课件--done
     @GetMapping("/course/resource")
     @ResponseBody
@@ -115,6 +90,7 @@ public class CourseController {
         modelMap.put("resourceList",resourceList);
         return ResponseEntity.ok(modelMap);
     }
+
     //课程资源--电子课件下载--done
     @GetMapping("/course/downLoadResource")
     public ResponseEntity<Map<String ,Object>> getFileUrl(@RequestParam Long resourceId) {
@@ -140,8 +116,7 @@ public class CourseController {
         }
     }
 
-    //todo 带接通前端测试， postman已通过
-    //课程资源--习题集list
+    //课程资源--习题集list--done
     @GetMapping("/course/resource/workSet")
     @ResponseBody
     public ResponseEntity<Map<String,Object>> getCourseWorkSet( @RequestParam Long courseId) {
@@ -151,7 +126,7 @@ public class CourseController {
         return ResponseEntity.ok(modelMap);
     }
 
-    //获取course calendar
+    //获取course calendar--done
     @GetMapping("/course/calendar")
     @ResponseBody
     public ResponseEntity<Map<String,Object>> getCourseCalendar( @RequestParam Long courseId) {

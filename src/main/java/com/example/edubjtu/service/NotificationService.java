@@ -2,7 +2,6 @@ package com.example.edubjtu.service;
 
 import com.example.edubjtu.model.Notification;
 import com.example.edubjtu.repository.NotificationRepository;
-import org.hibernate.jdbc.Expectation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -24,14 +23,14 @@ public class NotificationService {
     }
 
     // 通知的保存
-    public boolean saveNotification(Long teacherId, String title, String content){
+    public boolean saveNotification(Long teacherId, String title, String content, Long courseId){
         try{
             Notification notification = new Notification();
             notification.setTeacherId(teacherId);
             notification.setTitle(title);
             notification.setContent(content);
             notification.setCreateTime(LocalDateTime.now());
-
+            notification.setCourseId(courseId);
             notificationRepository.save(notification);
             return true;
         }catch(Exception e){

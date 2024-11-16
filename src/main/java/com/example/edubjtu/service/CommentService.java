@@ -24,10 +24,10 @@ public class CommentService {
     }
 
     public Comment getCommentById(Long commentId) {
-        return commentRepository.findById(commentId);
+        return commentRepository.findByCommentId(commentId);
     }
 
     public void deleteComment(Long commentId) {
-        commentRepository.deleteById(commentId);
+        commentRepository.deleteByCommentId(commentId);
     }
 }

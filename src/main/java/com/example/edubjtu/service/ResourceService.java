@@ -45,35 +45,6 @@ public class ResourceService {
         return Paths.get(resourcesEntity.getFilePath());
     }
 
-    //学生作业
-//    public void saveResourceByHomeworkId(Long homeworkId, MultipartFile file) throws IOException{
-//        // 创建并保存 Resource 实体
-//        Resource resource = new Resource();
-//        resource.setHomework(this.getHomeworkByHomeworkId(homeworkId)); // 关联作业
-//        resource.setFilePath(saveFile(file)); // 保存文件路径
-//        resource.setFileType(file.getContentType()); // 设置文件类型
-//
-//        resourceRepository.save(resource); // 保存资源记录
-//    }
-//
-//    // 保存文件资源（可以在 service 中处理）
-//    private void saveFileAsResource(Long homeworkId, MultipartFile file) throws IOException {
-//        // 创建并保存 Resource 实体
-//        Resource resource = new Resource();
-//        resource.setHomework(this.getHomeworkByHomeworkId(homeworkId)); // 关联作业
-//        resource.setFilePath(saveFile(file)); // 保存文件路径
-//        resource.setFileType(file.getContentType()); // 设置文件类型
-//
-//        resourceRepository.save(resource); // 保存资源记录
-//    }
-//
-//    // 保存文件的实际存储路径（假设存储在本地文件系统中）
-//    private String saveFile(MultipartFile file) throws IOException {
-//        String filePath = "../../studentHomeWork/" + file.getOriginalFilename();
-//        File dest = new File(filePath);
-//        file.transferTo(dest);
-//        return filePath;
-//    }
     //老师布置作业
     public void saveHomeWorkResourceByTeacher(Long courseId, int homeworkNum, MultipartFile file) throws IOException {
         String fileName = file.getOriginalFilename();
@@ -183,6 +154,21 @@ public class ResourceService {
         resources.setFilePath(filePath.toString());
         resources.setFileType(file.getContentType());
         resources.setCourseOutline(1);
+        resourceRepository.save(resources);
+    }
+
+    public void saveCourseCalendarByTeacher(Long courseId, MultipartFile file) throws IOException {
+        String fileName = file.getOriginalFilename();
+        Path filePath = Paths.get(uploadCourseResourceDir, fileName);
+        // 如果目录不存在，则创建目录
+        Files.createDirectories(Path.of(uploadCourseResourceDir));
+        Files.write(filePath, file.getBytes());
+
+        Resource resources = new Resource();
+        resources.setCourse(courseRepository.findByCourseId(courseId));
+        resources.setFilePath(filePath.toString());
+        resources.setFileType(file.getContentType());
+        resources.setCourseCalendar(1);
         resourceRepository.save(resources);
     }
 }

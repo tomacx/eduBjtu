@@ -9,11 +9,20 @@ import java.util.List;
 import java.util.Optional;
 
 public interface HomeworkRepository extends JpaRepository<Homework, Long> {
-    List<Homework> findByCourseId(@Param("course_id") Long courseId);
+    // 使用自定义查询来获取每个作业编号的第一个作业
+    @Query("SELECT h FROM Homework h WHERE h.courseId = :courseId AND h.homeworkId = (" +
+            "  SELECT MIN(h2.homeworkId) FROM Homework h2 " +
+            "  WHERE h2.courseId = :courseId AND h2.homeworkNum = h.homeworkNum " +
+            "  AND h2.submissionDeadline = (SELECT MIN(h3.submissionDeadline) FROM Homework h3 " +
+            "                                WHERE h3.courseId = :courseId AND h3.homeworkNum = h2.homeworkNum)" +
+            ")")
+    List<Homework> findFirstHomeworkByCourseId(@Param("courseId") Long courseId);
 
     Homework findByHomeworkId(@Param("homework_id")Long homeworkId);
 
     Optional<Homework> findByHomeworkNumAndStudentNum(@Param("homework_num")Integer homeworkNum,@Param("student_num") String studentNum);
 
     List<Homework> findByCourseIdAndStudentNum(@Param("course_id")Long courseId, @Param("student_num")String studentNum);
+
+    List<Homework> findByCourseId(@Param("courseId")Long courseId);
 }

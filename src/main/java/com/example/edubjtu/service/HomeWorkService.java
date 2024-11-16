@@ -98,4 +98,8 @@ public class HomeWorkService {
             throw new IOException("未找到对应的作业");
         }
     }
+
+    public List<Homework> getFirstHomeworkByCourseId(Long courseId) {
+        return homeworkRepository.findFirstHomeworkByCourseId(courseId);
+    }
 }
