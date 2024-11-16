@@ -31,6 +31,7 @@ public class CommentController {
     @Autowired
     private CommentService commentService;
 
+    //获取某一个用户收到的评论
     @GetMapping("/getComments")
     @ResponseBody
     public ResponseEntity<Map<String,Object>> getComments(@RequestParam String userNum){

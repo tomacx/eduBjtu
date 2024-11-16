@@ -8,6 +8,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class StudentService {
@@ -17,6 +18,10 @@ public class StudentService {
 
     private static final Logger logger = LoggerFactory.getLogger(StudentService.class);
 
+    public Optional<Student> findStudentById(Long studentId){
+        Optional<Student> student = studentRepository.findById(studentId);
+        return student;
+    }
     public Student findStudentByStudentNum(String studentNum) {
         Student student = studentRepository.findByStudentNum(studentNum);
         if (student == null) {

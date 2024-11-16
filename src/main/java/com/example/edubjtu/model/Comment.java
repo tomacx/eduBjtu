@@ -24,7 +24,7 @@ public class Comment {
     private String content;
 
     @Column(name = "commented_num")
-    private String  commentedNum;
+    private String commentedNum;
 
     @Column(name = "teacher_id")
     private Long teacherId;
