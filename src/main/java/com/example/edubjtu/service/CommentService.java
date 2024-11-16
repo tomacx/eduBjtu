@@ -30,4 +30,23 @@ public class CommentService {
     public void deleteComment(Long commentId) {
         commentRepository.deleteByCommentId(commentId);
     }
+
+    public void setCommentByStudent(Long postId, String content, String commentedNum, Long id) {
+        Comment comment = new Comment();
+        comment.setPostId(postId);
+        comment.setContent(content);
+        comment.setCommentedNum(commentedNum);
+        comment.setLikeNum(0);
+        comment.setStudentId(id);
+        commentRepository.save(comment);
+    }
+    public  void  setCommentByTeacher(Long postId, String content, String commentedNum, Long id) {
+        Comment comment = new Comment();
+        comment.setPostId(postId);
+        comment.setContent(content);
+        comment.setCommentedNum(commentedNum);
+        comment.setLikeNum(0);
+        comment.setTeacherId(id);
+        commentRepository.save(comment);
+    }
 }

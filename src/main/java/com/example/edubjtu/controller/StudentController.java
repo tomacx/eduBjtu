@@ -59,6 +59,8 @@ public class StudentController {
     private static final Logger logger = LoggerFactory.getLogger(StudentController.class);
     @Autowired
     private StudentRepository studentRepository;
+    @Autowired
+    private CommentService commentService;
 
     @GetMapping("/dashboard")
     @ResponseBody // 添加此注解以返回 JSON
@@ -236,7 +238,18 @@ public class StudentController {
         return ResponseEntity.ok(responseMap);
     }
     //TODO:发送评论
-
+    @PostMapping("/sendComment")
+    @ResponseBody
+    public ResponseEntity<Map<String,Object>> sendComment(@RequestParam Long postId,
+                                                          @RequestParam String content,
+                                                          @RequestParam String commentedNum,
+                                                          @RequestParam String studentNum){
+        Student student = studentService.findStudentByStudentNum(studentNum);
+        commentService.setCommentByStudent(postId,content,commentedNum,student.getId());
+        Map<String, Object> responseMap = new HashMap<>();
+        responseMap.put("message","评论发送成功");
+        return ResponseEntity.ok(responseMap);
+    }
     //TODO:增加学生端搜索帖子的功能的功能
 
     //TODO:增加学生端对帖子评论、点赞、收藏的功能

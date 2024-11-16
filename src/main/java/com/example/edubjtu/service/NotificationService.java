@@ -42,4 +42,8 @@ public class NotificationService {
     public List<Notification> getNotificationsByCourseId(Long courseId) {
         return notificationRepository.findByCourseId(courseId);
     }
+
+    public List<Notification> getNotificationsByTeacherNum(Long id) {
+        return notificationRepository.findByTeacherId(id);
+    }
 }

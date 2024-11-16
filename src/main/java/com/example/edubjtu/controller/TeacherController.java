@@ -254,6 +254,33 @@ public class TeacherController {
         }
     }
 
+    //老师获取所教课程已经布置的通知
+    //homepage所有通知获取
+    @GetMapping("/getNotification")
+    public ResponseEntity<Map<String, Object>> getNotification(@RequestParam("teacherNum") String teacherNum) {
+        Teacher teacher = teacherService.findTeacherByTeacherNum(teacherNum);
+        List<Notification> notifications = notificationService.getNotificationsByTeacherNum(teacher.getId());
+        Map<String,Object> modelMap = new HashMap<>();
+        modelMap.put("notifications", notifications);
+        // 统计通知的数量并返回
+        int notificationNum = notifications.size(); // 获取通知的数量
+        modelMap.put("notificationNum", notificationNum); // 将数量放入 modelMap
+        return ResponseEntity.ok(modelMap);
+    }
+
+    //TODO:老师发送评论
+    @PostMapping("/sendComment")
+    @ResponseBody
+    public ResponseEntity<Map<String,Object>> sendComment(@RequestParam Long postId,
+                                                          @RequestParam String content,
+                                                          @RequestParam String commentedNum,
+                                                          @RequestParam String teacherNum){
+        Teacher teacher = teacherService.findTeacherByTeacherNum(teacherNum);
+        commentService.setCommentByTeacher(postId,content,commentedNum,teacher.getId());
+        Map<String, Object> responseMap = new HashMap<>();
+        responseMap.put("message","评论发送成功");
+        return ResponseEntity.ok(responseMap);
+    }
 
     //TODO:增加老师查看选课学生的功能
     @GetMapping("/course/{courseId}/students")
