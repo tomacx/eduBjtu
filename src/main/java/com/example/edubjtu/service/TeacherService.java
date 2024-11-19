@@ -5,6 +5,8 @@ import com.example.edubjtu.repository.TeacherRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
+
 @Service
 public class TeacherService {
     @Autowired
@@ -20,5 +22,8 @@ public class TeacherService {
             teacher.setPassword(newPassword); // 注意：实际应用中应该使用加密的密码
             teacherRepository.save(teacher);
         }
+    }
+    public Optional<Teacher> findTeacherById(Long teacherId){
+        return teacherRepository.findById(teacherId);
     }
 }

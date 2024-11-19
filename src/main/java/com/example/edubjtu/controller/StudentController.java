@@ -37,6 +37,9 @@ public class StudentController {
     private StudentService studentService;
 
     @Autowired
+    private TeacherService teacherService;
+
+    @Autowired
     private CourseService courseService;
 
     @Autowired
@@ -273,10 +276,16 @@ public class StudentController {
         }
 
         Comment reply = new Comment();
-        Comment comment = commentService.getCommentById(commentId);
         //增加一个搜索回复的评论的人的学号
-        Optional<Student> student1 = studentService.findStudentById(comment.getStudentId());
-        reply.setCommentedNum(student1.get().getStudentNum()); // 设置父评论ID
+        Comment comment = commentService.getCommentById(commentId);
+        if(comment.getStudentId() != null) {
+            Optional<Student> student1 = studentService.findStudentById(comment.getStudentId());
+            reply.setCommentedNum(student1.get().getStudentNum());
+
+        }else if(comment.getTeacherId() != null) {
+            Optional<Teacher> teacher1 = teacherService.findTeacherById(comment.getTeacherId());
+            reply.setCommentedNum(teacher1.get().getTeacherNum());
+        }
         reply.setPostId(comment.getPostId());
         reply.setStudentId(student.getId());
         reply.setContent(content);

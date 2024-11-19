@@ -22,10 +22,7 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyEmitter
 
 import java.io.IOException;
 import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Controller
 @RequestMapping("/teacher")
@@ -54,6 +51,7 @@ public class TeacherController {
 
     @Autowired
     private CommentService commentService;
+
     private static final Logger logger = LoggerFactory.getLogger(TeacherController.class);
 
     @GetMapping("/dashboard")
@@ -384,7 +382,7 @@ public class TeacherController {
         Teacher teacher = (Teacher) session.getAttribute("loggedInTeacher");
         if (teacher != null) {
             try {
-                // 检查帖子是否属于该教师的课程
+                // 检查帖子是否���于该教师的课程
                 Post post = postService.getPostById(postId);
                 if (post != null && post.getCourseId().equals(courseId) && post.getTeacherId().equals(teacher.getId())) {
                     postService.deletePost(postId);
@@ -405,5 +403,62 @@ public class TeacherController {
         }
     }
     //TODO:增加教师端查看成绩统计的功能
+
+    //TODO:发送评论(给贴子评论)
+    @PostMapping("/post/{postId}/comment")
+    @ResponseBody
+    public ResponseEntity<Map<String, Object>> sendComment(@PathVariable Long postId,
+                                                           @RequestParam("content") String content,
+                                                           HttpSession session) {
+        Map<String, Object> responseMap = new HashMap<>();
+        Teacher teacher = (Teacher) session.getAttribute("loggedInTeacher");
+        if (teacher == null) {
+            responseMap.put("error", "未登录，请重新登录");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(responseMap);
+        }
+
+        Comment comment = new Comment();
+        comment.setPostId(postId);
+        comment.setStudentId(teacher.getId());
+        comment.setContent(content);
+        commentService.saveComment(comment);
+
+        responseMap.put("message", "评论发送成功");
+        responseMap.put("commentId", comment.getCommentId());
+        return ResponseEntity.ok(responseMap);
     }
+    // 回复评论的评论
+    @PostMapping("/{commentId}/reply")
+    @ResponseBody
+    public ResponseEntity<Map<String, Object>> replyToComment(@PathVariable Long commentId,
+    @RequestParam("content") String content,
+    HttpSession session) {
+        Map<String, Object> responseMap = new HashMap<>();
+        Teacher teacher = (Teacher) session.getAttribute("loggedInTeacher");
+        if (teacher == null) {
+            responseMap.put("error", "未登录，请重新登录");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(responseMap);
+        }
+        //新建一个回复的模型
+        Comment reply = new Comment();
+        Comment comment = commentService.getCommentById(commentId);
+        if(comment.getStudentId() != null) {
+            Optional<Student> student1 = studentService.findStudentById(comment.getStudentId());
+            reply.setCommentedNum(student1.get().getStudentNum());
+
+        }else if(comment.getTeacherId() != null) {
+            Optional<Teacher> teacher1 = teacherService.findTeacherById(comment.getTeacherId());
+            reply.setCommentedNum(teacher1.get().getTeacherNum());
+        }
+
+        reply.setTeacherId(teacher.getId());
+        reply.setPostId(comment.getPostId());
+        reply.setContent(content);
+        commentService.saveComment(reply);
+
+        responseMap.put("message", "回复发送成功");
+        responseMap.put("replyId", reply.getCommentId());
+        return ResponseEntity.ok(responseMap);
+    }
+}
 
