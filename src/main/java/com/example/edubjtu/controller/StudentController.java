@@ -1,6 +1,9 @@
 package com.example.edubjtu.controller;
 
-import com.example.edubjtu.model.*;
+import com.example.edubjtu.model.Student;
+import com.example.edubjtu.model.Course;
+import com.example.edubjtu.model.Notification;
+import com.example.edubjtu.model.Post;
 import com.example.edubjtu.repository.CourseRepository;
 import com.example.edubjtu.repository.StudentRepository;
 import com.example.edubjtu.service.*;
@@ -22,7 +25,6 @@ import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
@@ -57,9 +59,6 @@ public class StudentController {
     private static final Logger logger = LoggerFactory.getLogger(StudentController.class);
     @Autowired
     private StudentRepository studentRepository;
-
-    @Autowired
-    private CommentService commentService;
 
     @GetMapping("/dashboard")
     @ResponseBody // 添加此注解以返回 JSON
@@ -236,56 +235,8 @@ public class StudentController {
         responseMap.put("postId", post.getPostId());
         return ResponseEntity.ok(responseMap);
     }
-    //TODO:发送评论(给贴子评论)
-    @PostMapping("/post/{postId}/comment")
-    @ResponseBody
-    public ResponseEntity<Map<String, Object>> sendComment(@PathVariable Long postId,
-                                                           @RequestParam("content") String content,
-                                                           HttpSession session) {
-        Map<String, Object> responseMap = new HashMap<>();
-        Student student = (Student) session.getAttribute("loggedInStudent");
-        if (student == null) {
-            responseMap.put("error", "未登录，请重新登录");
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(responseMap);
-        }
+    //TODO:发送评论
 
-        Comment comment = new Comment();
-        comment.setPostId(postId);
-        comment.setStudentId(student.getId());
-        comment.setContent(content);
-        commentService.saveComment(comment);
-
-        responseMap.put("message", "评论发送成功");
-        responseMap.put("commentId", comment.getCommentId());
-        return ResponseEntity.ok(responseMap);
-    }
-    //TODO:学生给评论进行回复
-    @PostMapping("/comment/{commentId}/reply")
-    @ResponseBody
-    public ResponseEntity<Map<String, Object>> replyToComment(@PathVariable Long commentId,
-                                                              @RequestParam("content") String content,
-                                                              HttpSession session) {
-        Map<String, Object> responseMap = new HashMap<>();
-        Student student = (Student) session.getAttribute("loggedInStudent");
-        if (student == null) {
-            responseMap.put("error", "未登录，请重新登录");
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(responseMap);
-        }
-
-        Comment reply = new Comment();
-        Comment comment = commentService.getCommentById(commentId);
-        //增加一个搜索回复的评论的人的学号
-        Optional<Student> student1 = studentService.findStudentById(comment.getStudentId());
-        reply.setCommentedNum(student1.get().getStudentNum()); // 设置父评论ID
-        reply.setPostId(comment.getPostId());
-        reply.setStudentId(student.getId());
-        reply.setContent(content);
-        commentService.saveComment(reply);
-
-        responseMap.put("message", "回复发送成功");
-        responseMap.put("replyId", reply.getCommentId());
-        return ResponseEntity.ok(responseMap);
-    }
     //TODO:增加学生端对帖子评论、点赞、收藏的功能
 
     //TODO:增加学生端删除自己发送的帖子的功能

@@ -64,10 +64,7 @@ public class TeacherController {
         if (teacher != null) {
             modelMap.put("teacher", teacher);
             //TODO:把这里改成搜索只有该老师教的课程
-            List<Course> courses = courseService.getCoursesByTeacherId(teacher.getId());
 //            List<Course> courses = courseService.getAllCourses(); // 获取所有课程信息
-            //TODO:这块前端通过查询course,得到课程列表
-            modelMap.put("courses",courses);
             return ResponseEntity.ok(modelMap);
         } else {
             modelMap.put("error", "未登录，请重新登录");
@@ -104,7 +101,7 @@ public class TeacherController {
 
         try {
             // 调用服务层保存OutLine
-            courseService.saveOutLine(courseId, file);
+            courseService.saveOutLine(courseId,file);
 
             // 返回成功消息
             responseMap.put("message", "大纲上传成功");
@@ -116,7 +113,6 @@ public class TeacherController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(responseMap);
         }
     }
-
     //老师上传课程时间
     @PostMapping("/course/{courseId}/uploadCourseCalendar")
     @ResponseBody
@@ -129,7 +125,7 @@ public class TeacherController {
 
         try {
             // 调用服务层保存OutLine
-            courseService.saveCalendar(courseId, file);
+            courseService.saveCalendar(courseId,file);
 
             // 返回成功消息
             responseMap.put("message", "大纲上传成功");
@@ -141,7 +137,6 @@ public class TeacherController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(responseMap);
         }
     }
-
     //增加老师上传通知的功能--done
     @PostMapping("/sendNotification")
     public ResponseEntity<Map<String, Object>> sendNotification(@RequestParam String title,
@@ -152,7 +147,7 @@ public class TeacherController {
         Teacher teacher = teacherService.findTeacherByTeacherNum(teacherNum);
         if (teacher != null) {
             // 假设有一个通知服务来处理通知的保存
-            boolean success = notificationService.saveNotification(teacher.getId(), title, content, courseId);
+            boolean success = notificationService.saveNotification(teacher.getId(), title, content,courseId);
 
             if (success) {
                 responseMap.put("message", "通知上传成功");
@@ -170,20 +165,19 @@ public class TeacherController {
     //老师上传试题功能--done
     @PostMapping("/course/{courseId}/uploadWorkSet")
     @ResponseBody
-    public ResponseEntity<Map<String, Object>> uploadWorkSet(@PathVariable Long courseId, @RequestParam("file") MultipartFile[] file) throws IOException {
+    public ResponseEntity<Map<String,Object>> uploadWorkSet(@PathVariable Long courseId, @RequestParam("file") MultipartFile[] file) throws IOException {
         Map<String, Object> responseMap = new HashMap<>();
-        resourceService.saveCourseWorkSets(courseId, file);
-        responseMap.put("message", "习题集上传成功");
+        resourceService.saveCourseWorkSets(courseId,file);
+        responseMap.put("message","习题集上传成功");
         return ResponseEntity.ok(responseMap);
     }
-
     //homepage课程获取--done
     @GetMapping("/courses")
     @ResponseBody
-    public ResponseEntity<Map<String, Object>> getStudentCourses(@RequestParam String teacherNum) {
+    public ResponseEntity<Map<String, Object>> getStudentCourses(@RequestParam String teacherNum){
         Map<String, Object> modelMap = new HashMap<>();
         System.out.println(teacherNum);
-        Teacher teacher = teacherService.findTeacherByTeacherNum(teacherNum);
+        Teacher teacher=teacherService.findTeacherByTeacherNum(teacherNum);
         System.out.println(teacher.getId());
         List<Course> courses = courseService.getCoursesByTeacherId(teacher.getId());
         modelMap.put("courses", courses);
@@ -193,15 +187,16 @@ public class TeacherController {
     //增加老师上传课程资源功能 课件等--done
     @PostMapping("/course/{courseId}/uploadResource")
     @ResponseBody
-    public ResponseEntity<Map<String, Object>> uploadResource(@PathVariable Long courseId,
-                                                              @RequestParam("file") MultipartFile[] file) throws IOException {
+    public ResponseEntity<Map<String,Object>> uploadResource(@PathVariable Long courseId,
+                                                             @RequestParam("file") MultipartFile[] file) throws IOException {
         Map<String, Object> responseMap = new HashMap<>();
 
-        resourceService.saveCourseResources(courseId, file);
-        responseMap.put("message", "资源上传成功");
-        return ResponseEntity.ok(responseMap);
+            resourceService.saveCourseResources(courseId, file);
+            responseMap.put("message","资源上传成功");
+            return ResponseEntity.ok(responseMap);
 
     }
+
     //TODO 增加老师上传作业的功能 待连接前端
     @PostMapping("/course/{courseId}/uploadHomework")
     @ResponseBody
@@ -211,30 +206,30 @@ public class TeacherController {
             @RequestParam String deadline,  // deadline 为传入的字符串
             @RequestParam(required = false) String content,
             @RequestParam(value = "file", required = false) MultipartFile file
-    ) {
+            ) {
 
         Map<String, Object> responseMap = new HashMap<>();
 
-        try {
-            // 解析 deadline 字符串为 Date 类型
-            Date parsedDeadline = parseDeadline(deadline);
-            if (parsedDeadline == null) {
-                responseMap.put("error", "无效的截止时间格式");
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(responseMap);
+            try {
+                // 解析 deadline 字符串为 Date 类型
+                Date parsedDeadline = parseDeadline(deadline);
+                if (parsedDeadline == null) {
+                    responseMap.put("error", "无效的截止时间格式");
+                    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(responseMap);
+                }
+
+                // 调用服务层保存作业信息
+                homeworkService.saveHomework(courseId, homeworkNum, parsedDeadline, content,file);
+
+                // 返回成功消息
+                responseMap.put("message", "作业上传成功");
+                return ResponseEntity.ok(responseMap);
+
+            } catch (Exception e) {
+                logger.error("上传过程中出现错误", e);
+                responseMap.put("error", "作业上传失败");
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(responseMap);
             }
-
-            // 调用服务层保存作业信息
-            homeworkService.saveHomework(courseId, homeworkNum, parsedDeadline, content, file);
-
-            // 返回成功消息
-            responseMap.put("message", "作业上传成功");
-            return ResponseEntity.ok(responseMap);
-
-        } catch (Exception e) {
-            logger.error("上传过程中出现错误", e);
-            responseMap.put("error", "作业上传失败");
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(responseMap);
-        }
     }
 
     //老师已发布的作业list
@@ -258,6 +253,8 @@ public class TeacherController {
             return null;
         }
     }
+
+
     //TODO:增加老师查看选课学生的功能
     @GetMapping("/course/{courseId}/students")
     @ResponseBody
@@ -272,7 +269,6 @@ public class TeacherController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(responseMap);
         }
     }
-
     //TODO:老师上传帖子
     @PostMapping("/post")
     @ResponseBody
@@ -307,7 +303,6 @@ public class TeacherController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(responseMap);
         }
     }
-
     //TODO:增加老师查看帖子的功能
     @GetMapping("/course/{courseId}/posts")
     @ResponseBody
@@ -330,7 +325,6 @@ public class TeacherController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(responseMap);
         }
     }
-
     //TODO:增加老师管理评论的功能
     @DeleteMapping("/course/{courseId}/comment/{commentId}")
     @ResponseBody
@@ -361,27 +355,25 @@ public class TeacherController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(responseMap);
         }
     }
-
     //TODO:增加老师批阅作业的功能（包括下载作业资源）
     @PostMapping("/gradeHomework")
     @ResponseBody
     public ResponseEntity<Map<String, Object>> gradeHomework(@RequestParam("homeworkNum") Integer homeworkNum,
-                                                             @RequestParam("studentNum") String studentNum,
-                                                             @RequestParam("score") Integer score) {
-        Map<String, Object> responseMap = new HashMap<>();
-        try {
-            homeworkService.gradeStudentHomework(homeworkNum, studentNum, score);
-            responseMap.put("message", "作业批阅成功");
-            return ResponseEntity.ok(responseMap);
-        } catch (IllegalArgumentException e) {
-            responseMap.put("error", e.getMessage());
-            return ResponseEntity.badRequest().body(responseMap);
-        } catch (IOException e) {
-            responseMap.put("error", "批阅作业失败: " + e.getMessage());
-            return ResponseEntity.status(500).body(responseMap);
+                @RequestParam("studentNum") String studentNum,
+                @RequestParam("score") Integer score){
+            Map<String, Object> responseMap = new HashMap<>();
+            try {
+                homeworkService.gradeStudentHomework(homeworkNum, studentNum, score);
+                responseMap.put("message", "作业批阅成功");
+                return ResponseEntity.ok(responseMap);
+            } catch (IllegalArgumentException e) {
+                responseMap.put("error", e.getMessage());
+                return ResponseEntity.badRequest().body(responseMap);
+            } catch (IOException e) {
+                responseMap.put("error", "批阅作业失败: " + e.getMessage());
+                return ResponseEntity.status(500).body(responseMap);
+            }
         }
-    }
-
     //TODO:增加老师删除帖子的功能
     @DeleteMapping("/course/{courseId}/post/{postId}")
     @ResponseBody
@@ -413,6 +405,5 @@ public class TeacherController {
         }
     }
     //TODO:增加教师端查看成绩统计的功能
-
-}
+    }
 
