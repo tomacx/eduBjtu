@@ -1,6 +1,7 @@
 package com.example.edubjtu.repository;
 
 import com.example.edubjtu.dto.ResourceList;
+import com.example.edubjtu.model.Homework;
 import com.example.edubjtu.model.Resource;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -31,4 +32,6 @@ public interface ResourceRepository extends JpaRepository<Resource, Long> {
     Optional<Resource> findOutLineByCourse_CourseIdAndCourseOutline(@Param("courseId")Long courseId, @Param("courseOutline")int courseOutline);
 
     Optional<Resource> findCalendarByCourse_CourseIdAndCourseCalendar(@Param("courseId")Long courseId,@Param("courseCalendar")int courseCalendar);
+
+    void deleteByHomework(Homework homework);
 }

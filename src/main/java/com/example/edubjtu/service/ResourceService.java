@@ -1,10 +1,12 @@
 package com.example.edubjtu.service;
 
 import com.example.edubjtu.dto.ResourceList;
+import com.example.edubjtu.model.Homework;
 import com.example.edubjtu.model.Resource;
 import com.example.edubjtu.repository.CourseRepository;
 import com.example.edubjtu.repository.HomeworkRepository;
 import com.example.edubjtu.repository.ResourceRepository;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -186,5 +188,9 @@ public class ResourceService {
             return false;
         }
     }
-
+    @Transactional  // 确保删除操作在事务中执行
+    public void deleteHomeworkResourceByStudent(Long homeworkId) {
+        Homework homework = homeworkRepository.findByHomeworkId(homeworkId);
+        resourceRepository.deleteByHomework(homework);
+    }
 }

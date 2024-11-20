@@ -1,5 +1,6 @@
 package com.example.edubjtu.repository;
 
+import com.example.edubjtu.dto.studentHomeWork;
 import com.example.edubjtu.model.Homework;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -18,11 +19,29 @@ public interface HomeworkRepository extends JpaRepository<Homework, Long> {
             ")")
     List<Homework> findFirstHomeworkByCourseId(@Param("courseId") Long courseId);
 
-    Homework findByHomeworkId(@Param("homework_id")Long homeworkId);
+    Homework findByHomeworkId(@Param("homeworkId")Long homeworkId);
+
+    @Query("SELECT new com.example.edubjtu.dto.studentHomeWork( " +
+            "h.homeworkId, " +
+            "h.courseId, " +
+            "h.studentNum, " +
+            "h.grade, " +
+            "h.avgGrade, " +
+            "h.mutualGrade, " +
+            "h.content, " +
+            "h.homeworkNum, " +
+            "h.submissionDeadline, " +
+            "h.studentContent, " +
+            "CASE WHEN (r.homework.homeworkId  || h.studentContent) IS NOT NULL THEN true ELSE false END ) " +
+            "FROM Homework h " +
+            "LEFT JOIN Resource r ON h.homeworkId = r.homework.homeworkId " +
+            "WHERE h.studentNum = :studentNum AND h.courseId = :courseId")
+    List<studentHomeWork> findStudentHomeWorkByCourseIdAndStudentNum(@Param("courseId")Long courseId,@Param("studentNum") String studentNum);
 
     Optional<Homework> findByHomeworkNumAndStudentNum(@Param("homework_num")Integer homeworkNum,@Param("student_num") String studentNum);
 
-    List<Homework> findByCourseIdAndStudentNum(@Param("course_id")Long courseId, @Param("student_num")String studentNum);
+    List<Homework> findByCourseIdAndStudentNum(@Param("courseId")Long courseId, @Param("studentNum")String studentNum);
 
     List<Homework> findByCourseId(@Param("courseId")Long courseId);
+
 }
