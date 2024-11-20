@@ -171,4 +171,20 @@ public class ResourceService {
         resources.setCourseCalendar(1);
         resourceRepository.save(resources);
     }
+
+    public Boolean deleteCourseResourceByResourceId(Long resourceId) {
+        try {
+            // 首先检查资源是否存在
+            if (resourceRepository.existsById(resourceId)) {
+                // 删除操作
+                resourceRepository.deleteById(resourceId);
+                return true; // 删除成功，返回 true
+            }
+            return false; // 如果资源不存在，返回 false
+        } catch (Exception e) {
+            // 如果删除过程中发生异常，返回 false
+            return false;
+        }
+    }
+
 }

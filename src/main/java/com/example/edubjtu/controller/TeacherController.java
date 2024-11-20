@@ -3,7 +3,6 @@ package com.example.edubjtu.controller;
 import com.example.edubjtu.dto.CoursePost;
 import com.example.edubjtu.model.*;
 import com.example.edubjtu.service.*;
-import jakarta.persistence.Entity;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -14,11 +13,9 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.multipart.MultipartFile;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyEmitterReturnValueHandler;
 
 import java.io.IOException;
 import java.text.SimpleDateFormat;
@@ -56,7 +53,7 @@ public class TeacherController {
 
     @GetMapping("/dashboard")
     @ResponseBody // 添加此注解以返回 JSON
-    public ResponseEntity<Map<String, Object>> showDashboard(HttpSession session, Model model) {
+    public ResponseEntity<Map<String, Object>> showDashboard(HttpSession session) {
         Map<String, Object> modelMap = new HashMap<>();
         Teacher teacher = (Teacher) session.getAttribute("loggedInTeacher");
         if (teacher != null) {
@@ -192,6 +189,20 @@ public class TeacherController {
             resourceService.saveCourseResources(courseId, file);
             responseMap.put("message","资源上传成功");
             return ResponseEntity.ok(responseMap);
+
+    }
+
+    //老师根据资源id删除已经上传的资源内容,公用于课件内容和习题库
+    @DeleteMapping("/course/deleteResource/{resourceId}")
+    @ResponseBody
+    public ResponseEntity<Map<String,Object>> deleteResource(@PathVariable Long resourceId){
+        Map<String, Object> responseMap = new HashMap<>();
+        if (resourceService.deleteCourseResourceByResourceId(resourceId)) {
+            responseMap.put("message","成功删除资源");
+        }else{
+            responseMap.put("message","删除资源失败");
+        }
+        return ResponseEntity.ok(responseMap);
 
     }
 
