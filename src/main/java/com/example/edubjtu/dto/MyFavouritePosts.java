@@ -10,6 +10,7 @@ import lombok.Setter;
 @Getter
 @Setter
 public class MyFavouritePosts {
+    private Long favoriteId;
 
     private String postTitle; // 帖子标题
 
@@ -23,8 +24,9 @@ public class MyFavouritePosts {
 
     private String favoriteName;
 
-    public MyFavouritePosts(String postTitle, String courseName, Long likeNum, Long favoNum, String content,String favoriteName )
+    public MyFavouritePosts(Long id,String postTitle, String courseName, Long likeNum, Long favoNum, String content,String favoriteName )
     {
+        this.favoriteId=id;
         this.postTitle = postTitle;
         this.courseName = courseName;
         this.likeNum = likeNum;

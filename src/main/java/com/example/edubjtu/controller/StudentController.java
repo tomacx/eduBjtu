@@ -63,6 +63,8 @@ public class StudentController {
 
     @Autowired
     private CommentService commentService;
+    @Autowired
+    private FavoriteService favoriteService;
 
     @GetMapping("/dashboard")
     @ResponseBody // 添加此注解以返回 JSON
@@ -194,6 +196,20 @@ public class StudentController {
                 contentType.equals("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
     }
 
+
+    //删除收藏的post
+    @DeleteMapping("/deleteCollectionOfPost/{favoriteId}")
+    @ResponseBody
+    public ResponseEntity<Map<String, Object>> deleteCollectionOfPost(@PathVariable("favoriteId")Long favoriteId){
+        Map<String, Object> responseMap = new HashMap<>();
+        if(favoriteService.deleteFavoPostByFavoId(favoriteId)){
+            responseMap.put("message","取消收藏成功");
+        }else {
+            responseMap.put("message","取消收藏失败");
+        }
+        return ResponseEntity.ok(responseMap);
+
+    }
     //TODO:增加学生端下载课程资源的功能
     @GetMapping("/course/{courseId}/downloadResource/{resourceId}")
     public ResponseEntity<Resource> downloadResource(@PathVariable Long courseId, @PathVariable Long resourceId) {

@@ -24,4 +24,9 @@ public class FavoriteService {
     public List<MyFavoOthersFavo> getMyFavOthersFavoByStudentId(Long id) {
         return favoriteRepository.findFavosByStudentId(id);
     }
+
+    public boolean deleteFavoPostByFavoId(Long favoriteId) {
+        favoriteRepository.deleteById(favoriteId);
+        return !favoriteRepository.existsById(favoriteId);
+    }
 }
