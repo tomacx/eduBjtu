@@ -20,4 +20,17 @@ public class NoteService {
     public Note getNoteById(Long noteId) {
         return noteRepository.findById(noteId).orElse(null);
     }
+
+    public void saveNote(String title, String content, Long id) {
+        Note note =new Note();
+        note.setContent(content);
+        note.setStudentId(id);
+        note.setNoteTitle(title);
+        noteRepository.save(note);
+    }
+
+    public boolean deleteNoteByNoteId(Long noteId) {
+        noteRepository.deleteById(noteId);
+        return !noteRepository.existsById(noteId);
+    }
 }
