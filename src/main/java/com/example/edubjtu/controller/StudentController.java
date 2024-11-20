@@ -165,9 +165,10 @@ public class StudentController {
     };
 
     //增加学生端上传作业的功能
+    //TODO:修改这块的bug,数据库没有对上
     @PostMapping("course/homework/upload")
     public ResponseEntity<Map<String, Object>> uploadStudentHomework(@RequestParam Long homeworkId,
-                                                                     @RequestParam String studentContent,
+                                                                     @RequestParam("studentContent") String studentContent,
                                                                      @RequestParam("files") MultipartFile[] files) throws IOException {
         Map<String, Object> responseMap = new HashMap<>();
         // 检查文件类型
