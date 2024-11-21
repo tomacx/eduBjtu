@@ -32,4 +32,16 @@ public class CommentService {
     }
 
     public void saveComment(Comment comment){commentRepository.save(comment);}
+
+    public void addLikeNumById(Long commentId) {
+        Comment comment = commentRepository.findByCommentId(commentId);
+        int likeNum = comment.getLikeNum();
+        comment.setLikeNum(++likeNum);
+    }
+
+    public void DecreaseLikeNumById(Long commentId) {
+        Comment comment = commentRepository.findByCommentId(commentId);
+        int likeNum = comment.getLikeNum();
+        comment.setLikeNum(--likeNum);
+    }
 }
