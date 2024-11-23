@@ -40,6 +40,7 @@ public class Post {
     public Post(){
 
     }
+
     public Post(Long postId,Long courseId, Long studentId, Long teacherId,Long likeNum, Long favoNum, String content,String title){
         this.postId = postId;
         this.courseId = courseId;

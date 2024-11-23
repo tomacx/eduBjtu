@@ -312,8 +312,27 @@ public class StudentController {
         responseMap.put("replyId", reply.getCommentId());
         return ResponseEntity.ok(responseMap);
     }
-
-    //TODO:增加学生端对帖子评论、点赞、收藏的功能
+    //TODO:增加学生端对帖子、点赞、收藏的功能
 
     //TODO:增加学生端删除自己发送的帖子的功能
+    @DeleteMapping("/post/{postId}")
+    @ResponseBody
+    public ResponseEntity<Map<String, Object>> deletePost(@PathVariable Long postId, HttpSession session) {
+        Map<String, Object> responseMap = new HashMap<>();
+        Student student = (Student) session.getAttribute("loggedInStudent");
+        if (student == null) {
+            responseMap.put("error", "未登录，请重新登录");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(responseMap);
+        }
+
+        Post post = postService.getPostById(postId);
+        if (post == null || !post.getStudentId().equals(student.getId())) {
+            responseMap.put("error", "无权删除此帖子或帖子不存在");
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(responseMap);
+        }
+
+        postService.deletePost(postId);
+        responseMap.put("message", "帖子删除成功");
+        return ResponseEntity.ok(responseMap);
+    }
 }

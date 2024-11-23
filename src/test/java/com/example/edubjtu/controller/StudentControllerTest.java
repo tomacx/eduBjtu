@@ -44,6 +44,12 @@ public class StudentControllerTest {
     private StudentService studentService;
 
     @MockBean
+    private TeacherService teacherService;
+
+    @MockBean
+    private FavoriteService favoriteService;
+
+    @MockBean
     private CourseService courseService;
 
     @MockBean
@@ -250,5 +256,49 @@ public class StudentControllerTest {
                         .param("content", "Test Reply"))
                 .andExpect(status().isUnauthorized())
                 .andExpect(jsonPath("$.error").value("未登录，请重新登录"));
+    }
+
+    //测试删除帖子的功能
+    @Test
+    public void testDeletePost_LoggedIn() throws Exception {
+        Student student = new Student();
+        student.setId(1L);
+        Mockito.when(session.getAttribute("loggedInStudent")).thenReturn(student);
+
+        Post post = new Post();
+        post.setPostId(1L);
+        post.setCourseId(1L);
+        post.setStudentId(1L);
+        Mockito.when(postService.getPostById(1L)).thenReturn(post);
+
+        mockMvc.perform(MockMvcRequestBuilders.delete("/student/post/1"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.message").value("帖子删除成功"));
+    }
+
+    @Test
+    public void testDeletePost_NotLoggedIn() throws Exception {
+        Mockito.when(session.getAttribute("loggedInStudent")).thenReturn(null);
+
+        mockMvc.perform(MockMvcRequestBuilders.delete("/student/post/1"))
+                .andExpect(status().isUnauthorized())
+                .andExpect(jsonPath("$.error").value("未登录，请重新登录"));
+    }
+
+    @Test
+    public void testDeletePost_NotAuthorized() throws Exception {
+        Student student = new Student();
+        student.setId(1L);
+        Mockito.when(session.getAttribute("loggedInStudent")).thenReturn(student);
+
+        Post post = new Post();
+        post.setPostId(1L);
+        post.setCourseId(1L);
+        post.setStudentId(2L); // Different student ID
+        Mockito.when(postService.getPostById(1L)).thenReturn(post);
+
+        mockMvc.perform(MockMvcRequestBuilders.delete("/student/post/1"))
+                .andExpect(status().isForbidden())
+                .andExpect(jsonPath("$.error").value("无权删除此帖子或帖子不存在"));
     }
 } 

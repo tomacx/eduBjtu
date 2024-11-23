@@ -36,7 +36,7 @@ public class PostService {
     }
 
     public void deletePost(Long postId) {
-        postRepository.deleteById(postId);
+        postRepository.deletePostByPostId(postId);
     }
 
     public List<Post> searchPostsByTitle(String title) {

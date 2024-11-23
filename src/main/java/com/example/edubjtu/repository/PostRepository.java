@@ -2,6 +2,7 @@ package com.example.edubjtu.repository;
 
 import com.example.edubjtu.dto.CoursePost;
 import com.example.edubjtu.model.Post;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -23,4 +24,6 @@ public interface PostRepository extends JpaRepository<Post, Long> {
 
     //搜索帖子
     List<Post> findByTitleContaining(String title);
+
+    void deletePostByPostId(Long postId);
 }
