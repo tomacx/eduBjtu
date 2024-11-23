@@ -16,6 +16,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
@@ -65,6 +66,8 @@ public class StudentController {
     private CommentService commentService;
     @Autowired
     private FavoriteService favoriteService;
+    @Autowired
+    private NoteService noteService;
 
     @GetMapping("/dashboard")
     @ResponseBody // 添加此注解以返回 JSON
@@ -207,6 +210,49 @@ public class StudentController {
             responseMap.put("message","取消收藏成功");
         }else {
             responseMap.put("message","取消收藏失败");
+        }
+        return ResponseEntity.ok(responseMap);
+
+    }
+
+    //学生保存笔记
+    @PostMapping("/saveNote")
+    @ResponseBody
+    public ResponseEntity<Map<String, Object>> saveNote(@RequestParam("note_title") String title,
+                                                        @RequestParam("content") String content,
+                                                        @RequestParam("studentNum") String studentNum){
+        Map<String, Object> responseMap = new HashMap<>();
+        // 解码标题和内容
+        try {
+            // URL 解码，使用 UTF-8 编码
+            String decodedTitle = URLDecoder.decode(title, StandardCharsets.UTF_8);
+            String decodedContent = URLDecoder.decode(content, StandardCharsets.UTF_8);
+
+            // 查找学生信息
+            Student student = studentService.findStudentByStudentNum(studentNum);
+
+            // 保存笔记（传入解码后的标题和内容）
+            noteService.saveNote(decodedTitle, decodedContent, student.getId());
+
+            // 返回成功信息
+            responseMap.put("message", "笔记保存成功");
+            return ResponseEntity.ok(responseMap);
+        } catch (Exception e) {
+            // 解码失败时的处理
+            responseMap.put("message", "解码失败，请检查输入");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(responseMap);
+        }
+    }
+    //删除笔记
+    //删除收藏的post
+    @DeleteMapping("/deleteNote/{noteId}")
+    @ResponseBody
+    public ResponseEntity<Map<String, Object>> deleteNote(@PathVariable("noteId")Long noteId){
+        Map<String, Object> responseMap = new HashMap<>();
+        if(noteService.deleteNoteByNoteId(noteId)){
+            responseMap.put("message","删除笔记成功");
+        }else {
+            responseMap.put("message","删除笔记失败");
         }
         return ResponseEntity.ok(responseMap);
 

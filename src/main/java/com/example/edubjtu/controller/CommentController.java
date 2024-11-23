@@ -10,10 +10,7 @@ import com.example.edubjtu.service.TeacherService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
 import java.util.List;
@@ -43,6 +40,25 @@ public class CommentController {
             return ResponseEntity.ok(map);
         }
         map.put("success",false);
+        return ResponseEntity.ok(map);
+    }
+
+    //点赞数增加
+    @PostMapping("/addLikeNum")
+    @ResponseBody
+    public ResponseEntity<Map<String,Object>> addLikeNum(@RequestParam Long commentId){
+        Map<String,Object> map = new HashMap<>();
+        commentService.addLikeNumById(commentId);
+        map.put("message","点赞成功");
+        return ResponseEntity.ok(map);
+    }
+    //点赞数减少
+    @PostMapping("/decreaseLikeNum")
+    @ResponseBody
+    public ResponseEntity<Map<String,Object>> decreaseLikeNum(@RequestParam Long commentId){
+        Map<String,Object> map = new HashMap<>();
+        commentService.DecreaseLikeNumById(commentId);
+        map.put("message","取消点赞成功");
         return ResponseEntity.ok(map);
     }
 }
