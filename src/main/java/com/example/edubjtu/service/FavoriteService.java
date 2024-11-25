@@ -29,4 +29,5 @@ public class FavoriteService {
         favoriteRepository.deleteById(favoriteId);
         return !favoriteRepository.existsById(favoriteId);
     }
+
 }

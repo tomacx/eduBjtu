@@ -26,4 +26,8 @@ public interface PostRepository extends JpaRepository<Post, Long> {
     List<Post> findByTitleContaining(String title);
 
     void deletePostByPostId(Long postId);
+
+    // 自定义查询方法来增加帖子的点赞数
+    @Query("UPDATE Post p SET p.likeNum = p.likeNum + 1 WHERE p.postId = :postId")
+    void incrementLikes(Long postId);
 }

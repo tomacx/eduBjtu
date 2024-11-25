@@ -359,7 +359,46 @@ public class StudentController {
         return ResponseEntity.ok(responseMap);
     }
     //TODO:增加学生端对帖子、点赞、收藏的功能
+    // 增加学生端收藏帖子的功能
+    @PostMapping("/post/{postId}/favorite")
+    @ResponseBody
+    public ResponseEntity<Map<String, Object>> favoritePost(@PathVariable Long postId, HttpSession session) {
+        Map<String, Object> responseMap = new HashMap<>();
+        Student student = (Student) session.getAttribute("loggedInStudent");
+        if (student == null) {
+            responseMap.put("error", "未登录，请重新登录");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(responseMap);
+        }
 
+        try {
+            favoriteService.addFavoritePost(postId, student.getId());
+            responseMap.put("message", "收藏成功");
+            return ResponseEntity.ok(responseMap);
+        } catch (Exception e) {
+            responseMap.put("error", "收藏失败");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(responseMap);
+        }
+    }
+    //TODO:增加学生端对帖子点赞的功能
+    @PostMapping("/post/{postId}/like")
+    @ResponseBody
+    public ResponseEntity<Map<String, Object>> likePost(@PathVariable Long postId, HttpSession session) {
+        Map<String, Object> responseMap = new HashMap<>();
+        Student student = (Student) session.getAttribute("loggedInStudent");
+        if (student == null) {
+            responseMap.put("error", "未登录，请重新登录");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(responseMap);
+        }
+
+        try {
+            postService.likePost(postId, student.getId());
+            responseMap.put("message", "点赞成功");
+            return ResponseEntity.ok(responseMap);
+        } catch (Exception e) {
+            responseMap.put("error", "点赞失败");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(responseMap);
+        }
+    }
     //TODO:增加学生端删除自己发送的帖子的功能
     @DeleteMapping("/post/{postId}")
     @ResponseBody

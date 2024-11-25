@@ -42,4 +42,8 @@ public class PostService {
     public List<Post> searchPostsByTitle(String title) {
         return postRepository.findByTitleContaining(title);
     }
+
+    public void likePost(Long postId, Long id) {
+        postRepository.incrementLikes(postId);
+    }
 }
