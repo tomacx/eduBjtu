@@ -60,4 +60,5 @@ public class StudentService {
     public List<Student> findStudentsByCourseId(Long courseId){
         return studentRepository.findByCourseId(courseId);
     }
+
 }
