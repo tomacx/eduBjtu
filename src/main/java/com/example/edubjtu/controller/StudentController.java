@@ -139,7 +139,7 @@ public class StudentController {
         return ResponseEntity.ok(modelMap);
     };
 
-    //增加学生端上传作业的功能
+    //增加学生端上传作业的功能--done
     @PostMapping("course/homework/upload")
     public ResponseEntity<Map<String, Object>> uploadStudentHomework(@RequestParam Long homeworkId,
                                                                      @RequestParam String studentContent,
@@ -172,7 +172,7 @@ public class StudentController {
     }
 
 
-    //删除收藏的post
+    //删除收藏的post--done
     @DeleteMapping("/deleteCollectionOfPost/{favoriteId}")
     @ResponseBody
     public ResponseEntity<Map<String, Object>> deleteCollectionOfPost(@PathVariable("favoriteId")Long favoriteId){
@@ -186,7 +186,7 @@ public class StudentController {
 
     }
 
-    //学生保存笔记
+    //学生保存笔记--done
     @PostMapping("/saveNote")
     @ResponseBody
     public ResponseEntity<Map<String, Object>> saveNote(@RequestParam("note_title") String title,
@@ -214,7 +214,7 @@ public class StudentController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(responseMap);
         }
     }
-    //删除笔记
+    //删除笔记--done
     @DeleteMapping("/deleteNote/{noteId}")
     @ResponseBody
     public ResponseEntity<Map<String, Object>> deleteNote(@PathVariable("noteId")Long noteId){
@@ -227,7 +227,7 @@ public class StudentController {
         return ResponseEntity.ok(responseMap);
 
     }
-    // 增加学生端下载课程资源的功能
+    // 增加学生端下载课程资源的功能--done
     @GetMapping("/course/{courseId}/downloadResource/{resourceId}")
     public ResponseEntity<Resource> downloadResource(@PathVariable Long courseId, @PathVariable Long resourceId) {
         try {
@@ -282,7 +282,7 @@ public class StudentController {
         return ResponseEntity.ok(responseMap);
     }
 
-    //发送评论
+    //发送评论--done
     @PostMapping("/post/setComment")
     @ResponseBody
     public ResponseEntity<Map<String, Object>> sendComment(@RequestParam Long postId,
@@ -327,7 +327,7 @@ public class StudentController {
         return ResponseEntity.ok(responseMap);
     }
 
-    //TODO:学生给评论进行回复
+    //TODO:学生给评论进行回复 -- 已统一由回复接口完成
     @PostMapping("/comment/{commentId}/reply")
     @ResponseBody
     public ResponseEntity<Map<String, Object>> replyToComment(@PathVariable Long commentId,
