@@ -67,9 +67,9 @@ public class HomeWorkService {
         Homework homework = homeworkRepository.findById(homeworkId).orElseThrow(() -> new IOException("作业未找到"));
 
         // 清除原有的学生作业内容 使重复上传覆盖前一次结果
-        homework.setStudentContent(null);
+        homework.setContent(null);
         // 存储作业文字内容
-        homework.setStudentContent(studentContent);
+        homework.setContent(studentContent);
 
         // 处理文件资源
         for (MultipartFile file : files) {

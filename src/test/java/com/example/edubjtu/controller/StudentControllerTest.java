@@ -9,6 +9,7 @@ import com.example.edubjtu.repository.StudentRepository;
 import com.example.edubjtu.service.*;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -25,6 +26,8 @@ import java.util.Collections;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.doThrow;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @ExtendWith(SpringExtension.class)
@@ -42,6 +45,12 @@ public class StudentControllerTest {
 
     @MockBean
     private StudentService studentService;
+
+    @MockBean
+    private TeacherService teacherService;
+
+    @MockBean
+    private FavoriteService favoriteService;
 
     @MockBean
     private CourseService courseService;
@@ -63,6 +72,10 @@ public class StudentControllerTest {
 
     @MockBean
     private CommentService commentService;
+
+    @MockBean
+    private NoteService noteService;
+
     //测试登录面板
     @Test
     public void testShowDashboard_LoggedIn() throws Exception {
@@ -106,7 +119,7 @@ public class StudentControllerTest {
     //测试学生修改自己的密码
     @Test
     public void testUpdateStudent_Success() throws Exception {
-        mockMvc.perform(MockMvcRequestBuilders.post("/student/update")
+        mockMvc.perform(post("/student/update")
                 .param("studentNum", "123")
                 .param("password", "newpassword"))
                 .andExpect(status().isOk())
@@ -185,7 +198,7 @@ public class StudentControllerTest {
     public void testSendPost_NotLoggedIn() throws Exception {
         Mockito.when(session.getAttribute("loggedInStudent")).thenReturn(null);
 
-        mockMvc.perform(MockMvcRequestBuilders.post("/student/post")
+        mockMvc.perform(post("/student/post")
                 .param("courseId", "1")
                 .param("title", "Test Title")
                 .param("content", "Test Content"))
@@ -199,7 +212,7 @@ public class StudentControllerTest {
         student.setId(1L);
         Mockito.when(session.getAttribute("loggedInStudent")).thenReturn(student);
 
-        mockMvc.perform(MockMvcRequestBuilders.post("/student/post")
+        mockMvc.perform(post("/student/post")
                 .param("courseId", "1")
                 .param("title", "Test Title")
                 .param("content", "Test Content"))
@@ -214,7 +227,7 @@ public class StudentControllerTest {
         student.setId(1L);
         Mockito.when(session.getAttribute("loggedInStudent")).thenReturn(student);
 
-        mockMvc.perform(MockMvcRequestBuilders.post("/student/post/1/comment")
+        mockMvc.perform(post("/student/post/1/comment")
                         .param("content", "Test Comment"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.message").value("评论发送成功"));
@@ -224,7 +237,7 @@ public class StudentControllerTest {
     public void testSendComment_NotLoggedIn() throws Exception {
         Mockito.when(session.getAttribute("loggedInStudent")).thenReturn(null);
 
-        mockMvc.perform(MockMvcRequestBuilders.post("/student/post/1/comment")
+        mockMvc.perform(post("/student/post/1/comment")
                         .param("content", "Test Comment"))
                 .andExpect(status().isUnauthorized())
                 .andExpect(jsonPath("$.error").value("未登录，请重新登录"));
@@ -236,7 +249,7 @@ public class StudentControllerTest {
         student.setId(1L);
         Mockito.when(session.getAttribute("loggedInStudent")).thenReturn(student);
 
-        mockMvc.perform(MockMvcRequestBuilders.post("/student/comment/1/reply")
+        mockMvc.perform(post("/student/comment/1/reply")
                         .param("content", "Test Reply"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.message").value("回复发送成功"));
@@ -246,9 +259,80 @@ public class StudentControllerTest {
     public void testReplyToComment_NotLoggedIn() throws Exception {
         Mockito.when(session.getAttribute("loggedInStudent")).thenReturn(null);
 
-        mockMvc.perform(MockMvcRequestBuilders.post("/student/comment/1/reply")
+        mockMvc.perform(post("/student/comment/1/reply")
                         .param("content", "Test Reply"))
                 .andExpect(status().isUnauthorized())
                 .andExpect(jsonPath("$.error").value("未登录，请重新登录"));
+    }
+
+    //测试删除帖子的功能
+    @Test
+    public void testDeletePost_LoggedIn() throws Exception {
+        Student student = new Student();
+        student.setId(1L);
+        Mockito.when(session.getAttribute("loggedInStudent")).thenReturn(student);
+
+        Post post = new Post();
+        post.setPostId(1L);
+        post.setCourseId(1L);
+        post.setStudentId(1L);
+        Mockito.when(postService.getPostById(1L)).thenReturn(post);
+
+        mockMvc.perform(MockMvcRequestBuilders.delete("/student/post/1"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.message").value("帖子删除成功"));
+    }
+
+    @Test
+    public void testDeletePost_NotLoggedIn() throws Exception {
+        Mockito.when(session.getAttribute("loggedInStudent")).thenReturn(null);
+
+        mockMvc.perform(MockMvcRequestBuilders.delete("/student/post/1"))
+                .andExpect(status().isUnauthorized())
+                .andExpect(jsonPath("$.error").value("未登录，请重新登录"));
+    }
+
+    @Test
+    public void testDeletePost_NotAuthorized() throws Exception {
+        Student student = new Student();
+        student.setId(1L);
+        Mockito.when(session.getAttribute("loggedInStudent")).thenReturn(student);
+
+        Post post = new Post();
+        post.setPostId(1L);
+        post.setCourseId(1L);
+        post.setStudentId(2L); // Different student ID
+        Mockito.when(postService.getPostById(1L)).thenReturn(post);
+
+        mockMvc.perform(MockMvcRequestBuilders.delete("/student/post/1"))
+                .andExpect(status().isForbidden())
+                .andExpect(jsonPath("$.error").value("无权删除此帖子或帖子不存在"));
+    }
+
+    @Test
+    public void testLikePost_LoggedIn() throws Exception {
+        Student student = new Student();
+        student.setId(1L);
+        Mockito.when(session.getAttribute("loggedInStudent")).thenReturn(student);
+        mockMvc.perform(post("/student/post/1/like"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.message").value("点赞成功"));
+    }
+    @Test
+    public void testLikePost_NotLoggedIn() throws Exception {
+        Mockito.when(session.getAttribute("loggedInStudent")).thenReturn(null);
+        mockMvc.perform(post("/student/post/1/like"))
+                .andExpect(status().isUnauthorized())
+                .andExpect(jsonPath("$.error").value("未登录，请重新登录"));
+    }
+    @Test
+    public void testLikePost_Failure() throws Exception {
+        Student student = new Student();
+        student.setId(1L);
+        Mockito.when(session.getAttribute("loggedInStudent")).thenReturn(student);
+        doThrow(new RuntimeException()).when(postService).likePost(1L);
+        mockMvc.perform(post("/student/post/1/like"))
+                .andExpect(status().isInternalServerError())
+                .andExpect(jsonPath("$.error").value("点赞失败"));
     }
 } 
