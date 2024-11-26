@@ -2,8 +2,10 @@ package com.example.edubjtu.repository;
 
 import com.example.edubjtu.dto.CoursePost;
 import com.example.edubjtu.model.Post;
+import jakarta.transaction.Transactional;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
@@ -25,9 +27,14 @@ public interface PostRepository extends JpaRepository<Post, Long> {
     //搜索帖子
     List<Post> findByTitleContaining(String title);
 
-    void deletePostByPostId(Long postId);
+    @Transactional
+    @Modifying
+    @Query("DELETE from Post p WHERE p.postId = :postId" )
+    void deletePostByPostId(@Param("postId") Long postId);
 
     // 自定义查询方法来增加帖子的点赞数
+    @Transactional
+    @Modifying
     @Query("UPDATE Post p SET p.likeNum = p.likeNum + 1 WHERE p.postId = :postId")
-    void incrementLikes(Long postId);
+    void incrementLikes(@Param("postId") Long postId);
 }

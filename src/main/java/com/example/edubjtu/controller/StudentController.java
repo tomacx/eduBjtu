@@ -362,7 +362,9 @@ public class StudentController {
     // 增加学生端收藏帖子的功能
     @PostMapping("/post/{postId}/favorite")
     @ResponseBody
-    public ResponseEntity<Map<String, Object>> favoritePost(@PathVariable Long postId, HttpSession session) {
+    public ResponseEntity<Map<String, Object>> favoritePost(@PathVariable Long postId,
+                                                            @RequestParam("favoriteNum") String favoriteNum,
+                                                            HttpSession session) {
         Map<String, Object> responseMap = new HashMap<>();
         Student student = (Student) session.getAttribute("loggedInStudent");
         if (student == null) {
@@ -371,7 +373,7 @@ public class StudentController {
         }
 
         try {
-            favoriteService.addFavoritePost(postId, student.getId());
+            favoriteService.addFavoritePost(postId,favoriteNum);
             responseMap.put("message", "收藏成功");
             return ResponseEntity.ok(responseMap);
         } catch (Exception e) {
@@ -391,7 +393,7 @@ public class StudentController {
         }
 
         try {
-            postService.likePost(postId, student.getId());
+            postService.likePost(postId);
             responseMap.put("message", "点赞成功");
             return ResponseEntity.ok(responseMap);
         } catch (Exception e) {

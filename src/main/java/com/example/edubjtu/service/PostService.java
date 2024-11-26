@@ -43,7 +43,7 @@ public class PostService {
         return postRepository.findByTitleContaining(title);
     }
 
-    public void likePost(Long postId, Long id) {
+    public void likePost(Long postId) {
         postRepository.incrementLikes(postId);
     }
 }
