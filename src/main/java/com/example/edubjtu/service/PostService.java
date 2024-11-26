@@ -36,10 +36,14 @@ public class PostService {
     }
 
     public void deletePost(Long postId) {
-        postRepository.deleteById(postId);
+        postRepository.deletePostByPostId(postId);
     }
 
     public List<Post> searchPostsByTitle(String title) {
         return postRepository.findByTitleContaining(title);
+    }
+
+    public void likePost(Long postId) {
+        postRepository.incrementLikes(postId);
     }
 }
