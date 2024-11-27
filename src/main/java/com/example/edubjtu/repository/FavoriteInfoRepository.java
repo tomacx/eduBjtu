@@ -10,4 +10,6 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface FavoriteInfoRepository extends JpaRepository<FavoriteInfo, Long> {
     public FavoriteInfo findFavoriteInfoByFavoriteCreaterId(Long studentId);
+
+    public FavoriteInfo findFavoriteInfoByFavouriteNum(String favoriteNum);
 }

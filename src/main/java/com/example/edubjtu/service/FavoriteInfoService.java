@@ -1,6 +1,7 @@
 package com.example.edubjtu.service;
 
 
+import com.example.edubjtu.model.Favorite;
 import com.example.edubjtu.model.FavoriteInfo;
 import com.example.edubjtu.repository.FavoriteInfoRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,6 +18,9 @@ public class FavoriteInfoService {
         return favoriteInfoRepository.findFavoriteInfoByFavoriteCreaterId(studentId);
     }
 
+    public FavoriteInfo findByNum(String favoriteNum){
+        return favoriteInfoRepository.findFavoriteInfoByFavouriteNum(favoriteNum);
+    }
     //创建一个默认的收藏夹
     public void CreateFavoriteInfo(Long favoriteCreatedId){
         FavoriteInfo favoriteInfo = new FavoriteInfo();

@@ -424,4 +424,25 @@ public class StudentController {
         responseMap.put("message", "帖子删除成功");
         return ResponseEntity.ok(responseMap);
     }
+    //TODO：增加收藏他人帖子的功能
+    @PostMapping("/favoriteInfo/{favoriteNumOthers}/favorite")
+    @ResponseBody
+    public ResponseEntity<Map<String, Object>> favoriteOthers(@PathVariable String favoriteNumOthers,
+                                                              @RequestParam("favoriteNum") String favoriteNum,
+                                                              HttpSession session){
+        Map<String, Object> responseMap = new HashMap<>();
+        Student student = (Student) session.getAttribute("loggedInStudent");
+        if (student == null) {
+            responseMap.put("error", "未登录，请重新登录");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(responseMap);
+        }
+        try{
+            favoriteService.addFavoriteInfo(favoriteNum,favoriteNumOthers);
+            responseMap.put("message", "收藏他人收藏夹成功");
+            return ResponseEntity.ok(responseMap);
+        } catch (Exception e) {
+            responseMap.put("error", "收藏失败");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(responseMap);
+        }
+    }
 }
