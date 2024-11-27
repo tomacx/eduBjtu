@@ -9,6 +9,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class CourseService {
@@ -83,5 +84,9 @@ public class CourseService {
             // 如果文件为空，输出提示
             System.out.println("没有上传文件");
         }
+    }
+
+    public Optional<Course> findCourseById(Long courseId) {
+      return   courseRepository.findById(courseId);
     }
 }
