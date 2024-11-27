@@ -14,7 +14,7 @@ public class FavoriteInfo {
     @Column(name = "id")
     private Long favoriteInfoId;
 
-    @Column(name = "favorite_num", nullable = false, unique = true)
+    @Column(name = "favorite_num", nullable = false)
     private String favouriteNum; // 收藏夹编号
 
     @Column(name = "favorite_name", nullable = false)

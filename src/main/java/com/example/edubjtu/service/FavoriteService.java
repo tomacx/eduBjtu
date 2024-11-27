@@ -40,5 +40,6 @@ public class FavoriteService {
         Favorite favorite = new Favorite();
         favorite.setPostId(postId);
         favorite.setFavouriteNum(favoriteNum);
+        favoriteRepository.save(favorite);
     }
 }

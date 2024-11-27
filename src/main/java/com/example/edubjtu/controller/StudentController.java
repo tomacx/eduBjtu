@@ -68,6 +68,8 @@ public class StudentController {
     private FavoriteService favoriteService;
     @Autowired
     private NoteService noteService;
+    @Autowired
+    private FavoriteInfoService favoriteInfoService;
 
     @GetMapping("/dashboard")
     @ResponseBody // 添加此注解以返回 JSON

@@ -1,7 +1,9 @@
 package com.example.edubjtu.controller;
 
+import com.example.edubjtu.model.FavoriteInfo;
 import com.example.edubjtu.model.Student;
 import com.example.edubjtu.model.Teacher;
+import com.example.edubjtu.service.FavoriteInfoService;
 import com.example.edubjtu.service.StudentService;
 import com.example.edubjtu.service.TeacherService;
 import jakarta.servlet.http.HttpSession;
@@ -27,6 +29,9 @@ public class LoginController {
     @Autowired
     private TeacherService teacherService;
 
+    @Autowired
+    private FavoriteInfoService favoriteInfoService;
+
     private static final Logger logger = LoggerFactory.getLogger(LoginController.class);
 
 
@@ -44,6 +49,11 @@ public class LoginController {
             response.put("redirect", "/student/dashboard"); // 重定向URL
             response.put("userName",student.getName());
             response.put("userNum",student.getStudentNum());
+            //判断学生是否有收藏夹，没有的话就创建一个默认收藏夹
+            FavoriteInfo favoriteInfo = favoriteInfoService.findByCreaterId(student.getId());
+            if(favoriteInfo == null){
+                favoriteInfoService.CreateFavoriteInfo(student.getId());
+            }
             return ResponseEntity.ok(response);
         }
 
