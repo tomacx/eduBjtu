@@ -24,4 +24,6 @@ public class Teacher implements Serializable {
     @Column(name = "teacher_num")
     private String teacherNum;
 
+    @Column(name = "phone_num")
+    private String phoneNum;
 }

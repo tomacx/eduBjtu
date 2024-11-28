@@ -6,6 +6,7 @@ import com.example.edubjtu.dto.ResourceList;
 import com.example.edubjtu.model.Course;
 import com.example.edubjtu.model.Notification;
 import com.example.edubjtu.model.Resource;
+import com.example.edubjtu.model.Teacher;
 import com.example.edubjtu.repository.CourseRepository;
 import com.example.edubjtu.service.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,6 +38,8 @@ public class CourseController {
     private CommentService commentService;
     @Autowired
     private ResourceService resourceService;
+    @Autowired
+    private TeacherService teacherService;
 
     //课程通知--done
     @GetMapping("/course/notification")
@@ -172,5 +175,31 @@ public class CourseController {
             modelMap.put("URL", "Not Found");
             return ResponseEntity.ok(modelMap);
         }
+    }
+    //获取课程下的教师信息
+    @GetMapping("/course/teacherInfo")
+    @ResponseBody
+    public ResponseEntity<Map<String,Object>> getCourseTeacherInfo( @RequestParam Long courseId) {
+        Map<String,Object> modelMap = new HashMap<>();
+        Course course = courseService.getCourseByCourseId(courseId);
+        Teacher teacher = course.getTeacher();
+        modelMap.put("teacher", teacher);
+        modelMap.put("teacher_Info", course.getTeacherInfo());
+        return ResponseEntity.ok(modelMap);
+    }
+
+    //设置teacherInfo
+    @PostMapping("/course/setTeacherInfo")
+    @ResponseBody
+    public ResponseEntity<Map<String,Object>> setTeacherInfo(@RequestParam Long courseId, @RequestParam String phoneNum,@RequestParam String content) {
+        Course course = courseService.getCourseByCourseId(courseId);
+        course.setTeacherInfo(content);
+        courseService.updateCourse(course);
+        Teacher teacher = course.getTeacher();
+        teacher.setPhoneNum(phoneNum);
+        teacherService.updateTeacher(teacher);
+        Map<String,Object> modelMap = new HashMap<>();
+        modelMap.put("message", "教师信息上传成功");
+        return ResponseEntity.ok(modelMap);
     }
 }

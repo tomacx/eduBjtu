@@ -26,4 +26,8 @@ public class TeacherService {
     public Optional<Teacher> findTeacherById(Long teacherId){
         return teacherRepository.findById(teacherId);
     }
+
+    public Teacher updateTeacher(Teacher teacher) {
+        return teacherRepository.save(teacher);
+    }
 }
