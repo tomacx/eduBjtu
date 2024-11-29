@@ -29,4 +29,8 @@ public class CoursePost {
         this.content = content;
         this.title = title;
     }
+
+    public CoursePost() {
+
+    }
 }

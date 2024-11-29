@@ -1,180 +1,253 @@
-create table course
+create table spring_session
 (
-    courseId    bigint auto_increment comment '课程ID'
+    primary_id            char(36)     not null
         primary key,
-    intro       text         null comment '课程介绍',
-    outline     longblob     null comment '课程大纲图片数据',
-    calendar    longblob     null comment '课程日历图片数据',
-    teacherInfo text         null comment '教师信息',
-    resources    varchar(255) null comment '课程资源路径'
-);
+    session_id            char(36)     not null,
+    creation_time         bigint       not null,
+    last_access_time      bigint       not null,
+    max_inactive_interval int          not null,
+    expiry_time           bigint       not null,
+    principal_name        varchar(100) null,
+    constraint spring_session_ix1
+        unique (session_id)
+)
+    row_format = DYNAMIC;
+
+create index spring_session_ix2
+    on spring_session (expiry_time);
+
+create index spring_session_ix3
+    on spring_session (principal_name);
+
+create table spring_session_attributes
+(
+    session_primary_id char(36)     not null,
+    attribute_name     varchar(200) not null,
+    attribute_bytes    blob         not null,
+    primary key (session_primary_id, attribute_name),
+    constraint spring_session_attributes_fk
+        foreign key (session_primary_id) references spring_session (primary_id)
+            on delete cascade
+)
+    row_format = DYNAMIC;
 
 create table student
 (
-    id         bigint      not null comment '主键'
+    id          bigint       not null comment '主键'
         primary key,
-    name       varchar(30) null comment '姓名',
-    studentNum varchar(50) null comment '账号',
-    passWord   varchar(50) null comment '密码'
+    name        varchar(255) null,
+    student_num varchar(50)  null unique comment '账号',
+    password    varchar(255) null,
+    avatar      mediumblob   null
 );
 
-create table homework
+create table favoriteinfo
 (
-    homeworkId  bigint        not null comment '主键'
+    id                  bigint auto_increment
         primary key,
-    courseId    bigint        not null comment '外键, 关联到课程',
-    studentNum  varchar(50)   not null comment '学生学号，关联到学生',
-    grade       decimal(5, 2) null comment '作业评分',
-    avgGrade    decimal(5, 2) null comment '平均评分',
-    mutualGrade decimal(5, 2) null comment '互评成绩',
-    content     varchar(255)  null comment '作业内容存储地址',
-    constraint homework_ibfk_1
-        foreign key (courseId) references course (courseId),
-    constraint homework_ibfk_2
-        foreign key (studentNum) references student (studentNum)
-)
-    comment '作业表';
+    favorite_num        varchar(255) not null,
+    favorite_name       varchar(255) null,
+    favorite_creater_id bigint       null,
+    constraint favorite_num
+        unique (favorite_num),
+    constraint favoriteinfo_ibfk_1
+        foreign key (favorite_creater_id) references student (id)
+);
 
-create index courseId
-    on homework (courseId);
+create index favorite_creater_id
+    on favoriteinfo (favorite_creater_id);
 
-create index studentNum
-    on homework (studentNum);
-
-create table note
-(
-    noteId    bigint auto_increment comment '主键'
-        primary key,
-    studentId bigint not null comment '学生ID，外键',
-    courseId  bigint not null comment '课程ID，外键',
-    content   text   null comment '笔记内容',
-    constraint fk_note_course
-        foreign key (courseId) references course (courseId)
-            on delete cascade,
-    constraint fk_note_student
-        foreign key (studentId) references student (id)
-            on delete cascade
-)
-    comment '笔记表';
-
-create index studentNum
-    on student (studentNum);
+create index idx_student_num
+    on student (student_num);
 
 create table teacher
 (
-    id         bigint auto_increment comment '主键'
+    teacher_id  bigint auto_increment comment '主键'
         primary key,
-    teacherNum varchar(50) not null comment '教师账号',
-    name       varchar(30) null comment '姓名',
-    password   varchar(50) not null comment '密码'
+    teacher_num varchar(50)  not null comment '教师账号',
+    name        varchar(255) null,
+    password    varchar(255) null,
+    phone_num   varchar(50)  null comment '教师电话'
+);
+
+create table course
+(
+    course_id    bigint auto_increment comment '课程ID'
+        primary key,
+    intro        varchar(255) null,
+    outline      varchar(255) null,
+    calendar     varchar(255) null,
+    resource     varchar(255) null comment '课程资源路径',
+    name         varchar(255) null,
+    teacher_info varchar(255) null,
+    teacher_id   bigint       not null,
+    constraint course_teacher_fk
+        foreign key (teacher_id) references teacher (teacher_id)
 );
 
 create table course_teacher_student
 (
-    id        bigint auto_increment comment '主键'
+    id         bigint auto_increment comment '主键'
         primary key,
-    courseId  bigint not null comment '课程ID',
-    teacherId bigint not null comment '教师ID',
-    studentId bigint not null comment '学生ID',
-    constraint course_teacher_student_ibfk_1
-        foreign key (courseId) references course (courseId)
+    course_id  bigint not null comment '课程ID',
+    teacher_id bigint not null comment '教师ID',
+    student_id bigint not null comment '学生ID',
+    constraint course_teacher_student_fk_course
+        foreign key (course_id) references course (course_id)
             on delete cascade,
-    constraint course_teacher_student_ibfk_2
-        foreign key (teacherId) references teacher (id)
+    constraint course_teacher_student_fk_student
+        foreign key (student_id) references student (id)
             on delete cascade,
-    constraint course_teacher_student_ibfk_3
-        foreign key (studentId) references student (id)
+    constraint course_teacher_student_fk_teacher
+        foreign key (teacher_id) references teacher (teacher_id)
             on delete cascade
 );
 
-create index courseId
-    on course_teacher_student (courseId);
+create index idx_course_id
+    on course_teacher_student (course_id);
 
-create index studentId
-    on course_teacher_student (studentId);
+create index idx_student_id
+    on course_teacher_student (student_id);
 
-create index teacherId
-    on course_teacher_student (teacherId);
+create index idx_teacher_id
+    on course_teacher_student (teacher_id);
+
+create table homework
+(
+    homework_id            bigint auto_increment comment '主键'
+        primary key,
+    course_id              bigint        not null comment '外键, 关联到课程',
+    student_num            varchar(50)   not null comment '学生学号，关联到学生',
+    grade                  decimal(5, 2) null comment '作业评分',
+    avg_grade              decimal(5, 2) null comment '平均评分',
+    mutual_grade           decimal(5, 2) null comment '互评成绩',
+    content                varchar(255)  null comment '作业内容存储地址',
+    homework_num           int           null,
+    submission_deadline    datetime      not null comment '作业提交截止时间',
+    student_content        varchar(255)  null comment '学生提交作业文字内容',
+    othet_student_estimate varchar(255)  null comment '互评评论',
+    constraint homework_ibfk_1
+        foreign key (course_id) references course (course_id),
+    constraint homework_ibfk_2
+        foreign key (student_num) references student (student_num)
+)
+    comment '作业表';
+
+create table note
+(
+    note_id    bigint auto_increment comment '主键'
+        primary key,
+    student_id bigint       not null comment '学生ID，外键',
+    course_id  bigint       null,
+    content    text         null comment '笔记内容',
+    note_title varchar(255) not null,
+    constraint note_fk_course
+        foreign key (course_id) references course (course_id)
+            on delete cascade,
+    constraint note_fk_student
+        foreign key (student_id) references student (id)
+            on delete cascade
+)
+    comment '笔记表';
 
 create table notification
 (
-    notificationId bigint auto_increment comment '主键'
+    notification_id bigint auto_increment comment '主键'
         primary key,
-    teacherId      bigint                             not null comment '老师ID，外键',
-    content        text                               not null comment '通知内容',
-    createTime     datetime default CURRENT_TIMESTAMP null comment '创建时间',
-    constraint fk_notification_teacher
-        foreign key (teacherId) references teacher (id)
+    teacher_id      bigint                             not null comment '老师ID，外键',
+    content         varchar(255)                       null,
+    create_time     datetime default CURRENT_TIMESTAMP null comment '创建时间',
+    title           varchar(255)                       null,
+    course_id       bigint                             null,
+    constraint fk_course
+        foreign key (course_id) references course (course_id),
+    constraint notification_fk_teacher
+        foreign key (teacher_id) references teacher (teacher_id)
             on delete cascade
 )
     comment '通知表';
 
-create table notification_stu
-(
-    notificationId bigint            not null comment '通知ID，外键',
-    studentId      bigint            not null comment '学生ID，外键',
-    status         tinyint default 0 null comment '通知状态，0为未读，1为已读',
-    primary key (notificationId, studentId),
-    constraint fk_notification_stu_notification
-        foreign key (notificationId) references notification (notificationId)
-            on delete cascade,
-    constraint fk_notification_stu_student
-        foreign key (studentId) references student (id)
-            on delete cascade
-)
-    comment '通知-学生关联表';
-
 create table post
 (
-    postId    bigint auto_increment comment '主键'
+    post_id    bigint auto_increment comment '主键'
         primary key,
-    courseId  bigint        not null comment '课程ID，外键',
-    studentId bigint        not null comment '学生ID，外键',
-    teacherId bigint        not null comment '教师ID，外键',
-    likeNum   int default 0 null comment '点赞数',
-    favoNum   int default 0 null comment '收藏数',
-    content   text          null comment '帖子内容',
-    constraint fk_post_course
-        foreign key (courseId) references course (courseId)
+    course_id  bigint        not null comment '课程ID，外键',
+    student_id bigint        null comment 'post的创建学生Id，若不是学生创建则为空',
+    teacher_id bigint        not null comment '教师ID，外键',
+    like_num   int default 0 null comment '点赞数',
+    favo_num   int default 0 null comment '收藏数',
+    content    text          null comment '帖子内容',
+    title      varchar(255)  null,
+    constraint post_fk_course
+        foreign key (course_id) references course (course_id)
             on delete cascade,
-    constraint fk_post_student
-        foreign key (studentId) references student (id)
+    constraint post_fk_student
+        foreign key (student_id) references student (id)
             on delete cascade,
-    constraint fk_post_teacher
-        foreign key (teacherId) references teacher (id)
+    constraint post_fk_teacher
+        foreign key (teacher_id) references teacher (teacher_id)
             on delete cascade
 )
     comment '帖子表';
 
 create table comment
 (
-    commentId bigint auto_increment comment '主键'
+    comment_id    bigint auto_increment comment '主键'
         primary key,
-    studentId bigint        not null comment '学生ID，外键',
-    postId    bigint        not null comment '帖子ID，外键',
-    likeNum   int default 0 null comment '点赞数',
-    content   text          null comment '评论内容',
-    constraint fk_comment_post
-        foreign key (postId) references post (postId)
+    post_id       bigint        not null comment '帖子ID，外键',
+    like_num      int default 0 null comment '点赞数',
+    content       text          null comment '评论内容',
+    commented_num varchar(50)   null comment '评论编号',
+    teacher_id    bigint        null comment '教师ID，外键，可以为空',
+    student_id    bigint        null comment '学生ID，外键，可以为空',
+    constraint comment_fk_post
+        foreign key (post_id) references post (post_id)
             on delete cascade,
-    constraint fk_comment_student
-        foreign key (studentId) references student (id)
+    constraint comment_fk_student
+        foreign key (student_id) references student (id)
+            on delete cascade,
+    constraint comment_fk_teacher
+        foreign key (teacher_id) references teacher (teacher_id)
             on delete cascade
 )
     comment '评论表';
 
 create table favorite
 (
-    favoriteId bigint auto_increment comment '主键'
+    favorite_id              bigint auto_increment comment '主键'
         primary key,
-    studentId  bigint not null comment '学生ID，外键',
-    postId     bigint not null comment '帖子ID，外键',
-    constraint fk_favorite_post
-        foreign key (postId) references post (postId)
+    post_id                  bigint      null,
+    favourite_num            varchar(10) not null comment '用户收藏夹编号',
+    favo_others_favorite_num varchar(10) null comment '收藏其他用户的收藏夹编号',
+    constraint favorite_fk_favo_others_favorite_num
+        foreign key (favo_others_favorite_num) references favoriteinfo (favorite_num),
+    constraint favorite_fk_favourite_num
+        foreign key (favourite_num) references favoriteinfo (favorite_num)
             on delete cascade,
-    constraint fk_favorite_student
-        foreign key (studentId) references student (id)
+    constraint favorite_fk_post
+        foreign key (post_id) references post (post_id)
             on delete cascade
 )
     comment '收藏表';
+
+create table resource
+(
+    id                bigint auto_increment comment '资源表主键'
+        primary key,
+    course_id         bigint       null comment '外键，关联到课程，如果是课程的内容',
+    homework_id       bigint       null comment '外键，关联到作业表，可能为 null',
+    file_path         varchar(255) null comment '文件存储路径',
+    file_type         varchar(100) null,
+    course_outline    int          null comment '如果是课程大纲文件，则标记为1，否则为空',
+    course_calendar   int          null comment '如果是课程时间表文件，则标记为1，否则为空',
+    course_resource   int          null comment '如果是课件等资源文件，则标记为1，否则为空',
+    homework_resource int          null comment '如果是老师上传的作业文件内容，则标记为1，否则为空',
+    course_workset    int          null comment '如果是习题库资源则标记为1，否则标记为0',
+    constraint resource_fk_course
+        foreign key (course_id) references course (course_id),
+    constraint resource_fk_homework
+        foreign key (homework_id) references homework (homework_id)
+            on delete cascade
+)
+    comment '资源表，存储作业、课程资料、公告等文件';
 

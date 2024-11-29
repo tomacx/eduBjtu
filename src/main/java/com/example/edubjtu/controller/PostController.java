@@ -57,4 +57,23 @@ public class PostController {
         modelMap.put("postNum", postsNum);
         return ResponseEntity.ok(modelMap);
     }
+
+    //TODO 点赞数增加
+    @PostMapping("/addLikeNum")
+    @ResponseBody
+    public ResponseEntity<Map<String,Object>> addLikeNum(@RequestParam Long postId){
+        Map<String,Object> map = new HashMap<>();
+        postService.addLikeNumById(postId);
+        map.put("message","点赞成功");
+        return ResponseEntity.ok(map);
+    }
+    //TODO 点赞数减少
+    @PostMapping("/decreaseLikeNum")
+    @ResponseBody
+    public ResponseEntity<Map<String,Object>> decreaseLikeNum(@RequestParam Long postId){
+        Map<String,Object> map = new HashMap<>();
+        postService.DecreaseLikeNumById(postId);
+        map.put("message","取消点赞成功");
+        return ResponseEntity.ok(map);
+    }
 }

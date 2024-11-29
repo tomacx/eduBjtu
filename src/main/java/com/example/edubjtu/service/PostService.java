@@ -1,6 +1,7 @@
 package com.example.edubjtu.service;
 
 import com.example.edubjtu.dto.CoursePost;
+import com.example.edubjtu.model.Comment;
 import com.example.edubjtu.model.Post;
 import com.example.edubjtu.repository.PostRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,5 +46,19 @@ public class PostService {
 
     public void likePost(Long postId) {
         postRepository.incrementLikes(postId);
+    }
+
+    public void addLikeNumById(Long postId) {
+        Post post = postRepository.findByPostId(postId);
+        Long likeNum = post.getLikeNum();
+        post.setLikeNum(++likeNum);
+        postRepository.save(post);
+    }
+
+    public void DecreaseLikeNumById(Long postId) {
+        Post post = postRepository.findByPostId(postId);
+        Long likeNum = post.getLikeNum();
+        post.setLikeNum(--likeNum);
+        postRepository.save(post);
     }
 }

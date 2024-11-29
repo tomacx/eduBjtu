@@ -45,4 +45,8 @@ public class PostComment {
             this.teacherName = teacherName;
         }
     }
+
+    public PostComment() {
+
+    }
 }

@@ -24,6 +24,11 @@ public class ResourceList {
         // 根据 MIME 类型获取文件扩展名
         this.fileType = getFileExtension(fileType);
     }
+
+    public ResourceList() {
+
+    }
+
     // 提取文件名，不包含路径和扩展名
     private String extractFileName(String filePath) {
         if (StringUtils.isBlank(filePath)) {
