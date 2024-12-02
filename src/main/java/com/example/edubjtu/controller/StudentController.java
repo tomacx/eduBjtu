@@ -456,8 +456,8 @@ public class StudentController {
     @PostMapping("/homework/{homeworkId}/review")
     @ResponseBody
     public ResponseEntity<Map<String,Object>> reviewHomework(@PathVariable Long homeworkId,
-                                                             @RequestParam Double score,
-                                                             @RequestParam String comments,
+                                                             @RequestParam("score") Double score,
+                                                             @RequestParam("comments") String comments,
                                                              HttpSession session) {
         Map<String, Object> responseMap = new HashMap<>();
         Student student = (Student) session.getAttribute("loggedInStudent");
@@ -469,5 +469,23 @@ public class StudentController {
         homeworkReviewService.submitReview(homeworkId, student.getId(), score, comments);
         responseMap.put("message", "作业评审成功");
         return ResponseEntity.ok(responseMap);
+    }
+
+    //TODO:获取随机互评的作业
+    @GetMapping("/homework/{courseId}/{homeworkNum}/homeworkReviews")
+    @ResponseBody
+    public ResponseEntity<Map<String, Object>> assignReviews(@PathVariable Long courseId,
+                                                             @PathVariable Integer homeworkNum) {
+        Map<String, Object> responseMap = new HashMap<>();
+
+        try {
+            Map<Student, List<Homework>> assignments = homeworkService.HomeworkReviewsRandomly(courseId,homeworkNum);
+            responseMap.put("message", "评审任务分配成功");
+            responseMap.put("assignments", assignments);
+            return ResponseEntity.ok(responseMap);
+        } catch (Exception e) {
+            responseMap.put("error", "评审任务分配失败");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(responseMap);
+        }
     }
 }

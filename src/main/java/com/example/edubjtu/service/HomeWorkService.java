@@ -15,9 +15,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 public class HomeWorkService {
@@ -105,5 +103,35 @@ public class HomeWorkService {
 
     public List<Homework> getFirstHomeworkByCourseId(Long courseId) {
         return homeworkRepository.findFirstHomeworkByCourseId(courseId);
+    }
+
+
+    //TODO: 随机分配作业
+
+    public Map<Student, List<Homework>> HomeworkReviewsRandomly(Long courseId, Integer homeworkNum) {
+        List<Homework> homeworks = homeworkRepository.findByCourseIdAndHomeworkNum(courseId,homeworkNum);
+        List<Student> students = studentRepository.findByCourseId(courseId);
+
+
+        Map<Student, List<Homework>> reviewAssignments = new HashMap<>();
+        Random random = new Random();
+
+        for (Homework homework : homeworks) {
+            Set<Student> assignedReviewers = new HashSet<>();
+
+            while (assignedReviewers.size() < 3) { // 假设每个作业需要3个评审
+                Student randomStudent = students.get(random.nextInt(students.size()));
+
+                if (!randomStudent.getStudentNum().equals(homework.getStudentNum())) {
+                    assignedReviewers.add(randomStudent);
+                }
+            }
+
+            for (Student reviewer : assignedReviewers) {
+                reviewAssignments.computeIfAbsent(reviewer, k -> new ArrayList<>()).add(homework);
+            }
+        }
+
+        return reviewAssignments;
     }
 }

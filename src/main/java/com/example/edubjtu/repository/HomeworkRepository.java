@@ -44,4 +44,7 @@ public interface HomeworkRepository extends JpaRepository<Homework, Long> {
 
     List<Homework> findByCourseId(@Param("courseId")Long courseId);
 
+    //TODO:查找作业
+    @Query("select h1 from Homework h1 where h1.courseId = :courseId and h1.homeworkNum = :homeworkNum")
+    List<Homework> findByCourseIdAndHomeworkNum(@Param("courseId") Long courseId, @Param("homeworkNum") Integer homeworkNum);
 }
