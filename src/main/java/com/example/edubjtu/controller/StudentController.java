@@ -2,6 +2,7 @@ package com.example.edubjtu.controller;
 
 import com.example.edubjtu.model.*;
 import com.example.edubjtu.repository.CourseRepository;
+import com.example.edubjtu.repository.HomeworkReviewRespository;
 import com.example.edubjtu.repository.StudentRepository;
 import com.example.edubjtu.service.*;
 import jakarta.servlet.http.HttpSession;
@@ -70,6 +71,9 @@ public class StudentController {
     private NoteService noteService;
     @Autowired
     private FavoriteInfoService favoriteInfoService;
+
+    @Autowired
+    private HomeworkReviewService homeworkReviewService;
 
     @GetMapping("/dashboard")
     @ResponseBody // 添加此注解以返回 JSON
@@ -446,5 +450,24 @@ public class StudentController {
             responseMap.put("error", "收藏失败");
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(responseMap);
         }
+    }
+
+    //TODO:作业互评功能
+    @PostMapping("/homework/{homeworkId}/review")
+    @ResponseBody
+    public ResponseEntity<Map<String,Object>> reviewHomework(@PathVariable Long homeworkId,
+                                                             @RequestParam Double score,
+                                                             @RequestParam String comments,
+                                                             HttpSession session) {
+        Map<String, Object> responseMap = new HashMap<>();
+        Student student = (Student) session.getAttribute("loggedInStudent");
+        if (student == null) {
+            responseMap.put("error", "未登录，请重新登录");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(responseMap);
+        }
+
+        homeworkReviewService.submitReview(homeworkId, student.getId(), score, comments);
+        responseMap.put("message", "作业评审成功");
+        return ResponseEntity.ok(responseMap);
     }
 }
