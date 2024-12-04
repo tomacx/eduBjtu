@@ -18,6 +18,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
@@ -263,6 +265,88 @@ public class TeacherController {
         }
     }
 
+    //发送评论--done
+    @PostMapping("/post/setComment")
+    @ResponseBody
+    public ResponseEntity<Map<String, Object>> sendComment(@RequestParam Long postId,
+                                                           @RequestParam String teacherNum,
+                                                           @RequestParam("content") String content
+    ) {
+        Map<String, Object> responseMap = new HashMap<>();
+        Post post = postService.getPostById(postId);
+        //由后端判断回复的帖子是老师的还是学生的
+        Optional<Student> commentedStudent = studentService.findStudentById(post.getStudentId());
+        //评论的老师
+        Teacher teacher = teacherService.findTeacherByTeacherNum(teacherNum);
+        if (commentedStudent.isPresent()) {
+            Comment comment = new Comment();
+            comment.setPostId(postId);
+            comment.setLikeNum(0);
+            comment.setCommentedNum(commentedStudent.get().getStudentNum());
+            comment.setContent(content);
+            comment.setTeacherId(teacher.getId());
+            commentService.saveComment(comment);
+            responseMap.put("message", "评论发送成功");
+            responseMap.put("commentId", comment.getCommentId());
+            return ResponseEntity.ok(responseMap);
+        }else{
+            //回复的帖子是老师
+            Optional<Teacher> commentedTeacher = teacherService.findTeacherById(post.getTeacherId());
+            if (commentedTeacher.isPresent()) {
+                Comment comment = new Comment();
+                comment.setPostId(postId);
+                comment.setLikeNum(0);
+                comment.setCommentedNum(commentedTeacher.get().getTeacherNum());
+                comment.setContent(content);
+                comment.setTeacherId(teacher.getId());
+                commentService.saveComment(comment);
+                responseMap.put("message", "评论发送成功");
+                responseMap.put("commentId", comment.getCommentId());
+                return ResponseEntity.ok(responseMap);
+            }
+        }
+        responseMap.put("message", "评论发送失败");
+        responseMap.put("commentId", "");
+        return ResponseEntity.ok(responseMap);
+    }
+
+    //发送帖子--done
+    @PostMapping("/setPost")
+    @ResponseBody
+    public ResponseEntity<Map<String, Object>> sendPost(@RequestParam("courseId") Long courseId,
+                                                        @RequestParam("title") String title,
+                                                        @RequestParam("content") String content,
+                                                        @RequestParam("teacherNum") String teacherNum
+    ){
+        Map<String, Object> responseMap = new HashMap<>();
+        // URL 解码，使用 UTF-8 编码
+        String decodedTitle = URLDecoder.decode(title, StandardCharsets.UTF_8);
+        String decodedContent = URLDecoder.decode(content, StandardCharsets.UTF_8);
+         Teacher teacher = teacherService.findTeacherByTeacherNum(teacherNum);
+        Post post = new Post();
+        post.setCourseId(courseId);
+        post.setTeacherId(teacher.getId());
+        post.setTitle(decodedTitle);
+        post.setContent(decodedContent);
+        post.setFavoNum(0L);
+        post.setLikeNum(0L);
+        postService.savePost(post);
+        Optional<Course> course = courseService.findCourseById(courseId);
+        if (course.isPresent()) {
+            Long teacherId = course.get().getTeacher().getId();
+            System.out.println("Teacher ID: " + teacherId);
+            post.setTeacherId(teacherId);
+        } else {
+            System.out.println("Course not found.");
+        }
+
+        postService.savePost(post);
+
+        responseMap.put("message", "帖子发送成功");
+        return ResponseEntity.ok(responseMap);
+    }
+
+
 
     //TODO:增加老师查看选课学生的功能
     @GetMapping("/course/{courseId}/students")
@@ -334,7 +418,17 @@ public class TeacherController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(responseMap);
         }
     }
-    //TODO:增加老师管理评论的功能
+    //老师删除帖子
+    @DeleteMapping("/course/deletePost/{postId}")
+    @ResponseBody
+    public ResponseEntity<Map<String,Object>> deletePost(@PathVariable Long postId){
+        Map<String, Object> responseMap = new HashMap<>();
+        postService.deletePost(postId);
+            responseMap.put("message","删除成功");
+            return ResponseEntity.ok(responseMap);
+
+    }
+    //TODO: 老师删除评论
     @DeleteMapping("/course/{courseId}/comment/{commentId}")
     @ResponseBody
     public ResponseEntity<Map<String, Object>> deleteComment(@PathVariable Long courseId,

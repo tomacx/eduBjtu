@@ -1,7 +1,6 @@
 package com.example.edubjtu.service;
 
 import com.example.edubjtu.dto.CoursePost;
-import com.example.edubjtu.model.Comment;
 import com.example.edubjtu.model.Post;
 import com.example.edubjtu.repository.PostRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,8 +31,8 @@ public class PostService {
         return postRepository.findById(postId).orElse(null);
     }
 
-    public Post savePost(Post post) {
-        return postRepository.save(post);
+    public void savePost(Post post) {
+        postRepository.save(post);
     }
 
     public void deletePost(Long postId) {
