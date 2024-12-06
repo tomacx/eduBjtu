@@ -28,7 +28,7 @@ public class PostController {
 
     @GetMapping("/getPosts")
     @ResponseBody
-    public ResponseEntity<Map<String, Object>> listPostsByStudent(HttpSession session, @RequestParam("studentNum") String studentNum) {
+    public ResponseEntity<Map<String, Object>> listPostsByStudent(@RequestParam("studentNum") String studentNum) {
         Student student = studentService.getStudentByStudentNum(studentNum);
 
         List<Post> posts = postService.getPostsByStudentId(student.getId());

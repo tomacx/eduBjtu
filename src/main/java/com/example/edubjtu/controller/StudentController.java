@@ -274,6 +274,7 @@ public class StudentController {
         post.setContent(decodedContent);
         post.setFavoNum(0L);
         post.setLikeNum(0L);
+        postService.savePost(post);
         Optional<Course> course = courseService.findCourseById(courseId);
         if (course.isPresent()) {
             Long teacherId = course.get().getTeacher().getId();
