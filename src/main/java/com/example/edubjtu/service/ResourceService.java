@@ -63,13 +63,14 @@ public class ResourceService {
     }
 
     //学生上传完成的作业
-    public void saveHomeworkResourceByStudent(Long homeworkId, MultipartFile file) throws IOException {
+    public void saveHomeworkResourceByStudent(Long homeworkId,Long courseId, MultipartFile file) throws IOException {
         String fileName = file.getOriginalFilename();
         Path filePath = Paths.get(uploadHomeWorkStudentDir,fileName);
         Files.createDirectories(Path.of(uploadHomeWorkStudentDir));
         Files.write(filePath, file.getBytes());
         Resource resources = new Resource();
         resources.setHomework(homeworkRepository.findByHomeworkId(homeworkId));
+        resources.setCourse(courseRepository.findByCourseId(courseId));
         resources.setFilePath(filePath.toString());
         resources.setFileType(file.getContentType());
         resourceRepository.save(resources);

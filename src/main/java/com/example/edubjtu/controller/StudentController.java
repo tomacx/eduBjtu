@@ -145,9 +145,10 @@ public class StudentController {
         return ResponseEntity.ok(modelMap);
     };
 
-    //增加学生端上传作业的功能--done
+    //增加学生端上传作业的功能--done  // TODO:上传作业
     @PostMapping("course/homework/upload")
     public ResponseEntity<Map<String, Object>> uploadStudentHomework(@RequestParam Long homeworkId,
+                                                                     @RequestParam Long courseId,
                                                                      @RequestParam String studentContent,
                                                                      @RequestParam("files") MultipartFile[] files) throws IOException {
         Map<String, Object> responseMap = new HashMap<>();
@@ -161,7 +162,7 @@ public class StudentController {
         }
 
         // 处理多个文件上传
-        homeworkService.saveStudentHomework(homeworkId, studentContent, files);
+        homeworkService.saveStudentHomework(homeworkId,courseId, studentContent, files);
 
         responseMap.put("message", "作业上传成功");
         return ResponseEntity.ok(responseMap);
