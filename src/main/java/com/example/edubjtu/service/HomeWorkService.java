@@ -61,7 +61,7 @@ public class HomeWorkService {
         }
     }
 
-    public void saveStudentHomework(Long homeworkId, String studentContent, MultipartFile[] files) throws IOException {
+    public void saveStudentHomework(Long homeworkId,Long courseId, String studentContent, MultipartFile[] files) throws IOException {
         Homework homework = homeworkRepository.findById(homeworkId).orElseThrow(() -> new IOException("作业未找到"));
 
         // 清除原有的学生作业内容 使重复上传覆盖前一次结果
@@ -74,7 +74,7 @@ public class HomeWorkService {
             // 清除原有的学生作业附件 使重复上传覆盖前一次结果
             resourceService.deleteHomeworkResourceByStudent(homeworkId);
             // 保存每个文件作为资源（调用 ResourceService 保存文件信息）
-            resourceService.saveHomeworkResourceByStudent(homeworkId, file); // 需要在这儿创建相应的文件资源记录
+            resourceService.saveHomeworkResourceByStudent(homeworkId, courseId,file); // 需要在这儿创建相应的文件资源记录
         }
 
         homeworkRepository.save(homework); // 保存作业
