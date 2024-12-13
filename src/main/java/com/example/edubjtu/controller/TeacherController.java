@@ -428,6 +428,7 @@ public class TeacherController {
             return ResponseEntity.ok(responseMap);
 
     }
+
     //TODO: 老师删除评论
     @DeleteMapping("/course/{courseId}/comment/{commentId}")
     @ResponseBody
@@ -458,6 +459,7 @@ public class TeacherController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(responseMap);
         }
     }
+
     //TODO:增加老师批阅作业的功能（包括下载作业资源）
     @PostMapping("/gradeHomework")
     @ResponseBody
@@ -477,36 +479,7 @@ public class TeacherController {
                 return ResponseEntity.status(500).body(responseMap);
             }
         }
-    //TODO:增加老师删除帖子的功能
-    @DeleteMapping("/course/{courseId}/post/{postId}")
-    @ResponseBody
-    public ResponseEntity<Map<String, Object>> deletePost(@PathVariable Long courseId,
-                                                          @PathVariable Long postId,
-                                                          HttpSession session) {
-        Map<String, Object> responseMap = new HashMap<>();
-        Teacher teacher = (Teacher) session.getAttribute("loggedInTeacher");
-        if (teacher != null) {
-            try {
-                // 检查帖子是否���于该教师的课程
-                Post post = postService.getPostById(postId);
-                if (post != null && post.getCourseId().equals(courseId) && post.getTeacherId().equals(teacher.getId())) {
-                    postService.deletePost(postId);
-                    responseMap.put("message", "帖子删除成功");
-                    return ResponseEntity.ok(responseMap);
-                } else {
-                    responseMap.put("error", "无权删除此帖子或帖子不存在");
-                    return ResponseEntity.status(HttpStatus.FORBIDDEN).body(responseMap);
-                }
-            } catch (Exception e) {
-                logger.error("帖子删除失败", e);
-                responseMap.put("error", "帖子删除失败");
-                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(responseMap);
-            }
-        } else {
-            responseMap.put("error", "未登录，请重新登录");
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(responseMap);
-        }
-    }
+
     //TODO:增加教师端查看成绩统计的功能
 
 

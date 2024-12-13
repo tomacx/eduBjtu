@@ -39,12 +39,6 @@ public class PostController {
         return ResponseEntity.ok(modelMap);
     }
 
-    @GetMapping("/{id}")
-    public String viewPost(@PathVariable Long id, Model model) {
-        Post post = postService.getPostById(id);
-        model.addAttribute("post", post);
-        return "postDetails";
-    }
 
     //TODO：搜索帖子
     @GetMapping("/search")
@@ -58,7 +52,7 @@ public class PostController {
         return ResponseEntity.ok(modelMap);
     }
 
-    //TODO 点赞数增加
+    // 点赞数增加
     @PostMapping("/addLikeNum")
     @ResponseBody
     public ResponseEntity<Map<String,Object>> addLikeNum(@RequestParam Long postId){

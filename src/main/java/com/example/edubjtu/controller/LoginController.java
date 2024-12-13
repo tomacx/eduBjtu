@@ -74,9 +74,4 @@ public class LoginController {
         return ResponseEntity.badRequest().body(response); // 返回错误响应
     }
 
-
-    @GetMapping("/logout")
-    public String logout(HttpSession session) {
-        return "redirect:/login?logout";
-    }
 }
