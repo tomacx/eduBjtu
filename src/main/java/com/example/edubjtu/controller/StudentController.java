@@ -3,6 +3,7 @@ package com.example.edubjtu.controller;
 import com.example.edubjtu.model.*;
 import com.example.edubjtu.repository.CourseRepository;
 import com.example.edubjtu.repository.HomeworkReviewRespository;
+import com.example.edubjtu.repository.ResourceRepository;
 import com.example.edubjtu.repository.StudentRepository;
 import com.example.edubjtu.service.*;
 import jakarta.servlet.http.HttpSession;
@@ -21,10 +22,7 @@ import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
@@ -477,14 +475,34 @@ public class StudentController {
     @GetMapping("/homework/{courseId}/{homeworkNum}/homeworkReviews")
     @ResponseBody
     public ResponseEntity<Map<String, Object>> assignReviews(@PathVariable Long courseId,
-                                                             @PathVariable Integer homeworkNum) {
+                                                             @PathVariable Integer homeworkNum,
+                                                             @RequestParam String studentNum) {
         Map<String, Object> responseMap = new HashMap<>();
 
         try {
-            Map<Student, List<Homework>> assignments = homeworkService.HomeworkReviewsRandomly(courseId,homeworkNum);
-            responseMap.put("message", "评审任务分配成功");
-            responseMap.put("assignments", assignments);
-            return ResponseEntity.ok(responseMap);
+            List<Homework> assignments = homeworkService.HomeworkReviewsRandomly(courseId,homeworkNum,studentNum);
+            List<com.example.edubjtu.model.Resource> resources = new ArrayList<>();
+            for(Homework homework : assignments){
+                com.example.edubjtu.model.Resource re = resourceService.getResourceByHomeworkId(homework.getHomeworkId());
+                resources.add(re);
+                System.out.println(re.getFilePath());
+            }
+            System.out.println("评审任务分配成功");
+            Map<String ,Object> modelMap = new HashMap<>();
+            for(com.example.edubjtu.model.Resource resource : resources) {
+                String filePath = resource.getFilePath();
+                // 替换路径中的 `src\main` 为 `static`，并将反斜杠替换为正斜杠
+                String adjustedFilePath = filePath.replace("src\\main\\resources\\static\\", "")
+                        .replace("\\", "/");
+
+                // 构造完整的 URL
+                String fileUrl = "http://localhost:8000/" + adjustedFilePath;
+                modelMap.put("URL", fileUrl);
+                String fileType = resource.getFileType(); // 获取文件类型信息
+                modelMap.put("fileType", fileType);
+                System.out.println("fileType is:" + fileType);
+            }
+            return ResponseEntity.ok(modelMap);
         } catch (Exception e) {
             responseMap.put("error", "评审任务分配失败");
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(responseMap);

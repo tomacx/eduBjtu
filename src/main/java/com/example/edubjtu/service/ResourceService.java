@@ -36,6 +36,9 @@ public class ResourceService {
         return resourceRepository.findByCourse_CourseId(courseId);
     }
 
+    public Resource getResourceByHomeworkId(Long homeworkId){
+        return resourceRepository.findByHomeworkId(homeworkId);
+    }
     public Path getResourceFilePath(Long courseId, Long resourceId) throws IOException {
         Resource resourcesEntity = resourceRepository.findById(resourceId)
                 .orElseThrow(() -> new IOException("Resource not found"));

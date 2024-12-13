@@ -34,4 +34,9 @@ public interface ResourceRepository extends JpaRepository<Resource, Long> {
     Optional<Resource> findCalendarByCourse_CourseIdAndCourseCalendar(@Param("courseId")Long courseId,@Param("courseCalendar")int courseCalendar);
 
     void deleteByHomework(Homework homework);
+
+    @Query(value= """
+           select r from Resource r where r.homework.homeworkId = :homeworkId
+        """)
+    Resource findByHomeworkId(@Param("homeworkId")Long homeworkId);
 }

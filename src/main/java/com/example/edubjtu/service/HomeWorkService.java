@@ -7,6 +7,7 @@ import com.example.edubjtu.repository.HomeworkRepository;
 import com.example.edubjtu.repository.ResourceRepository;
 import com.example.edubjtu.repository.StudentRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -108,30 +109,38 @@ public class HomeWorkService {
 
     //TODO: 随机分配作业
 
-    public Map<Student, List<Homework>> HomeworkReviewsRandomly(Long courseId, Integer homeworkNum) {
+    public List<Homework> HomeworkReviewsRandomly(Long courseId, Integer homeworkNum, String studentNum) {
         List<Homework> homeworks = homeworkRepository.findByCourseIdAndHomeworkNum(courseId,homeworkNum);
         List<Student> students = studentRepository.findByCourseId(courseId);
 
 
-        Map<Student, List<Homework>> reviewAssignments = new HashMap<>();
+        List<Homework> reviewAssignments = new ArrayList<>();
         Random random = new Random();
+        List<Student> students2 = new ArrayList<>();
+        Set<Student> assignedReviewers = new HashSet<>();
+        while (assignedReviewers.size() < 4) { // 假设每个作业需要3个评审
 
-        for (Homework homework : homeworks) {
-            Set<Student> assignedReviewers = new HashSet<>();
-
-            while (assignedReviewers.size() < 3) { // 假设每个作业需要3个评审
                 Student randomStudent = students.get(random.nextInt(students.size()));
 
-                if (!randomStudent.getStudentNum().equals(homework.getStudentNum())) {
-                    assignedReviewers.add(randomStudent);
-                }
-            }
+                Boolean flag = true;
 
-            for (Student reviewer : assignedReviewers) {
-                reviewAssignments.computeIfAbsent(reviewer, k -> new ArrayList<>()).add(homework);
+                for(Student student : students2){
+                    if(randomStudent.getStudentNum().equals(student.getStudentNum())){
+                        flag = false;
+                    }
+                }
+                if (flag && !randomStudent.getStudentNum().equals(studentNum)) {
+                    assignedReviewers.add(randomStudent);
+                    students2.add(randomStudent);
             }
         }
-
+            for (Student reviewer : assignedReviewers) {
+                for(Homework homework1 : homeworks){
+                    if(reviewer.getStudentNum().equals(homework1.getStudentNum())){
+                        reviewAssignments.add(homework1);
+                    }
+                }
+            }
         return reviewAssignments;
     }
 }
