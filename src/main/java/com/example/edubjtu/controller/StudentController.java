@@ -2,8 +2,6 @@ package com.example.edubjtu.controller;
 
 import com.example.edubjtu.model.*;
 import com.example.edubjtu.repository.CourseRepository;
-import com.example.edubjtu.repository.HomeworkReviewRespository;
-import com.example.edubjtu.repository.ResourceRepository;
 import com.example.edubjtu.repository.StudentRepository;
 import com.example.edubjtu.service.*;
 import jakarta.servlet.http.HttpSession;
@@ -474,21 +472,42 @@ public class StudentController {
     //TODO:获取随机互评的作业
     @GetMapping("/homework/{courseId}/{homeworkNum}/homeworkReviews")
     @ResponseBody
-    public ResponseEntity<Map<String, Object>> assignReviews(@PathVariable Long courseId,
-                                                             @PathVariable Integer homeworkNum,
-                                                             @RequestParam String studentNum) {
+    public ResponseEntity<List<Map<String, Object>>> assignReviews(@PathVariable Long courseId,
+                                                                   @PathVariable Integer homeworkNum,
+                                                                   @RequestParam String studentNum) {
         Map<String, Object> responseMap = new HashMap<>();
 
         try {
+            List<Map<String,Object>> modelList = new ArrayList<>();
+            Map<String ,Object> modelMap1 = new HashMap<>();
+            Map<String ,Object> modelMap2 = new HashMap<>();
+            Map<String ,Object> modelMap3 = new HashMap<>();
             List<Homework> assignments = homeworkService.HomeworkReviewsRandomly(courseId,homeworkNum,studentNum);
             List<com.example.edubjtu.model.Resource> resources = new ArrayList<>();
+            int number = 1;
             for(Homework homework : assignments){
                 com.example.edubjtu.model.Resource re = resourceService.getResourceByHomeworkId(homework.getHomeworkId());
                 resources.add(re);
                 System.out.println(re.getFilePath());
+                if(number == 1) {
+                    modelMap1.put("homeworkId", homework.getHomeworkId());
+                    modelMap1.put("content", homework.getContent());
+                    number++;
+                }else if(number == 2){
+                    modelMap2.put("homeworkId", homework.getHomeworkId());
+                    modelMap2.put("content", homework.getContent());
+                    number++;
+                }else if(number == 3){
+                    modelMap3.put("homeworkId", homework.getHomeworkId());
+                    modelMap3.put("content", homework.getContent());
+                    number++;
+                }
+                System.out.println(homework.getHomeworkId());
+                System.out.println(homework.getContent());
             }
             System.out.println("评审任务分配成功");
-            Map<String ,Object> modelMap = new HashMap<>();
+
+            number = 1;
             for(com.example.edubjtu.model.Resource resource : resources) {
                 String filePath = resource.getFilePath();
                 // 替换路径中的 `src\main` 为 `static`，并将反斜杠替换为正斜杠
@@ -497,15 +516,33 @@ public class StudentController {
 
                 // 构造完整的 URL
                 String fileUrl = "http://localhost:8000/" + adjustedFilePath;
-                modelMap.put("URL", fileUrl);
-                String fileType = resource.getFileType(); // 获取文件类型信息
-                modelMap.put("fileType", fileType);
-                System.out.println("fileType is:" + fileType);
+                if(number == 1) {
+                    modelMap1.put("URL", fileUrl);
+                    String fileType = resource.getFileType(); // 获取文件类型信息
+                    modelMap1.put("fileType", fileType);
+                    System.out.println("fileType is:" + fileType);
+                    modelList.add(modelMap1);
+                    number++;
+                }else if(number == 2){
+                    modelMap2.put("URL", fileUrl);
+                    String fileType = resource.getFileType(); // 获取文件类型信息
+                    modelMap2.put("fileType", fileType);
+                    System.out.println("fileType is:" + fileType);
+                    modelList.add(modelMap2);
+                    number++;
+                }else if(number == 3){
+                    modelMap3.put("URL", fileUrl);
+                    String fileType = resource.getFileType(); // 获取文件类型信息
+                    modelMap3.put("fileType", fileType);
+                    System.out.println("fileType is:" + fileType);
+                    modelList.add(modelMap3);
+                    number++;
+                }
             }
-            return ResponseEntity.ok(modelMap);
+            return ResponseEntity.ok(modelList);
         } catch (Exception e) {
             responseMap.put("error", "评审任务分配失败");
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(responseMap);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body((List<Map<String, Object>>) responseMap);
         }
     }
 }
