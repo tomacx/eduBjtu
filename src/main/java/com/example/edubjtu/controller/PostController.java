@@ -61,13 +61,31 @@ public class PostController {
         map.put("message","点赞成功");
         return ResponseEntity.ok(map);
     }
-    //TODO 点赞数减少
+    // 点赞数减少
     @PostMapping("/decreaseLikeNum")
     @ResponseBody
     public ResponseEntity<Map<String,Object>> decreaseLikeNum(@RequestParam Long postId){
         Map<String,Object> map = new HashMap<>();
         postService.DecreaseLikeNumById(postId);
         map.put("message","取消点赞成功");
+        return ResponseEntity.ok(map);
+    }
+    // 收藏
+    @PostMapping("/addFavorNum")
+    @ResponseBody
+    public ResponseEntity<Map<String,Object>> addFavoNum(@RequestParam Long postId,@RequestParam String studentNum){
+        Map<String,Object> map = new HashMap<>();
+        postService.addFavoNum(postId,studentNum);
+        map.put("message","收藏成功");
+        return ResponseEntity.ok(map);
+    }
+    // 取消收藏
+    @PostMapping("/decreaseFavorNum")
+    @ResponseBody
+    public ResponseEntity<Map<String,Object>> decreaseFavoNum(@RequestParam Long postId,@RequestParam String studentNum){
+        Map<String,Object> map = new HashMap<>();
+        postService.deFavoNum(postId,studentNum);
+        map.put("message","收藏成功");
         return ResponseEntity.ok(map);
     }
 }

@@ -46,4 +46,6 @@ public class Homework implements Serializable {
     @Column(name = "student_content")
     private String studentContent;
 
+    @Column(name = "submit_check")
+    private Integer submitCheck;
 }

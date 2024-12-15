@@ -8,7 +8,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -248,20 +247,127 @@ public class TeacherController {
     @ResponseBody
     public ResponseEntity<Map<String, Object>> getHomeworkList(@PathVariable Long courseId) {
         Map<String, Object> responseMap = new HashMap<>();
+
+        // 获取课程的作业列表
         List<Homework> homeworkList = homeworkService.getFirstHomeworkByCourseId(courseId);
+        List<Map<String, Object>> homeworkStats = new ArrayList<>();
+
+        // 遍历作业列表，为每个作业统计提交情况
+        for (Homework homework : homeworkList) {
+            List<Homework> list = homeworkService.getHomeworkByCourseIdAndHomeworkNum(homework.getHomeworkNum(), courseId);
+            //统计平均分
+            float totalGrade=0;
+            // 统计已提交作业人数
+            int alreadySubmit = 0;
+            for (Homework homework1 : list) {
+                if (homework1.getSubmitCheck() != null && homework1.getSubmitCheck() == 1) {
+                    alreadySubmit++;
+                }
+                if(homework1.getGrade()!=null){
+                    totalGrade+=homework1.getGrade();
+                }
+            }
+
+            // 获取总作业人数
+            int totalNum = list.size();
+            //均分
+            float avgGrade = totalGrade / alreadySubmit;
+
+            // 创建一个新的Map来存储作业的提交情况
+            Map<String, Object> stats = new HashMap<>();
+            stats.put("homeworkNum", homework.getHomeworkNum());
+            stats.put("alreadySubmit", alreadySubmit);
+            stats.put("totalNum", totalNum);
+            stats.put("avgGrade", avgGrade);
+            // 将统计数据添加到列表中
+            homeworkStats.add(stats);
+        }
+
+        // 将作业信息和提交统计数据放入responseMap
         responseMap.put("homeworkList", homeworkList);
+        responseMap.put("homeworkStats", homeworkStats);
+
         return ResponseEntity.ok(responseMap);
     }
 
-    //老师查看作业详情
-    @GetMapping
+
+    //老师查看作业详情,返回改作业的所有学生列表
+    @GetMapping("/course/homework/homeworkDetailList")
     @ResponseBody
-    public ResponseEntity<Map<String, Object>> getStudentHomework(@RequestParam int homeworkNum,@RequestParam long courseId) {
-        List<Homework> homeworkList = homeworkService.getHomeworkByCourseIdAndHomeworkNum(homeworkNum,courseId);
+    public ResponseEntity<Map<String, Object>> getStudentHomework(@RequestParam int homeworkNum, @RequestParam long courseId) {
+        List<Homework> homeworkList = homeworkService.getHomeworkByCourseIdAndHomeworkNum(homeworkNum, courseId);
         Map<String, Object> responseMap = new HashMap<>();
-        responseMap.put("homeworkList", homeworkList);
+        List<Map<String, Object>> homeworkDetailsList = new ArrayList<>();
+
+        // 遍历作业列表
+        for (Homework homework : homeworkList) {
+            // 创建一个新的 Map 用于存储每个作业的信息
+            Map<String, Object> homeworkDetails = new HashMap<>();
+            // 向 Map 中加入基本信息
+            homeworkDetails.put("homeworkId", homework.getHomeworkId());
+            homeworkDetails.put("homeworkNum", homework.getHomeworkNum());
+            homeworkDetails.put("courseId", courseId);
+            homeworkDetails.put("studentNum", homework.getStudentNum());
+            homeworkDetails.put("studentName", studentService.getStudentByStudentNum(homework.getStudentNum()).getName());
+            homeworkDetails.put("grade", homework.getGrade());
+            homeworkDetails.put("mutualGrade", homework.getMutualGrade());
+            homeworkDetails.put("submitCheck", homework.getSubmitCheck());
+
+            if (homework.getGrade() != null) {
+                homeworkDetails.put("correctCheck", 1);
+            } else {
+                homeworkDetails.put("correctCheck", 0);
+            }
+
+            // 将每个作业的详细信息添加到列表中
+            homeworkDetailsList.add(homeworkDetails);
+        }
+
+        // 将所有作业详情的列表放入 responseMap 中
+        responseMap.put("homeworkDetailsList", homeworkDetailsList);
+
         return ResponseEntity.ok(responseMap);
     }
+
+
+    //老师批改作业获取改作业内容
+    @GetMapping("/course/homework/homeworkCorrect")
+    @ResponseBody
+    public ResponseEntity<Map<String, Object>> getStudentHomeworkCorrect(@RequestParam Long homeworkId) {
+        Homework homework = homeworkService.getHomeworkByHomeworkId(homeworkId);
+        Resource resource = resourceService.getResourceByHomeworkId(homeworkId);
+        Map<String, Object> modelMap = new HashMap<>();
+        modelMap.put("homework", homework);
+        if (resource!=null) {
+            String filePath = resource.getFilePath();
+            //src\main\resources\static\course\Session_0_Requirements.pptx
+            // 替换路径中的 `src\main` 为 `static`，并将反斜杠替换为正斜杠
+            String adjustedFilePath = filePath.replace("src\\main\\resources\\static\\", "")
+                    .replace("\\", "/");
+
+            // 构造完整的 URL
+            String fileUrl = "http://localhost:8000/" + adjustedFilePath;
+            modelMap.put("URL", fileUrl);
+            String fileType = resource.getFileType(); // 获取文件类型信息
+            modelMap.put("fileType", fileType);
+        } else {
+            modelMap.put("URL", "Not Found");
+        }
+        return ResponseEntity.ok(modelMap);
+    };
+
+    //老师提交作业分数
+    @PostMapping("course/homework/submitGrade")
+    @ResponseBody
+    public ResponseEntity<Map<String, Object>> submitGrade(@RequestParam Long homeworkId,@RequestParam int grade){
+        Homework homework = homeworkService.getHomeworkByHomeworkId(homeworkId);
+        homework.setGrade(grade);
+        homeworkService.save(homework);
+        Map<String, Object> responseMap = new HashMap<>();
+        responseMap.put("message", "分数提交成功");
+        return ResponseEntity.ok(responseMap);
+    }
+
     // 解析 deadline 字符串为 Date 类型，使用 ISO 8601 格式--done
     private Date parseDeadline(String deadline) {
         try {
@@ -274,6 +380,33 @@ public class TeacherController {
         }
     }
 
+    //老师端成绩统计
+    @GetMapping("/course/homework/static")
+    @ResponseBody
+    public ResponseEntity<Map<String, Object>> getStudentHomeworkStatic( @RequestParam long courseId,@RequestParam int homeworkNum) {
+        List<Homework> homeworkList = homeworkService.getHomeworkByCourseIdAndHomeworkNum(homeworkNum, courseId);
+        int grade_100_90=0;
+        int grade_90_80=0;
+        int grade_80_70=0;
+        int grade_70_60=0;
+        int grade_60_0=0;
+        for (Homework homework : homeworkList){
+            if(homework.getGrade()!=null){
+                if(homework.getGrade()>=90 && homework.getGrade()<=100 ) grade_100_90++;
+                else if(homework.getGrade()>=80 && homework.getGrade()<90 ) grade_90_80++;
+                else if(homework.getGrade()>=70 && homework.getGrade()<80 ) grade_80_70++;
+                else if(homework.getGrade()>=60 && homework.getGrade()<70 ) grade_70_60++;
+                else grade_60_0++;
+            }
+        }
+        Map<String, Object> responseMap = new HashMap<>();
+        responseMap.put("grade_100_90", grade_100_90);
+        responseMap.put("grade_90_80", grade_90_80);
+        responseMap.put("grade_80_70", grade_80_70);
+        responseMap.put("grade_70_60", grade_70_60);
+        responseMap.put("grade_60_0", grade_60_0);
+        return  ResponseEntity.ok(responseMap);
+    }
     //发送评论--done
     @PostMapping("/post/setComment")
     @ResponseBody

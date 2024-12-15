@@ -9,6 +9,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface FavoriteRepository extends JpaRepository<Favorite, Long> {
     // 收藏的帖子
@@ -37,5 +38,7 @@ public interface FavoriteRepository extends JpaRepository<Favorite, Long> {
 """)
     List<MyFavoOthersFavo> findFavosByStudentId(@Param("student_id") Long studentId);
 
+    @Query("SELECT f FROM Favorite f WHERE f.postId = :postId AND f.favouriteNum = :favouriteNum")
+    Optional<Favorite> findByPostIdAndFavoriteNum(@Param("postId") Long postId, @Param("favouriteNum") String favouriteNum);
 
 }

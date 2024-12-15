@@ -1,7 +1,5 @@
 package com.example.edubjtu.service;
-import com.example.edubjtu.dto.studentHomeWork;
 import com.example.edubjtu.model.Homework;
-import com.example.edubjtu.model.Resource;
 import com.example.edubjtu.model.Student;
 import com.example.edubjtu.repository.HomeworkRepository;
 import com.example.edubjtu.repository.ResourceRepository;
@@ -10,11 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.*;
 
 @Service
@@ -68,7 +62,7 @@ public class HomeWorkService {
         homework.setStudentContent(null);
         // 存储作业文字内容
         homework.setStudentContent(studentContent);
-
+        homework.setSubmitCheck(1);
         // 处理文件资源
         for (MultipartFile file : files) {
             // 清除原有的学生作业附件 使重复上传覆盖前一次结果
@@ -107,34 +101,47 @@ public class HomeWorkService {
 
 
     //TODO: 随机分配作业
-    public Map<Student, List<Homework>> HomeworkReviewsRandomly(Long courseId, Integer homeworkNum) {
+
+    public  List<Homework> HomeworkReviewsRandomly(Long courseId, Integer homeworkNum, String studentNum) {
         List<Homework> homeworks = homeworkRepository.findByCourseIdAndHomeworkNum(courseId,homeworkNum);
         List<Student> students = studentRepository.findByCourseId(courseId);
 
 
-        Map<Student, List<Homework>> reviewAssignments = new HashMap<>();
+        List<Homework> reviewAssignments = new ArrayList<>();
         Random random = new Random();
+        List<Student> students2 = new ArrayList<>();
+        Set<Student> assignedReviewers = new HashSet<>();
+        while (assignedReviewers.size() < 4) { // 假设每个作业需要3个评审
 
-        for (Homework homework : homeworks) {
-            Set<Student> assignedReviewers = new HashSet<>();
-
-            while (assignedReviewers.size() < 3) { // 假设每个作业需要3个评审
                 Student randomStudent = students.get(random.nextInt(students.size()));
 
-                if (!randomStudent.getStudentNum().equals(homework.getStudentNum())) {
-                    assignedReviewers.add(randomStudent);
-                }
-            }
+                Boolean flag = true;
 
-            for (Student reviewer : assignedReviewers) {
-                reviewAssignments.computeIfAbsent(reviewer, k -> new ArrayList<>()).add(homework);
+                for(Student student : students2){
+                    if(randomStudent.getStudentNum().equals(student.getStudentNum())){
+                        flag = false;
+                    }
+                }
+                if (flag && !randomStudent.getStudentNum().equals(studentNum)) {
+                    assignedReviewers.add(randomStudent);
+                    students2.add(randomStudent);
             }
         }
-
+            for (Student reviewer : assignedReviewers) {
+                for(Homework homework1 : homeworks){
+                    if(reviewer.getStudentNum().equals(homework1.getStudentNum())){
+                        reviewAssignments.add(homework1);
+                    }
+                }
+            }
         return reviewAssignments;
     }
 
     public List<Homework> getHomeworkByCourseIdAndHomeworkNum(int homeworkNum, long courseId) {
        return homeworkRepository.findByCourseIdAndHomeworkNum(courseId,homeworkNum);
+    }
+
+    public void save(Homework homework) {
+        homeworkRepository.save(homework);
     }
 }
