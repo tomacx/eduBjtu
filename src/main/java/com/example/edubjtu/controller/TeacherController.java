@@ -253,6 +253,15 @@ public class TeacherController {
         return ResponseEntity.ok(responseMap);
     }
 
+    //老师查看作业详情
+    @GetMapping
+    @ResponseBody
+    public ResponseEntity<Map<String, Object>> getStudentHomework(@RequestParam int homeworkNum,@RequestParam long courseId) {
+        List<Homework> homeworkList = homeworkService.getHomeworkByCourseIdAndHomeworkNum(homeworkNum,courseId);
+        Map<String, Object> responseMap = new HashMap<>();
+        responseMap.put("homeworkList", homeworkList);
+        return ResponseEntity.ok(responseMap);
+    }
     // 解析 deadline 字符串为 Date 类型，使用 ISO 8601 格式--done
     private Date parseDeadline(String deadline) {
         try {
@@ -345,7 +354,6 @@ public class TeacherController {
         responseMap.put("message", "帖子发送成功");
         return ResponseEntity.ok(responseMap);
     }
-
 
 
     //TODO:增加老师查看选课学生的功能

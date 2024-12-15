@@ -107,7 +107,6 @@ public class HomeWorkService {
 
 
     //TODO: 随机分配作业
-
     public Map<Student, List<Homework>> HomeworkReviewsRandomly(Long courseId, Integer homeworkNum) {
         List<Homework> homeworks = homeworkRepository.findByCourseIdAndHomeworkNum(courseId,homeworkNum);
         List<Student> students = studentRepository.findByCourseId(courseId);
@@ -133,5 +132,9 @@ public class HomeWorkService {
         }
 
         return reviewAssignments;
+    }
+
+    public List<Homework> getHomeworkByCourseIdAndHomeworkNum(int homeworkNum, long courseId) {
+       return homeworkRepository.findByCourseIdAndHomeworkNum(courseId,homeworkNum);
     }
 }
