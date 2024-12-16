@@ -14,7 +14,7 @@ import java.util.Optional;
 public interface FavoriteRepository extends JpaRepository<Favorite, Long> {
     // 收藏的帖子
     @Query("""
-        SELECT new com.example.edubjtu.dto.MyFavouritePosts(f.favoriteId,p.title, c.name, p.likeNum, p.favoNum, p.content, fi.favoriteName) 
+        SELECT new com.example.edubjtu.dto.MyFavouritePosts(p.postId,f.favoriteId,p.title, c.name, p.likeNum, p.favoNum, p.content, fi.favoriteName) 
         FROM Favorite f 
         JOIN Post p ON f.postId = p.postId 
         JOIN Course c ON c.courseId = p.courseId 
