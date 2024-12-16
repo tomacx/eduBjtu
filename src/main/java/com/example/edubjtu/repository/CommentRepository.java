@@ -38,7 +38,7 @@ public interface CommentRepository extends CrudRepository<Comment, Integer> {
          END \
     )
     from Comment p
-    join Student s on s.studentNum = p.commentedNum
+    left join Student s on s.studentNum = p.commentedNum
     left join Student s2 on s2.id = p.studentId
     left join Teacher t on t.id = p.teacherId
     where p.postId = :postId

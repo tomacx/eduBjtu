@@ -295,16 +295,17 @@ public class StudentController {
                                                            ) {
         Map<String, Object> responseMap = new HashMap<>();
         Post post = postService.getPostById(postId);
+        String deContent =  URLDecoder.decode(content, StandardCharsets.UTF_8);
         //由后端判断回复的帖子是老师的还是学生的
-        Optional<Student> commentedStudent = studentService.findStudentById(post.getStudentId());
         //评论的学生
         Student student = studentService.findStudentByStudentNum(studentNum);
-        if (commentedStudent.isPresent()) {
+        if (post.getStudentId()!=null) {
+            Optional<Student> commentedStudent = studentService.findStudentById(post.getStudentId());
             Comment comment = new Comment();
             comment.setPostId(postId);
             comment.setLikeNum(0);
             comment.setCommentedNum(commentedStudent.get().getStudentNum());
-            comment.setContent(content);
+            comment.setContent(deContent);
             comment.setStudentId(student.getId());
             commentService.saveComment(comment);
             responseMap.put("message", "评论发送成功");
@@ -318,7 +319,7 @@ public class StudentController {
                 comment.setPostId(postId);
                 comment.setLikeNum(0);
                 comment.setCommentedNum(commentedTeacher.get().getTeacherNum());
-                comment.setContent(content);
+                comment.setContent(deContent);
                 comment.setStudentId(student.getId());
                 commentService.saveComment(comment);
                 responseMap.put("message", "评论发送成功");

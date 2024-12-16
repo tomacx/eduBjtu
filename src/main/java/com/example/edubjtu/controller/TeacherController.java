@@ -207,7 +207,7 @@ public class TeacherController {
 
     }
 
-    //TODO 增加老师上传作业的功能 待连接前端
+    // 增加老师上传作业的功能 待连接前端
     @PostMapping("/course/{courseId}/uploadHomework")
     @ResponseBody
     public ResponseEntity<Map<String, Object>> uploadHomework(
@@ -415,17 +415,18 @@ public class TeacherController {
                                                            @RequestParam("content") String content
     ) {
         Map<String, Object> responseMap = new HashMap<>();
+        String deContent =  URLDecoder.decode(content, StandardCharsets.UTF_8);
         Post post = postService.getPostById(postId);
         //由后端判断回复的帖子是老师的还是学生的
-        Optional<Student> commentedStudent = studentService.findStudentById(post.getStudentId());
         //评论的老师
         Teacher teacher = teacherService.findTeacherByTeacherNum(teacherNum);
-        if (commentedStudent.isPresent()) {
+        if (post.getStudentId()!=null) {
+            Optional<Student> commentedStudent = studentService.findStudentById(post.getStudentId());
             Comment comment = new Comment();
             comment.setPostId(postId);
             comment.setLikeNum(0);
             comment.setCommentedNum(commentedStudent.get().getStudentNum());
-            comment.setContent(content);
+            comment.setContent(deContent);
             comment.setTeacherId(teacher.getId());
             commentService.saveComment(comment);
             responseMap.put("message", "评论发送成功");
@@ -439,7 +440,7 @@ public class TeacherController {
                 comment.setPostId(postId);
                 comment.setLikeNum(0);
                 comment.setCommentedNum(commentedTeacher.get().getTeacherNum());
-                comment.setContent(content);
+                comment.setContent(deContent);
                 comment.setTeacherId(teacher.getId());
                 commentService.saveComment(comment);
                 responseMap.put("message", "评论发送成功");
@@ -503,40 +504,7 @@ public class TeacherController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(responseMap);
         }
     }
-    //TODO:老师上传帖子
-    @PostMapping("/post")
-    @ResponseBody
-    public ResponseEntity<Map<String, Object>> uploadPost(@RequestParam("courseId") Long courseId,
-                                                          @RequestParam("title") String title,
-                                                          @RequestParam("content") String content,
-                                                          HttpSession session) {
-        Map<String, Object> responseMap = new HashMap<>();
-        Teacher teacher = (Teacher) session.getAttribute("loggedInTeacher");
-        if (teacher != null) {
-            try {
-                // 创建一个新的Post对象
-                Post post = new Post();
-                post.setCourseId(courseId);
-                post.setTeacherId(teacher.getId());
-                post.setTitle(title);
-                post.setContent(content);
 
-                // 使用PostService保存帖子
-                postService.savePost(post);
-
-                responseMap.put("message", "帖子上传成功");
-                responseMap.put("postId", post.getPostId());
-                return ResponseEntity.ok(responseMap);
-            } catch (Exception e) {
-                logger.error("帖子上传失败", e);
-                responseMap.put("error", "帖子上传失败");
-                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(responseMap);
-            }
-        } else {
-            responseMap.put("error", "未登录，请重新登录");
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(responseMap);
-        }
-    }
     //TODO:增加老师查看帖子的功能
     @GetMapping("/course/{courseId}/posts")
     @ResponseBody
@@ -599,87 +567,6 @@ public class TeacherController {
             responseMap.put("error", "未登录，请重新登录");
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(responseMap);
         }
-    }
-
-    //TODO:增加老师批阅作业的功能（包括下载作业资源）
-    @PostMapping("/gradeHomework")
-    @ResponseBody
-    public ResponseEntity<Map<String, Object>> gradeHomework(@RequestParam("homeworkNum") Integer homeworkNum,
-                @RequestParam("studentNum") String studentNum,
-                @RequestParam("score") Integer score){
-            Map<String, Object> responseMap = new HashMap<>();
-            try {
-                homeworkService.gradeStudentHomework(homeworkNum, studentNum, score);
-                responseMap.put("message", "作业批阅成功");
-                return ResponseEntity.ok(responseMap);
-            } catch (IllegalArgumentException e) {
-                responseMap.put("error", e.getMessage());
-                return ResponseEntity.badRequest().body(responseMap);
-            } catch (IOException e) {
-                responseMap.put("error", "批阅作业失败: " + e.getMessage());
-                return ResponseEntity.status(500).body(responseMap);
-            }
-        }
-
-    //TODO:增加教师端查看成绩统计的功能
-
-
-
-    //TODO:发送评论(给贴子评论)
-    @PostMapping("/post/{postId}/comment")
-    @ResponseBody
-    public ResponseEntity<Map<String, Object>> sendComment(@PathVariable Long postId,
-                                                           @RequestParam("content") String content,
-                                                           HttpSession session) {
-        Map<String, Object> responseMap = new HashMap<>();
-        Teacher teacher = (Teacher) session.getAttribute("loggedInTeacher");
-        if (teacher == null) {
-            responseMap.put("error", "未登录，请重新登录");
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(responseMap);
-        }
-
-        Comment comment = new Comment();
-        comment.setPostId(postId);
-        comment.setStudentId(teacher.getId());
-        comment.setContent(content);
-        commentService.saveComment(comment);
-
-        responseMap.put("message", "评论发送成功");
-        responseMap.put("commentId", comment.getCommentId());
-        return ResponseEntity.ok(responseMap);
-    }
-    // 回复评论的评论
-    @PostMapping("/{commentId}/reply")
-    @ResponseBody
-    public ResponseEntity<Map<String, Object>> replyToComment(@PathVariable Long commentId,
-    @RequestParam("content") String content,
-    HttpSession session) {
-        Map<String, Object> responseMap = new HashMap<>();
-        Teacher teacher = (Teacher) session.getAttribute("loggedInTeacher");
-        if (teacher == null) {
-            responseMap.put("error", "未登录，请重新登录");
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(responseMap);
-        }
-        //新建一个回复的模型
-        Comment reply = new Comment();
-        Comment comment = commentService.getCommentById(commentId);
-        if(comment.getStudentId() != null) {
-            Optional<Student> student1 = studentService.findStudentById(comment.getStudentId());
-            reply.setCommentedNum(student1.get().getStudentNum());
-
-        }else if(comment.getTeacherId() != null) {
-            Optional<Teacher> teacher1 = teacherService.findTeacherById(comment.getTeacherId());
-            reply.setCommentedNum(teacher1.get().getTeacherNum());
-        }
-
-        reply.setTeacherId(teacher.getId());
-        reply.setPostId(comment.getPostId());
-        reply.setContent(content);
-        commentService.saveComment(reply);
-
-        responseMap.put("message", "回复发送成功");
-        responseMap.put("replyId", reply.getCommentId());
-        return ResponseEntity.ok(responseMap);
     }
 }
 
