@@ -281,13 +281,21 @@ public class StudentController {
     public ResponseEntity<Map<String, Object>> sendPost(@RequestParam("courseId") Long courseId,
                                                         @RequestParam("title") String title,
                                                         @RequestParam("content") String content,
-                                                        @RequestParam("studentNum") String studentNum
-                                                        ){
+                                                        @RequestParam("studentNum") String studentNum) {
         Map<String, Object> responseMap = new HashMap<>();
+
         // URL 解码，使用 UTF-8 编码
         String decodedTitle = URLDecoder.decode(title, StandardCharsets.UTF_8);
         String decodedContent = URLDecoder.decode(content, StandardCharsets.UTF_8);
+
+        // 查询学生信息
         Student student = studentService.findStudentByStudentNum(studentNum);
+        if (student == null) {
+            responseMap.put("error", "学生信息未找到");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(responseMap);
+        }
+
+        // 创建帖子对象
         Post post = new Post();
         post.setCourseId(courseId);
         post.setStudentId(student.getId());
@@ -295,21 +303,33 @@ public class StudentController {
         post.setContent(decodedContent);
         post.setFavoNum(0L);
         post.setLikeNum(0L);
-        postService.savePost(post);
+
+        // 查找课程并获取教师信息
         Optional<Course> course = courseService.findCourseById(courseId);
         if (course.isPresent()) {
-            Long teacherId = course.get().getTeacher().getId();
-            System.out.println("Teacher ID: " + teacherId);
-            post.setTeacherId(teacherId);
+            if (course.get().getTeacher() != null) {
+                Long teacherId = course.get().getTeacher().getId();
+                System.out.println("Teacher ID: " + teacherId);
+                post.setTeacherId(teacherId); // 确保教师信息不为空
+            } else {
+                // 如果课程没有教师，返回错误信息
+                responseMap.put("error", "该课程没有分配教师");
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(responseMap);
+            }
         } else {
-            System.out.println("Course not found.");
+            // 如果课程不存在
+            responseMap.put("error", "课程未找到");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(responseMap);
         }
 
+        // 保存帖子信息
         postService.savePost(post);
 
+        // 返回成功消息
         responseMap.put("message", "帖子发送成功");
         return ResponseEntity.ok(responseMap);
     }
+
 
     //发送评论--done
     @PostMapping("/post/setComment")
