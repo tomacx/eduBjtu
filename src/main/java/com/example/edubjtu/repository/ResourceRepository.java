@@ -39,4 +39,8 @@ public interface ResourceRepository extends JpaRepository<Resource, Long> {
            select r from Resource r where r.homework.homeworkId = :homeworkId
         """)
     Resource findByHomeworkId(@Param("homeworkId")Long homeworkId);
+@Query(value = """
+    select r from Resource r where r.course.courseId = :courseId and r.homeworkResource=:homeworkNum
+""")
+    Optional<Resource> findHomeworkAttachement(Long courseId, Long homeworkNum);
 }

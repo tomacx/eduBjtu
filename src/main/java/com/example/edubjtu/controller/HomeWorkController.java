@@ -1,5 +1,7 @@
 package com.example.edubjtu.controller;
 
+import com.example.edubjtu.model.Resource;
+import org.springframework.http.ResponseEntity;
 import org.springframework.ui.Model;
 import com.example.edubjtu.model.Homework;
 import com.example.edubjtu.service.HomeWorkService;
@@ -12,6 +14,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 @Controller
 public class HomeWorkController {
@@ -38,4 +41,6 @@ public class HomeWorkController {
         modelMap.put("homework", homework);
         return modelMap;
     }
+
+
 }

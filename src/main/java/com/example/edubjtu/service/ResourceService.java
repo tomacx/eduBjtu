@@ -62,7 +62,6 @@ public class ResourceService {
         resources.setFilePath(filePath.toString());
         resources.setFileType(file.getContentType());
         resources.setHomeworkResource(homeworkNum);
-        resources.setHomeworkResource(1);
         resourceRepository.save(resources);
     }
 

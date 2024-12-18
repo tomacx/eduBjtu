@@ -175,6 +175,31 @@ public class StudentController {
     }
 
 
+    // 返回作业附件
+    @GetMapping("/course/homework/attachments")
+    @ResponseBody
+    public ResponseEntity<Map<String, Object>> attachements(@RequestParam Long courseId,@RequestParam Long homeworkNum) {
+        Map<String, Object> modelMap = new HashMap<>();
+        Optional<com.example.edubjtu.model.Resource> resource = homeworkService.getHomeworkAttachement(courseId,homeworkNum);
+        if (resource.isPresent()) {
+            String filePath = resource.get().getFilePath();
+
+            //src\main\resources\static\course\Session_0_Requirements.pptx
+            // 替换路径中的 `src\main` 为 `static`，并将反斜杠替换为正斜杠
+            String adjustedFilePath = filePath.replace("src\\main\\resources\\static\\", "")
+                    .replace("\\", "/");
+
+            // 构造完整的 URL
+            String fileUrl = "http://localhost:8000/" + adjustedFilePath;
+            modelMap.put("URL", fileUrl);
+            String fileType = resource.get().getFileType(); // 获取文件类型信息
+            modelMap.put("fileType", fileType);
+            return ResponseEntity.ok(modelMap);
+        } else {
+            modelMap.put("URL", "Not Found");
+            return ResponseEntity.ok(modelMap);
+        }
+    }
     //删除收藏的post--done
     @DeleteMapping("/deleteCollectionOfPost/{favoriteId}")
     @ResponseBody

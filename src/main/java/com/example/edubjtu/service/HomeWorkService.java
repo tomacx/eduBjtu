@@ -1,5 +1,6 @@
 package com.example.edubjtu.service;
 import com.example.edubjtu.model.Homework;
+import com.example.edubjtu.model.Resource;
 import com.example.edubjtu.model.Student;
 import com.example.edubjtu.repository.HomeworkRepository;
 import com.example.edubjtu.repository.ResourceRepository;
@@ -143,5 +144,9 @@ public class HomeWorkService {
 
     public void save(Homework homework) {
         homeworkRepository.save(homework);
+    }
+
+    public Optional<Resource> getHomeworkAttachement(Long courseId, Long homeworkNum) {
+        return  resourceRepository.findHomeworkAttachement(courseId,homeworkNum);
     }
 }
