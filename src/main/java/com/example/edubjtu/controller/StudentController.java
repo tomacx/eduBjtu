@@ -194,6 +194,7 @@ public class StudentController {
             modelMap.put("URL", fileUrl);
             String fileType = resource.get().getFileType(); // 获取文件类型信息
             modelMap.put("fileType", fileType);
+            modelMap.put("resourceId", resource.get().getId());
             return ResponseEntity.ok(modelMap);
         } else {
             modelMap.put("URL", "Not Found");
