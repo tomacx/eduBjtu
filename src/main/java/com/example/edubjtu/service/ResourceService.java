@@ -8,6 +8,7 @@ import com.example.edubjtu.repository.HomeworkRepository;
 import com.example.edubjtu.repository.ResourceRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -144,10 +145,12 @@ public class ResourceService {
         return resourceRepository.findOutLineByCourse_CourseIdAndCourseOutline(courseId,1);
     }
     //获取课程时间表
-    public Optional<Resource> getCalendarByResourceId(Long courseId) {
+    public Optional<Resource> getCalendarByCourseId(Long courseId) {
         return resourceRepository.findCalendarByCourse_CourseIdAndCourseCalendar(courseId,1);
     }
 
+    @Modifying
+    @Transactional
     public void saveCourseOutLineByTeacher(Long courseId, MultipartFile file) throws IOException {
         String fileName = file.getOriginalFilename();
         Path filePath = Paths.get(uploadCourseResourceDir, fileName);
@@ -155,13 +158,22 @@ public class ResourceService {
         Files.createDirectories(Path.of(uploadCourseResourceDir));
         Files.write(filePath, file.getBytes());
 
+        System.out.println("开始查找课程大纲: {}");
+        Optional<Resource> resource = this.getOutLineByCourseId(courseId);
+        if(resource.isPresent()){
+            resourceRepository.deleteById(resource.get().getId());
+        }
+
+        System.out.println("保存新的课程大纲...");
         Resource resources = new Resource();
         resources.setCourse(courseRepository.findByCourseId(courseId));
         resources.setFilePath(filePath.toString());
         resources.setFileType(file.getContentType());
         resources.setCourseOutline(1);
         resourceRepository.save(resources);
+
     }
+
 
     public void saveCourseCalendarByTeacher(Long courseId, MultipartFile file) throws IOException {
         String fileName = file.getOriginalFilename();
@@ -169,6 +181,10 @@ public class ResourceService {
         // 如果目录不存在，则创建目录
         Files.createDirectories(Path.of(uploadCourseResourceDir));
         Files.write(filePath, file.getBytes());
+        Optional<Resource> resource = this.getCalendarByCourseId(courseId);
+        if(resource.isPresent()){
+            resourceRepository.deleteById(resource.get().getId());
+        }
 
         Resource resources = new Resource();
         resources.setCourse(courseRepository.findByCourseId(courseId));
@@ -197,4 +213,5 @@ public class ResourceService {
         Homework homework = homeworkRepository.findByHomeworkId(homeworkId);
         resourceRepository.deleteByHomework(homework);
     }
+
 }

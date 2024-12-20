@@ -4,6 +4,7 @@ import com.example.edubjtu.dto.ResourceList;
 import com.example.edubjtu.model.Homework;
 import com.example.edubjtu.model.Resource;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
@@ -35,6 +36,7 @@ public interface ResourceRepository extends JpaRepository<Resource, Long> {
 
     void deleteByHomework(Homework homework);
 
+    void deleteById(Long id);
     @Query(value= """
            select r from Resource r where r.homework.homeworkId = :homeworkId
         """)

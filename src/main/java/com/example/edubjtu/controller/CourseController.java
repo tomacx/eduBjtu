@@ -133,7 +133,7 @@ public class CourseController {
     @GetMapping("/course/calendar")
     @ResponseBody
     public ResponseEntity<Map<String,Object>> getCourseCalendar( @RequestParam Long courseId) {
-            Optional<Resource> resource = resourceService.getCalendarByResourceId(courseId);
+            Optional<Resource> resource = resourceService.getCalendarByCourseId(courseId);
             Map<String ,Object> modelMap = new HashMap<>();
             if (resource.isPresent()) {
                 String filePath = resource.get().getFilePath();
