@@ -504,14 +504,10 @@ public class StudentController {
     public ResponseEntity<Map<String,Object>> reviewHomework(@PathVariable Long homeworkId,
                                                              @RequestParam("score") Double score,
                                                              @RequestParam("comments") String comments,
+                                                             @RequestParam("studentNum") String studentNum,
                                                              HttpSession session) {
         Map<String, Object> responseMap = new HashMap<>();
-        Student student = (Student) session.getAttribute("loggedInStudent");
-        if (student == null) {
-            responseMap.put("error", "未登录，请重新登录");
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(responseMap);
-        }
-
+        Student student = studentService.getStudentByStudentNum(studentNum);
         homeworkReviewService.submitReview(homeworkId, student.getId(), score, comments);
         responseMap.put("message", "作业评审成功");
         return ResponseEntity.ok(responseMap);
